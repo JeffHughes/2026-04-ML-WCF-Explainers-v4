@@ -240,10 +240,10 @@
         <li><code>catalog:add-to-cart</code> &mdash; Fired when user clicks "Add to Cart" (consumed by Cart domain)</li>
       </ul>
 
-      <h4>Extraction Priority</h4>
-      <div class="callout success">
-        <strong>Recommended First Extraction</strong>
-        The Catalog domain has the clearest boundaries, the most independent routes, and the highest traffic volume. It's the ideal candidate for the first copy-split-strip extraction.
+      <h4>Extraction Notes</h4>
+      <div class="callout">
+        <strong>Strong Candidate for Early Extraction</strong>
+        The Catalog domain has clear boundaries and independent routes&mdash;likely one of the simpler domains to extract. Final order decided by the domain committee.
       </div>
     </div>
   </details>
@@ -513,8 +513,8 @@
         </tbody>
       </table>
 
-      <h4>Extraction Order</h4>
-      <p>The Core domain is extracted <strong>early</strong> (typically second, after Catalog) because its components are consumed by every other domain. Having Core as an independent, versioned package makes all subsequent domain extractions cleaner.</p>
+      <h4>Extraction Notes</h4>
+      <p>Core components are consumed by every other domain, so extracting Core early makes all subsequent extractions cleaner. Final order decided by the domain committee based on what's simplest first.</p>
     </div>
   </details>
 </section>
@@ -524,19 +524,23 @@
   <h2>Domain Boundaries at a Glance</h2>
   <table class="compare-table">
     <thead>
-      <tr><th>Domain</th><th>Key Pages</th><th>APIs Exposed</th><th>Depends On</th><th>Extraction Order</th></tr>
+      <tr><th>Domain</th><th>Key Pages</th><th>APIs Exposed</th><th>Depends On</th></tr>
     </thead>
     <tbody>
-      <tr><td><strong>Catalog</strong></td><td>PLP, PDP, Categories</td><td>Products, Categories, Search</td><td>Search, Content, Core</td><td class="good">1st</td></tr>
-      <tr><td><strong>Core</strong></td><td>Header, Footer</td><td>Auth, Analytics</td><td>None</td><td class="good">2nd</td></tr>
-      <tr><td><strong>Search</strong></td><td>Search Results</td><td>Query, Suggest, Facets</td><td>Core</td><td class="neutral">3rd</td></tr>
-      <tr><td><strong>Cart</strong></td><td>Cart Page</td><td>Cart CRUD, Promotions</td><td>Catalog, Core</td><td class="neutral">4th</td></tr>
-      <tr><td><strong>Account</strong></td><td>Profile, Orders</td><td>Profile, Orders, Addresses</td><td>Catalog, Core</td><td class="neutral">5th</td></tr>
-      <tr><td><strong>Checkout</strong></td><td>Shipping, Payment</td><td>Checkout Flow</td><td>Cart, Account, Core</td><td class="neutral">6th</td></tr>
-      <tr><td><strong>Content</strong></td><td>CMS Pages, Banners</td><td>Pages, Banners, Campaigns</td><td>Core</td><td class="neutral">7th</td></tr>
-      <tr><td><strong>Admin</strong></td><td>Admin Dashboard</td><td>Management APIs</td><td>All domains</td><td class="bad">Last</td></tr>
+      <tr><td><strong>Catalog</strong></td><td>PLP, PDP, Categories</td><td>Products, Categories, Search</td><td>Search, Content, Core</td></tr>
+      <tr><td><strong>Core</strong></td><td>Header, Footer</td><td>Auth, Analytics</td><td>None</td></tr>
+      <tr><td><strong>Search</strong></td><td>Search Results</td><td>Query, Suggest, Facets</td><td>Core</td></tr>
+      <tr><td><strong>Cart</strong></td><td>Cart Page</td><td>Cart CRUD, Promotions</td><td>Catalog, Core</td></tr>
+      <tr><td><strong>Account</strong></td><td>Profile, Orders</td><td>Profile, Orders, Addresses</td><td>Catalog, Core</td></tr>
+      <tr><td><strong>Checkout</strong></td><td>Shipping, Payment</td><td>Checkout Flow</td><td>Cart, Account, Core</td></tr>
+      <tr><td><strong>Content</strong></td><td>CMS Pages, Banners</td><td>Pages, Banners, Campaigns</td><td>Core</td></tr>
+      <tr><td><strong>Admin</strong></td><td>Admin Dashboard</td><td>Management APIs</td><td>All domains</td></tr>
     </tbody>
   </table>
+  <div class="callout">
+    <strong>Extraction Order: Simplest First, Hardest Last</strong>
+    <p>The actual extraction order will be determined by complexity&mdash;we start with whichever domain has the fewest dependencies and clearest boundaries, and work our way toward the most coupled. The domain committee decides the sequence when the time comes.</p>
+  </div>
 </section>
 
 <!-- Key Principles -->
