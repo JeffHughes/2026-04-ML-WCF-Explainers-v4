@@ -182,7 +182,7 @@
       <p>Rollback: Turn off the catalog. Nothing else changes.</p>
 
       <h4>Phase 4: Component Evolution</h4>
-      <p>Risk: Low, incremental. Components are migrated one at a time from React to WCFramework. Each migration is a self-contained change within a single domain. Other domains are unaffected.</p>
+      <p>Risk: Low, incremental. React components are wrapped first, then teams can incrementally migrate to WCFramework, keep using React, use plain vanilla JS, or whatever is easiest for them and their components. Each change is self-contained within a single domain. Other domains are unaffected.</p>
       <p>Rollback: Revert the component PR. The wrapped React version continues to work.</p>
     </div>
   </details>
@@ -203,7 +203,7 @@
       <tr><td>Kubernetes Infrastructure</td><td class="good">No</td><td>Same K8s clusters, same deployment patterns, same monitoring stack</td></tr>
       <tr><td>Team Structure</td><td class="neutral">Evolves</td><td>Teams become domain owners instead of feature teams. Same people, clearer boundaries.</td></tr>
       <tr><td>Shell Technology</td><td class="bad">Yes</td><td>Next.js SSR shell replaced with standards-based Web Component shell</td></tr>
-      <tr><td>Component Framework</td><td class="neutral">Gradual</td><td>React components wrapped first, then incrementally migrated to WCFramework</td></tr>
+      <tr><td>Component Framework</td><td class="neutral">Team's Choice</td><td>React components wrapped first, then teams migrate to WCFramework, keep React, use plain vanilla JS&mdash;whatever is easiest for them and their components</td></tr>
       <tr><td>Deployment Coupling</td><td class="bad">Yes</td><td>Shared pipeline replaced with independent domain pipelines</td></tr>
     </tbody>
   </table>
