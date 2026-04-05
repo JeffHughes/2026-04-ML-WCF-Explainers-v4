@@ -33,12 +33,17 @@
 
 <main>
 
+<div class="callout">
+  <strong>&#128279; Foundation Reference</strong>
+  This page expands on the component standards introduced in <a href="14-component-standards.html">Component Standards</a>. For the specification details (naming conventions, interface contracts, lifecycle hooks), see that page.
+</div>
+
 <!-- ═══════════════════════════════════════════════════════════════════
      SECTION 1: Framework-Agnostic by Design
      ═══════════════════════════════════════════════════════════════════ -->
 <section>
   <h2>&#9633; Framework-Agnostic by Design</h2>
-  <p>Web Components are the universal container. A <code>&lt;ml-product-card&gt;</code> element can host <em>anything</em> inside its Shadow DOM&mdash;a React render tree, a Vue instance, a Svelte component, plain vanilla JS, or whatever framework appears in 2028. The shell doesn&#8217;t care. The contract is standard: <strong>HTML attributes in, DOM events out.</strong> Inside can be anything the team finds productive.</p>
+  <p>Web Components are the universal container. Using the standard contract described in <a href="14-component-standards.html">Component Standards</a>&mdash;attributes in, events out, Shadow DOM isolation&mdash;a <code>&lt;ml-product-card&gt;</code> element can host <em>anything</em> inside its Shadow DOM: a React render tree, a Vue instance, a Svelte component, plain vanilla JS, or whatever framework appears in 2028. The shell doesn&#8217;t care. Inside can be anything the team finds productive.</p>
   <p>But this system <strong>prefers</strong> plain vanilla, HTML-first MV* Web Components over virtual-DOM framework abstractions. Here are twelve concrete reasons why:</p>
 
   <div class="themes-grid">
@@ -336,7 +341,7 @@
 
   <div class="industry-std">
     <strong>Industry Standard: Enterprise Component Model</strong>
-    When GitHub, Salesforce, Adobe, SAP, ING, Google, Microsoft, and Red Hat all independently choose the same technology for their enterprise-scale component systems, that represents industry convergence. These companies serve hundreds of millions of users, manage thousands of developers, and need components that last a decade. They all chose the platform.
+    Beyond the companies cited in <a href="14-component-standards.html">Component Standards</a> (GitHub, Salesforce, Adobe, SAP), ING Bank, Google, Microsoft, and Red Hat have also independently adopted Web Components for their enterprise platforms. Eight major organizations serving hundreds of millions of users all converged on the same standard. That&#8217;s not a trend — that&#8217;s the industry settling on the right answer.
   </div>
 </section>
 
@@ -487,7 +492,7 @@
 
   <div class="industry-std">
     <strong>Industry Standard: Domain-Driven Component Architecture</strong>
-    The combination of domain-driven design, Web Component boundaries, and import-map versioning is the architecture pattern used by GitHub, Salesforce, and SAP for their largest platforms. It enables autonomous teams, independent deployments, and zero-coordination upgrades at enterprise scale.
+    The combination of domain-driven design, Web Component boundaries, and import-map versioning (as described in <a href="14-component-standards.html">Component Standards</a>) enables autonomous teams, independent deployments, and zero-coordination upgrades at enterprise scale.
   </div>
 </section>
 

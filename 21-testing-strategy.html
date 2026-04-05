@@ -194,7 +194,7 @@ describe('product-card', () => {
 <!-- ═══ Section 3: Contract Testing Deep Dive ═══ -->
 <section>
   <h2>Contract Testing: The Boundary Guardian</h2>
-  <p>Contracts are the <strong>single most important testing innovation</strong> in this architecture. They replace the need for full-stack integration tests by verifying that each side of an API boundary honors the agreed-upon shape.</p>
+  <p>Contract testing (covered in <a href="17-api-scanning.html">API Scanning</a> and <a href="17b-data-contracts.html">Data Contracts</a>) ensures domains can evolve independently without breaking each other. In the testing context, contracts replace the need for full-stack integration tests by verifying that each side of an API boundary honors the agreed-upon shape.</p>
 
   <h3>Contract Testing Flow</h3>
   <div class="mermaid-wrap" id="d21-2">
@@ -228,8 +228,7 @@ describe('product-card', () => {
   </div>
 
   <div class="industry-std">
-    <strong>Industry Standard: Consumer-Driven Contracts</strong>
-    Consumer-driven contract testing (pioneered by Pact and adopted by organizations like Atlassian, ING Bank, and the UK Government Digital Service) is the proven approach for testing service boundaries without end-to-end integration environments. It scales linearly with the number of services.
+    See <a href="17-api-scanning.html">API Scanning</a> for the contract testing standard (Pact, consumer-driven contracts).
   </div>
 
   <h3>Why Contracts Reduce Cross-Domain Testing</h3>

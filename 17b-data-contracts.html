@@ -55,10 +55,7 @@
 <!-- ────────────────────────────────────────── -->
 <section>
   <h2>&#9633; What Is a Data Contract?</h2>
-  <p>A data contract is a <strong>formal agreement about the shape of data</strong> that flows between two systems. Nothing more, nothing less. No ambiguity, no assumptions, no &ldquo;I think the response looks like this.&rdquo;</p>
-  <p>A contract says: <em>&ldquo;I will send you an object with these fields, these types, and these constraints.&rdquo;</em></p>
-  <p>A contract also says: <em>&ldquo;If I change this shape, I will tell you in advance and give you time to adapt.&rdquo;</em></p>
-  <p>In this architecture, every piece of data that crosses a boundary &mdash; between a BFF and a frontend, between domains on the message bus, between a parent page and a child component &mdash; is governed by a typed, versioned, machine-readable contract.</p>
+  <p>Building on the API contract scanning covered in <a href="17-api-scanning.html">API Scanning</a>, data contracts formalize these interfaces across three layers: <strong>API contracts</strong>, <strong>event contracts</strong>, and <strong>component contracts</strong>. Every piece of data that crosses a boundary &mdash; BFF to frontend, domain to message bus, parent page to child component &mdash; is governed by a typed, versioned, machine-readable contract.</p>
 
   <h3>Three Types of Contracts</h3>
   <p>The platform defines three distinct contract types, each governing a different communication boundary:</p>
@@ -110,24 +107,13 @@
 <!-- ────────────────────────────────────────── -->
 <section>
   <h2>&#9635; Why Contracts Matter at Scale</h2>
-  <p>With 8&ndash;12 independent domain applications, each with its own BFF, its own events, and its own component library &mdash; contracts are the <strong>only thing preventing chaos</strong>.</p>
-
-  <h3>Without Contracts</h3>
-  <p>Team A changes their API response shape on Wednesday. Team B&rsquo;s frontend, which depends on that shape, deploys on Thursday. The page breaks in production. Team B spends Friday debugging. Team A didn&rsquo;t even know Team B was consuming that endpoint.</p>
-
-  <h3>With Contracts</h3>
-  <p>Team A&rsquo;s change is detected <strong>before deployment</strong>. The App Catalog identifies all consumers of that endpoint. Team B is notified automatically. A migration plan is agreed upon. The breaking change ships only after all consumers have adapted.</p>
-
-  <div class="callout success">
-    <strong>Contracts Replace Coordination</strong>
-    Instead of meetings about what changed, the system tells us. Instead of Slack threads asking &ldquo;did anyone update the response?&rdquo; the contract diff shows us exactly what moved. Contracts turn human coordination into machine enforcement.
-  </div>
+  <p>With 8&ndash;12 independent domain applications, each with its own BFF, its own events, and its own component library &mdash; contracts are the <strong>only thing preventing chaos</strong>. The same contract-diff and breaking-change detection described in <a href="17-api-scanning.html">API Scanning</a> applies here &mdash; extended to events and components, not just HTTP endpoints.</p>
 
   <p>At the scale of this platform &mdash; dozens of BFF endpoints, hundreds of events, thousands of component instances &mdash; human coordination simply does not scale. Contracts do.</p>
 
   <div class="industry-std">
-    <strong>Industry Standard: Schema Registries in Distributed Systems</strong>
-    Every major event-driven architecture (Apache Kafka with Confluent Schema Registry, AWS EventBridge with schema discovery, Azure Event Grid with schema validation) uses centralized schema registries to enforce contract compliance at runtime. This architecture applies the same principle across APIs, events, and components.
+    <strong>Industry Standard: Event Contract Standards &amp; Schema Registries</strong>
+    Centralized schema registries (Confluent, AWS Glue, Apicurio) combined with AsyncAPI &mdash; the OpenAPI equivalent for event-driven architectures &mdash; provide machine-readable event contract definitions that enable automated validation, code generation, and documentation. See <a href="17-api-scanning.html">API Scanning</a> for the broader contract testing standard.
   </div>
 </section>
 
@@ -247,10 +233,6 @@
     <div class="mw-caption">Figure 17b-3: Event contract flow &mdash; schema validation at publish, delivery via message bus, consumer-side validation with dead letter queue for mismatches</div>
   </div>
 
-  <div class="industry-std">
-    <strong>Industry Standard: AsyncAPI and Schema Registries</strong>
-    AsyncAPI is the OpenAPI equivalent for event-driven architectures. Combined with schema registries (Confluent, AWS Glue, Apicurio), it provides machine-readable event contract definitions that enable automated validation, code generation, and documentation &mdash; exactly the pattern this platform implements.
-  </div>
 </section>
 
 <!-- ────────────────────────────────────────── -->
@@ -341,7 +323,7 @@
   </ul>
 
   <h3>Change-Mod Scripts</h3>
-  <p>When a MAJOR bump occurs, the publishing team provides change-mod scripts &mdash; automated codemods that update consumer code to adapt to the new contract shape. This reduces the migration burden from &ldquo;read the changelog and refactor manually&rdquo; to &ldquo;run the script and verify.&rdquo;</p>
+  <p>When a MAJOR bump occurs, the publishing team provides <strong>change-mod scripts</strong> &mdash; automated codemods that update consumer code to match the new contract shape (run the script, verify the diff, deploy).</p>
 
   <table class="compare-table">
     <thead>
@@ -460,8 +442,7 @@
   </div>
 
   <div class="industry-std">
-    <strong>Industry Standard: Consumer-Driven Contract Testing</strong>
-    Automated contract testing (Pact, Spring Cloud Contract, Specmatic) is the industry standard for service integration in microservice architectures. These tools verify that providers honor the contracts consumers depend on &mdash; before deployment, not after incidents. This platform extends the same principle to events and components, not just HTTP APIs.
+    See <a href="17-api-scanning.html">API Scanning</a> for the contract testing standard (Pact, consumer-driven contracts).
   </div>
 </section>
 

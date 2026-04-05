@@ -164,7 +164,7 @@
 <!-- ────────────────────────────────────────── -->
 <section>
   <h2>Change-Mod Scripts</h2>
-  <p>Change-mod scripts are the engine that removes friction from version upgrades. They are automatically generated, context-specific scripts that apply known-good transformations to update a domain&rsquo;s component versions.</p>
+  <p>Change-mod scripts (introduced in <a href="17b-data-contracts.html">Data Contracts</a>) automate the mechanical work of adapting to contract changes. In the drift-management context, they are automatically generated and context-specific for each domain&rsquo;s version gap.</p>
 
   <div class="mermaid-wrap" id="d19-2">
     <div class="mw-toolbar">
@@ -269,7 +269,7 @@
         <li>Upgrade and rollback happen within the domain&rsquo;s deployment pipeline</li>
         <li>No cross-team coordination needed for upgrade or rollback</li>
         <li>Each domain can canary-test upgrades with a percentage of traffic</li>
-        <li>Blue-green deployment ensures zero-downtime upgrades</li>
+        <li>Blue-green deployment (covered in detail in <a href="22-blue-green-rollouts.html">Blue-Green Rollouts</a>) ensures zero-downtime upgrades</li>
       </ul>
     </div>
   </details>
