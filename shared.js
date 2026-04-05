@@ -48,6 +48,93 @@
     var themeBtn = nav.querySelector('.theme-toggle');
     nav.insertBefore(cur, themeBtn);
     nav.insertBefore(menuBtn, themeBtn);
+
+    // Search
+    var searchWrap = document.createElement('div');
+    searchWrap.className = 'nav-search';
+    searchWrap.innerHTML = '<span class="search-icon">&#128269;</span><input type="text" placeholder="Search..." id="navSearchInput">';
+    nav.insertBefore(searchWrap, themeBtn);
+
+    var resultsDiv = document.createElement('div');
+    resultsDiv.className = 'search-results';
+    resultsDiv.id = 'searchResults';
+    document.body.appendChild(resultsDiv);
+
+    var searchIndex = null;
+    var searchInput = document.getElementById('navSearchInput');
+
+    function buildIndex() {
+      if (searchIndex) return Promise.resolve(searchIndex);
+      var links = navLinks.querySelectorAll('a');
+      var promises = [];
+      links.forEach(function(a) {
+        var href = a.getAttribute('href');
+        if (!href || href.startsWith('#')) return;
+        promises.push(
+          fetch(href).then(function(r) { return r.ok ? r.text() : ''; }).then(function(html) {
+            var doc = new DOMParser().parseFromString(html, 'text/html');
+            var main = doc.querySelector('main') || doc.body;
+            var text = main ? main.textContent : '';
+            var title = doc.querySelector('h1');
+            return { href: href, title: title ? title.textContent.trim() : a.textContent.trim(), text: text.replace(/\s+/g, ' ').substring(0, 10000) };
+          }).catch(function() { return null; })
+        );
+      });
+      return Promise.all(promises).then(function(results) {
+        searchIndex = results.filter(Boolean);
+        return searchIndex;
+      });
+    }
+
+    function doSearch(q) {
+      if (!q || q.length < 2) { resultsDiv.classList.remove('open'); return; }
+      buildIndex().then(function(idx) {
+        var lower = q.toLowerCase();
+        var matches = [];
+        idx.forEach(function(page) {
+          var ti = page.title.toLowerCase().indexOf(lower);
+          var bi = page.text.toLowerCase().indexOf(lower);
+          if (ti >= 0 || bi >= 0) {
+            var snippet = '';
+            if (bi >= 0) {
+              var start = Math.max(0, bi - 40);
+              var end = Math.min(page.text.length, bi + q.length + 60);
+              snippet = (start > 0 ? '...' : '') + page.text.substring(start, end) + (end < page.text.length ? '...' : '');
+              var re = new RegExp('(' + q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+              snippet = snippet.replace(re, '<mark>$1</mark>');
+            }
+            matches.push({ href: page.href, title: page.title, snippet: snippet, score: ti >= 0 ? 2 : 1 });
+          }
+        });
+        matches.sort(function(a, b) { return b.score - a.score; });
+        if (matches.length === 0) {
+          resultsDiv.innerHTML = '<div class="sr-empty">No results for &ldquo;' + q + '&rdquo;</div>';
+        } else {
+          resultsDiv.innerHTML = matches.slice(0, 15).map(function(m) {
+            return '<a href="' + m.href + '"><span class="sr-title">' + m.title + '</span>' +
+              (m.snippet ? '<span class="sr-match">' + m.snippet + '</span>' : '') + '</a>';
+          }).join('');
+        }
+        resultsDiv.classList.add('open');
+      });
+    }
+
+    var searchTimer = null;
+    searchInput.addEventListener('input', function() {
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(function() { doSearch(searchInput.value.trim()); }, 250);
+    });
+    searchInput.addEventListener('focus', function() {
+      if (searchInput.value.trim().length >= 2) doSearch(searchInput.value.trim());
+    });
+    document.addEventListener('click', function(e) {
+      if (!searchWrap.contains(e.target) && !resultsDiv.contains(e.target)) {
+        resultsDiv.classList.remove('open');
+      }
+    });
+    searchInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') { resultsDiv.classList.remove('open'); searchInput.blur(); }
+    });
   }
 
   // Mermaid source/copy buttons
