@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How Components Talk &mdash; Medline Platform Evolution</title>
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<div class="progress-bar"></div>
+<nav>
+  <a href="index.html" class="logo">ML Evolution</a>
+  <div class="nav-links">
+    <a href="01-executive-summary.html">Summary</a>
+    <a href="02-current-state.html">Today</a>
+    <a href="03-why-change.html">Why</a>
+    <a href="04-migration-overview.html">Strategy</a>
+    <a href="05-copy-split-strip.html">Copy-Split</a>
+    <a href="05b-component-communication.html" class="active">Comms</a>
+    <a href="06-domain-map.html">Domains</a>
+    <a href="07-catalog-domain.html">Catalog</a>
+    <a href="08-cart-checkout.html">Cart</a>
+    <a href="09-remaining-domains.html">Other</a>
+    <a href="10-shell-architecture.html">Shell</a>
+    <a href="11-shell-swap.html">Swap</a>
+    <a href="12-web-component-wrapping.html">Wrapping</a>
+    <a href="13-hydration-csr.html">CSR</a>
+    <a href="14-component-standards.html">Standards</a>
+    <a href="15-component-transition.html">Transition</a>
+    <a href="16-app-catalog.html">Catalog</a>
+    <a href="17-api-scanning.html">Scanning</a>
+    <a href="18-bff-pattern.html">BFF</a>
+    <a href="19-managing-drift.html">Drift</a>
+    <a href="20-core-cadence.html">Cadence</a>
+    <a href="21-testing-strategy.html">Testing</a>
+    <a href="22-blue-green-rollouts.html">Deploy</a>
+    <a href="23-migration-timeline.html">Timeline</a>
+    <a href="24-team-impact.html">Teams</a>
+    <a href="25-key-principles.html">Principles</a>
+    <a href="dev-environment.html">DevEx</a>
+  </div>
+  <button class="theme-toggle" id="themeToggle" title="Toggle theme">&#9790;</button>
+</nav>
+
+<div class="hero">
+  <div class="page-num">Page 5b &mdash; Communication &amp; State</div>
+  <h1>How Components Talk: Communication &amp; State</h1>
+  <p class="subtitle">The complete guide to inter-component communication, cross-domain messaging, and state management in a domain-driven architecture.</p>
+</div>
+
+<main>
+
+<!-- ====================================================================== -->
+<!-- SECTION 1: Communication Model at a Glance                             -->
+<!-- ====================================================================== -->
+<section>
+  <h2>&#9633; The Communication Model at a Glance</h2>
+  <p>When you split a monolith into independent domains, the first question every architect asks is: <strong>&ldquo;How do the pieces talk to each other?&rdquo;</strong> The answer is four layers, each with clear rules and zero hidden coupling.</p>
+
+  <div class="themes-grid">
+    <div class="theme-card">
+      <div class="theme-icon">&#9635;</div>
+      <h4>Layer 1: Within a Component</h4>
+      <p>Internal state is private. The component manages its own rendering. Nobody outside can reach in. Standard DOM attributes flow in, custom events flow out.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#9634;</div>
+      <h4>Layer 2: Within a Domain</h4>
+      <p>Components in the same domain share state through a lightweight reactive store. The store is scoped to the domain&mdash;invisible to other domains.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#9645;</div>
+      <h4>Layer 3: Between Domains</h4>
+      <p>Domains communicate via a typed message bus built on standard custom events. Fire-and-forget. No direct dependencies. Fully documented contracts.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#9671;</div>
+      <h4>Layer 4: Frontend to Backend</h4>
+      <p>Each domain calls its own BFF (Backend-for-Frontend). Typed data contracts define every request and response. No direct backend calls from components.</p>
+    </div>
+  </div>
+
+  <h3>Three Rules That Govern Everything</h3>
+  <ol>
+    <li><strong>Components communicate via standard DOM:</strong> attributes in, events out. No framework-specific bindings. Pure HTML and JavaScript.</li>
+    <li><strong>Domains communicate via a lightweight message bus:</strong> typed custom events on a shared event target. Explicit, documented, decoupled.</li>
+    <li><strong>Frontend-to-backend uses standardized data contracts via BFF:</strong> each domain owns its data layer. No cross-domain backend calls.</li>
+  </ol>
+
+  <div class="mermaid-wrap" id="d05b-1">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">Fullscreen</button>
+    </div>
+    <div class="mw-view">
+      <div class="mermaid-inner" data-src="graph TB
+  subgraph L1[&quot;Layer 1: Within Component&quot;]
+    direction LR
+    ATTR[HTML Attributes] -->|input| COMP[Web Component]
+    COMP -->|output| EVT[Custom DOM Events]
+  end
+  subgraph L2[&quot;Layer 2: Within Domain&quot;]
+    direction LR
+    C1[Component A] -->|subscribe| STORE[Domain Store]
+    C2[Component B] -->|subscribe| STORE
+    STORE -->|notify| C1
+    STORE -->|notify| C2
+  end
+  subgraph L3[&quot;Layer 3: Between Domains&quot;]
+    direction LR
+    DA[Domain A] -->|publish| BUS[Message Bus]
+    BUS -->|subscribe| DB[Domain B]
+    BUS -->|subscribe| DC[Domain C]
+  end
+  subgraph L4[&quot;Layer 4: Frontend to Backend&quot;]
+    direction LR
+    FE[Domain Frontend] -->|request| BFF[BFF Layer]
+    BFF -->|response| FE
+    BFF -->|call| SVC[Backend Services]
+  end
+  L1 -.-> L2
+  L2 -.-> L3
+  L3 -.-> L4
+  style COMP fill:#58a6ff,stroke:#58a6ff,color:#fff
+  style STORE fill:#d2a8ff,stroke:#d2a8ff,color:#fff
+  style BUS fill:#3fb950,stroke:#3fb950,color:#fff
+  style BFF fill:#f0883e,stroke:#f0883e,color:#fff"></div>
+    </div>
+    <div class="mw-caption">Figure 5b-1: The four-layer communication model &mdash; from component internals to backend services</div>
+  </div>
+
+  <div class="industry-std">
+    <strong>Industry Standard: Layered Communication</strong>
+    Layered communication boundaries are the foundation of every successful micro-frontend architecture. Google, IKEA, Spotify, and Zalando all use this exact pattern: component isolation at the bottom, event-driven messaging between domains, and typed contracts to the backend.
+  </div>
+</section>
+
+<!-- ====================================================================== -->
+<!-- SECTION 2: Within a Component — Attributes and Events                  -->
+<!-- ====================================================================== -->
+<section>
+  <h2>&#9635; Within a Component: Attributes and Events</h2>
+  <p>The foundational communication pattern is the simplest one: a single Web Component receives data through HTML attributes and emits behavior through custom DOM events. This is how the web has worked since day one.</p>
+
+  <h3>Inputs: HTML Attributes and JavaScript Properties</h3>
+  <p>Every Web Component declares the attributes it accepts. Parents set these attributes in HTML&mdash;no special syntax, no framework binding language, just standard markup:</p>
+  <pre><code>&lt;ml-product-card
+  sku="ABC123"
+  name="Exam Gloves, Nitrile"
+  qty="500"
+  in-stock="true"&gt;
+&lt;/ml-product-card&gt;</code></pre>
+  <p>Internally, the component observes attribute changes via <code>attributeChangedCallback</code>&mdash;the W3C-standard lifecycle hook. When a parent updates an attribute, the component re-renders. No virtual DOM diffing, no zone detection, no digest cycle. Just a direct callback.</p>
+
+  <h3>Outputs: Custom DOM Events</h3>
+  <p>When the user interacts with the component&mdash;clicks a button, submits a form, selects an option&mdash;the component dispatches a standard <code>CustomEvent</code>:</p>
+  <pre><code>this.dispatchEvent(new CustomEvent('add-to-cart', {
+  bubbles: true,
+  composed: true,
+  detail: { sku: 'ABC123', qty: 1, unitPrice: 12.50 }
+}));</code></pre>
+  <p>The parent listens with <code>addEventListener</code>&mdash;the same API every developer has used for decades. No framework-specific event binding. No <code>@Output()</code> decorators. No <code>onChange</code> props. Pure DOM.</p>
+
+  <h3>Slots: Projected Content</h3>
+  <p>Web Components use the <code>&lt;slot&gt;</code> element to let parents project content into designated areas:</p>
+  <pre><code>&lt;ml-product-card sku="ABC123"&gt;
+  &lt;div slot="actions"&gt;
+    &lt;ml-add-to-cart-btn sku="ABC123"&gt;&lt;/ml-add-to-cart-btn&gt;
+    &lt;ml-save-for-later-btn sku="ABC123"&gt;&lt;/ml-save-for-later-btn&gt;
+  &lt;/div&gt;
+&lt;/ml-product-card&gt;</code></pre>
+  <p>This is how you compose components without tight coupling. The product card doesn&rsquo;t need to know about the add-to-cart button&rsquo;s implementation. It just provides a slot for actions. Any component can be projected into that slot.</p>
+
+  <div class="mermaid-wrap" id="d05b-2">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">Fullscreen</button>
+    </div>
+    <div class="mw-view">
+      <div class="mermaid-inner" data-src="graph LR
+  subgraph Parent[&quot;Parent Element&quot;]
+    direction TB
+    P[Parent Component]
+  end
+  subgraph WC[&quot;ml-product-card Web Component&quot;]
+    direction TB
+    A[Observed Attributes<br/>sku, name, qty, in-stock] --> R[Render Logic]
+    S[Slot: actions] --> R
+    R --> UI[Shadow DOM UI]
+    UI --> E[CustomEvent: add-to-cart<br/>detail: sku, qty, unitPrice]
+  end
+  P -->|&quot;HTML attributes&quot;| A
+  P -->|&quot;projected content&quot;| S
+  E -->|&quot;addEventListener&quot;| P
+  style WC fill:#161b22,stroke:#58a6ff,color:#e6edf3
+  style P fill:#58a6ff,stroke:#58a6ff,color:#fff
+  style R fill:#d2a8ff,stroke:#d2a8ff,color:#fff
+  style E fill:#3fb950,stroke:#3fb950,color:#fff"></div>
+    </div>
+    <div class="mw-caption">Figure 5b-2: Web Component anatomy &mdash; attributes and slots flow in, custom events flow out</div>
+  </div>
+
+  <div class="industry-std">
+    <strong>Industry Standard: Attributes In, Events Out</strong>
+    The attributes-in/events-out pattern is the W3C-endorsed communication model for Web Components. It mirrors how native HTML elements have always worked&mdash;an <code>&lt;input&gt;</code> accepts a <code>value</code> attribute and dispatches a <code>change</code> event. Web Components simply extend this pattern to custom elements.
+  </div>
+
+  <div class="callout">
+    <strong>Framework Agnostic by Design</strong>
+    Because this pattern uses only standard DOM APIs, any framework can host these components internally. A Web Component could use WCFramework internally, or any other rendering approach. The outside world never needs to know&mdash;it only sees attributes, events, and slots.
+  </div>
+</section>
+
+<!-- ====================================================================== -->
+<!-- SECTION 3: Within a Domain — Shared State                              -->
+<!-- ====================================================================== -->
+<section>
+  <h2>&#9634; Within a Domain: Shared State</h2>
+  <p>Individual components handle their own rendering, but components within the same domain often need to share business state. The Cart page needs to show the same cart items in both the line-item list and the summary totals. This is where the <strong>domain store</strong> comes in.</p>
+
+  <h3>The Domain Store Pattern</h3>
+  <p>Each domain has a lightweight reactive store built on the standard observer pattern:</p>
+  <ul>
+    <li><strong>Single source of truth</strong> for domain-specific business state</li>
+    <li><strong>Observable slices:</strong> components subscribe only to the state they care about</li>
+    <li><strong>Reactive updates:</strong> when state changes, subscribed components re-render automatically</li>
+    <li><strong>Domain-scoped:</strong> the store is private to the domain&mdash;other domains cannot read or write to it</li>
+    <li><strong>No global state library:</strong> no Redux, no NgRx, no MobX. A simple observable pattern with typed interfaces.</li>
+  </ul>
+
+  <h3>Example: The Cart Domain Store</h3>
+  <pre><code>// cart-store.ts — domain-scoped reactive store
+interface CartState {
+  items: CartItem[];
+  subtotal: number;
+  itemCount: number;
+  lastUpdated: number;
+}
+
+class CartStore {
+  private state: CartState = { items: [], subtotal: 0, itemCount: 0, lastUpdated: 0 };
+  private listeners = new Map&lt;string, Set&lt;Function&gt;&gt;();
+
+  select(slice: keyof CartState) {
+    // Returns an observable for a specific slice
+  }
+
+  dispatch(action: CartAction) {
+    // Updates state and notifies only affected subscribers
+  }
+}</code></pre>
+  <p>The <code>ml-cart-summary</code> component subscribes to <code>subtotal</code> and <code>itemCount</code>. The <code>ml-cart-line-item</code> component subscribes to <code>items</code>. When a user changes a quantity, the store updates and only the affected components re-render.</p>
+
+  <div class="mermaid-wrap" id="d05b-3">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">Fullscreen</button>
+    </div>
+    <div class="mw-view">
+      <div class="mermaid-inner" data-src="graph TB
+  subgraph CartDomain[&quot;Cart Domain&quot;]
+    CS[Cart Store<br/>items, subtotal, itemCount]
+    CLI[ml-cart-line-item<br/>subscribes: items] -->|read| CS
+    CSU[ml-cart-summary<br/>subscribes: subtotal, itemCount] -->|read| CS
+    CQI[ml-cart-qty-input<br/>dispatches: UPDATE_QTY] -->|write| CS
+    CS -->|notify items changed| CLI
+    CS -->|notify subtotal changed| CSU
+  end
+  style CS fill:#d2a8ff,stroke:#d2a8ff,color:#fff
+  style CLI fill:#58a6ff,stroke:#58a6ff,color:#fff
+  style CSU fill:#58a6ff,stroke:#58a6ff,color:#fff
+  style CQI fill:#3fb950,stroke:#3fb950,color:#fff"></div>
+    </div>
+    <div class="mw-caption">Figure 5b-3: Cart domain store with selective subscriptions &mdash; each component only re-renders when its slice changes</div>
+  </div>
+
+  <h3>Data Flow: User Updates Quantity</h3>
+  <p>Let&rsquo;s trace a concrete interaction: a user changes the quantity of an item in their cart.</p>
+
+  <div class="mermaid-wrap" id="d05b-4">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">Fullscreen</button>
+    </div>
+    <div class="mw-view">
+      <div class="mermaid-inner" data-src="sequenceDiagram
+  participant User
+  participant QtyInput as ml-cart-qty-input
+  participant Store as Cart Store
+  participant LineItem as ml-cart-line-item
+  participant Summary as ml-cart-summary
+  participant BFF as Cart BFF
+  User->>QtyInput: Changes quantity to 3
+  QtyInput->>Store: dispatch(UPDATE_QTY, sku, 3)
+  Store->>Store: Recalculate subtotal
+  Store->>LineItem: notify(items changed)
+  Store->>Summary: notify(subtotal changed)
+  LineItem->>LineItem: Re-render with qty=3
+  Summary->>Summary: Re-render with new totals
+  Store->>BFF: persist(cart state)
+  BFF-->>Store: confirmed"></div>
+    </div>
+    <div class="mw-caption">Figure 5b-4: Sequence diagram &mdash; user updates cart quantity, store notifies subscribed components, BFF persists</div>
+  </div>
+
+  <div class="industry-std">
+    <strong>Industry Standard: Observable Store Pattern</strong>
+    The reactive observable store is the standard state management pattern across the industry. Whether implemented as a simple <code>EventTarget</code> with typed events or a lightweight library, the pattern is the same: single source of truth, selective subscriptions, and unidirectional data flow. This is how every major platform manages domain state.
+  </div>
+
+  <details>
+    <summary>Deep Dive: Why Not a Global Store? <span class="detail-summary">The case for domain-scoped state</span></summary>
+    <div class="detail-body">
+      <p>Global state management (a single store for the entire application) is the pattern most teams reach for by default. It works well in small applications. It becomes a nightmare at scale:</p>
+      <ul>
+        <li><strong>Invisible dependencies:</strong> Any component can read any state. A component in the Cart domain might accidentally depend on state from the Account domain. When Account refactors, Cart breaks&mdash;and nobody understands why.</li>
+        <li><strong>Testing complexity:</strong> To test a single component, you need to set up the entire global state tree. Mocking becomes a full-time job.</li>
+        <li><strong>Deployment coupling:</strong> If two domains share a global store, they must deploy together to keep the store schema in sync.</li>
+        <li><strong>Performance:</strong> Global stores with 84 MFEs subscribing to the same state tree mean unnecessary re-renders across the entire application on every state change.</li>
+      </ul>
+      <p>Domain-scoped stores eliminate all of these problems. Each domain owns its state. The boundary is clear and enforced.</p>
+    </div>
+  </details>
+</section>
+
+<!-- ====================================================================== -->
+<!-- SECTION 4: Between Domains — The Message Bus                           -->
+<!-- ====================================================================== -->
+<section>
+  <h2>&#9645; Between Domains: The Message Bus</h2>
+  <p>Domains are independent. They have separate repositories, separate deployments, separate stores. But sometimes they need to coordinate. When a user adds an item to the cart, the mini-cart badge in the header needs to update. When checkout confirms an order, the account domain needs to refresh the order history.</p>
+  <p>The answer is a <strong>lightweight message bus</strong>: a shared event target where domains publish and subscribe to typed events.</p>
+
+  <h3>How It Works</h3>
+  <pre><code>// message-bus.ts — the entire cross-domain communication layer
+const bus = new EventTarget();
+
+// Cart domain publishes
+bus.dispatchEvent(new CustomEvent('cart-updated', {
+  detail: { itemCount: 5, subtotal: 62.50 }
+}));
+
+// Mini-Cart domain subscribes
+bus.addEventListener('cart-updated', (e: CustomEvent) =&gt; {
+  updateBadge(e.detail.itemCount);
+});</code></pre>
+
+  <p>That&rsquo;s it. The entire cross-domain communication mechanism is a standard <code>EventTarget</code> with typed <code>CustomEvent</code> payloads. No library, no framework, no magic.</p>
+
+  <h3>The Rules</h3>
+  <ul>
+    <li><strong>Fire-and-forget:</strong> Publishers don&rsquo;t know or care who subscribes. Subscribers don&rsquo;t know who published.</li>
+    <li><strong>No shared state objects:</strong> Events carry data in their payload. There is no shared mutable object between domains.</li>
+    <li><strong>Typed contracts:</strong> Every event has a documented name and payload schema, registered in the App Catalog.</li>
+    <li><strong>No request/response:</strong> The bus is for notifications, not queries. If Domain A needs data from Domain B, it calls its own BFF, which orchestrates backend calls.</li>
+    <li><strong>Loose coupling:</strong> If the Cart domain is removed, the Mini-Cart simply stops receiving events. Nothing crashes. Nothing throws.</li>
+  </ul>
+
+  <h3>Event Contract Example</h3>
+  <table class="compare-table">
+    <thead>
+      <tr><th>Event Name</th><th>Publisher</th><th>Subscribers</th><th>Payload Schema</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>cart-updated</code></td><td>Cart Domain</td><td>Mini-Cart, Analytics</td><td><code>{ itemCount: number, subtotal: number }</code></td></tr>
+      <tr><td><code>order-confirmed</code></td><td>Checkout Domain</td><td>Account, Analytics, Mini-Cart</td><td><code>{ orderId: string, total: number, itemCount: number }</code></td></tr>
+      <tr><td><code>user-authenticated</code></td><td>Auth Shell</td><td>All Domains</td><td><code>{ userId: string, roles: string[] }</code></td></tr>
+      <tr><td><code>search-executed</code></td><td>Search Domain</td><td>Analytics, Catalog</td><td><code>{ query: string, resultCount: number, filters: object }</code></td></tr>
+      <tr><td><code>product-viewed</code></td><td>Catalog Domain</td><td>Analytics, Recommendations</td><td><code>{ sku: string, category: string }</code></td></tr>
+    </tbody>
+  </table>
+
+  <div class="mermaid-wrap" id="d05b-5">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">Fullscreen</button>
+    </div>
+    <div class="mw-view">
+      <div class="mermaid-inner" data-src="graph TB
+  subgraph Shell[&quot;Shell&quot;]
+    BUS[Message Bus<br/>EventTarget]
+  end
+  subgraph CartDomain[&quot;Cart Domain&quot;]
+    CART[Cart Store]
+  end
+  subgraph MiniCartDomain[&quot;Mini-Cart Domain&quot;]
+    MC[ml-mini-cart-badge]
+  end
+  subgraph CheckoutDomain[&quot;Checkout Domain&quot;]
+    CO[Checkout Flow]
+  end
+  subgraph AccountDomain[&quot;Account Domain&quot;]
+    ACC[Order History]
+  end
+  subgraph AnalyticsDomain[&quot;Analytics Domain&quot;]
+    AN[Event Tracker]
+  end
+  CART -->|&quot;cart-updated&quot;| BUS
+  CO -->|&quot;order-confirmed&quot;| BUS
+  BUS -->|&quot;cart-updated&quot;| MC
+  BUS -->|&quot;cart-updated&quot;| AN
+  BUS -->|&quot;order-confirmed&quot;| ACC
+  BUS -->|&quot;order-confirmed&quot;| AN
+  BUS -->|&quot;order-confirmed&quot;| MC
+  style BUS fill:#3fb950,stroke:#3fb950,color:#fff
+  style CART fill:#d2a8ff,stroke:#d2a8ff,color:#fff
+  style CO fill:#f0883e,stroke:#f0883e,color:#fff
+  style MC fill:#58a6ff,stroke:#58a6ff,color:#fff
+  style ACC fill:#58a6ff,stroke:#58a6ff,color:#fff
+  style AN fill:#58a6ff,stroke:#58a6ff,color:#fff"></div>
+    </div>
+    <div class="mw-caption">Figure 5b-5: Message bus topology &mdash; Cart and Checkout publish events, Mini-Cart, Account, and Analytics subscribe independently</div>
+  </div>
+
+  <div class="industry-std">
+    <strong>Industry Standard: Event-Driven Architecture</strong>
+    Event-driven architecture is the industry standard for decoupled communication in distributed systems. From Apache Kafka at LinkedIn to AWS EventBridge at Amazon, every large-scale platform uses publish/subscribe messaging to decouple producers from consumers. Our message bus applies the same principle at the frontend layer.
+  </div>
+
+  <details>
+    <summary>Deep Dive: Add-to-Cart Flow Across Domains <span class="detail-summary">Tracing a user action through the entire system</span></summary>
+    <div class="detail-body">
+      <p>Let&rsquo;s trace what happens when a user clicks &ldquo;Add to Cart&rdquo; on a product detail page. This single user action touches three domains and four communication layers:</p>
+      <ol>
+        <li><strong>Layer 1 (Component):</strong> The <code>ml-add-to-cart-btn</code> dispatches a <code>CustomEvent('add-to-cart', { detail: { sku, qty } })</code></li>
+        <li><strong>Layer 2 (Domain Store):</strong> The Cart domain&rsquo;s event handler catches the event, dispatches an <code>ADD_ITEM</code> action to the Cart Store, which recalculates totals</li>
+        <li><strong>Layer 3 (Message Bus):</strong> The Cart Store publishes a <code>cart-updated</code> event to the message bus with the new <code>itemCount</code> and <code>subtotal</code></li>
+        <li><strong>Layer 3 (Message Bus):</strong> The Mini-Cart domain receives <code>cart-updated</code> and updates the badge count in the header</li>
+        <li><strong>Layer 4 (BFF):</strong> The Cart Store calls the Cart BFF to persist the updated cart to the backend</li>
+      </ol>
+      <p>Five steps. Three domains. Four layers. Zero direct dependencies between domains. If the Mini-Cart domain is unavailable, the cart still works. If analytics is down, the user&rsquo;s experience is unaffected.</p>
+    </div>
+  </details>
+</section>
+
+<!-- ====================================================================== -->
+<!-- SECTION 5: Frontend to Backend — BFF Data Contracts                    -->
+<!-- ====================================================================== -->
+<section>
+  <h2>&#9671; Frontend to Backend: BFF Data Contracts</h2>
+  <p>The final communication layer connects the frontend to backend services. Every domain has its own <strong>BFF (Backend-for-Frontend)</strong>&mdash;a thin service layer that sits between components and backend microservices.</p>
+
+  <h3>Why a BFF?</h3>
+  <p>Components never call backend services directly. Instead, they call their domain&rsquo;s BFF, which handles:</p>
+  <ul>
+    <li><strong>Aggregation:</strong> A single BFF call can fan out to multiple backend services and combine the results</li>
+    <li><strong>Authorization:</strong> The BFF validates tokens and enforces access rules before forwarding requests</li>
+    <li><strong>Response shaping:</strong> The BFF transforms backend responses into exactly the shape the frontend needs&mdash;no over-fetching, no under-fetching</li>
+    <li><strong>Caching:</strong> The BFF can cache frequently-accessed data to reduce backend load and improve response times</li>
+    <li><strong>Versioning:</strong> BFF contracts are versioned. The App Catalog scans them. Breaking changes are detected automatically before deployment.</li>
+  </ul>
+
+  <h3>The Data Contract</h3>
+  <pre><code>// catalog-bff-contracts.ts
+interface ProductDetailRequest {
+  sku: string;
+  includeReviews?: boolean;
+  includeRelated?: boolean;
+}
+
+interface ProductDetailResponse {
+  sku: string;
+  name: string;
+  description: string;
+  price: { amount: number; currency: string };
+  images: { url: string; alt: string }[];
+  availability: 'in-stock' | 'low-stock' | 'out-of-stock';
+  reviews?: ReviewSummary;
+  related?: ProductCard[];
+}</code></pre>
+  <p>These contracts are the <strong>only</strong> coupling between frontend and backend. As long as the contract is honored, either side can refactor freely. The backend team can rewrite their service in a different language. The frontend team can swap component implementations. The contract is the boundary.</p>
+
+  <div class="mermaid-wrap" id="d05b-6">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">Fullscreen</button>
+    </div>
+    <div class="mw-view">
+      <div class="mermaid-inner" data-src="sequenceDiagram
+  participant Comp as ml-product-detail
+  participant Store as Catalog Store
+  participant BFF as Catalog BFF
+  participant ProdSvc as Product Service
+  participant ReviewSvc as Review Service
+  participant RecSvc as Recommendation Service
+  Comp->>Store: requestProductDetail(sku)
+  Store->>BFF: GET /catalog/products/ABC123
+  BFF->>ProdSvc: getProduct(ABC123)
+  BFF->>ReviewSvc: getReviewSummary(ABC123)
+  BFF->>RecSvc: getRelated(ABC123)
+  ProdSvc-->>BFF: product data
+  ReviewSvc-->>BFF: review summary
+  RecSvc-->>BFF: related products
+  BFF->>BFF: Aggregate and shape response
+  BFF-->>Store: ProductDetailResponse
+  Store-->>Comp: Update state
+  Comp->>Comp: Re-render with full data"></div>
+    </div>
+    <div class="mw-caption">Figure 5b-6: BFF request flow &mdash; component requests data via store, BFF aggregates from multiple backend services, returns shaped response</div>
+  </div>
+
+  <div class="industry-std">
+    <strong>Industry Standard: Backend-for-Frontend Pattern</strong>
+    The BFF pattern was pioneered by Sam Newman at ThoughtWorks and is now the standard approach at Netflix, Airbnb, SoundCloud, and hundreds of enterprise platforms. It solves the fundamental mismatch between what backend services provide and what frontend components need, without creating a monolithic API gateway.
+  </div>
+</section>
+
+<!-- ====================================================================== -->
+<!-- SECTION 6: State Boundaries                                            -->
+<!-- ====================================================================== -->
+<section>
+  <h2>&#9632; State Boundaries: What&rsquo;s Shared, What&rsquo;s Private</h2>
+  <p>Clear state boundaries prevent the invisible coupling that kills monoliths. Every piece of state in the system has a defined scope, mechanism, and owner.</p>
+
+  <table class="compare-table">
+    <thead>
+      <tr><th>State Type</th><th>Scope</th><th>Mechanism</th><th>Example</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Component-Private</strong></td>
+        <td>Single component</td>
+        <td>Internal class properties, Shadow DOM</td>
+        <td>Dropdown open/closed, active tab index, scroll position, animation state</td>
+      </tr>
+      <tr>
+        <td><strong>Domain-Scoped</strong></td>
+        <td>All components in one domain</td>
+        <td>Domain reactive store (observer pattern)</td>
+        <td>Cart items and totals, search results, user profile fields</td>
+      </tr>
+      <tr>
+        <td><strong>Cross-Domain</strong></td>
+        <td>Published events only</td>
+        <td>Message bus (typed custom events)</td>
+        <td>Cart item count for badge, order confirmation for account refresh</td>
+      </tr>
+      <tr>
+        <td><strong>URL State</strong></td>
+        <td>Current route</td>
+        <td>Shell router (path params, query strings)</td>
+        <td><code>/catalog/gloves?page=2&amp;sort=price</code>, <code>/account/orders/ORD-9923</code></td>
+      </tr>
+      <tr>
+        <td><strong>Session State</strong></td>
+        <td>Entire application</td>
+        <td>Shell-managed, passed as attributes to domains</td>
+        <td>Auth token, user identity, locale, feature flags</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>The Golden Rule</h3>
+  <div class="callout success">
+    <strong>State Flows Down, Events Flow Up</strong>
+    The shell passes session state down to domains as attributes. Domains pass domain state down to components as attributes. Components dispatch events up. Domains publish events to the bus. Nobody reaches across boundaries to read someone else&rsquo;s state directly.
+  </div>
+
+  <h3>Visual: State Boundaries in the Architecture</h3>
+  <p>This diagram shows exactly where each type of state lives and how the boundaries are enforced:</p>
+
+  <details>
+    <summary>State Boundary Visualization <span class="detail-summary">Detailed architecture diagram</span></summary>
+    <div class="detail-body">
+      <p>The shell owns session state (auth, locale, feature flags) and passes it down as attributes to each domain. Each domain owns its business state in an isolated store. Components own their rendering state privately in Shadow DOM. Cross-domain communication happens exclusively through the message bus&mdash;never through shared objects.</p>
+      <ul>
+        <li><strong>&#9635; Shell layer:</strong> Manages URL routing, session state, and the message bus instance</li>
+        <li><strong>&#9634; Domain layer:</strong> Each domain has an isolated store. The store reads from the BFF and publishes events to the bus.</li>
+        <li><strong>&#9633; Component layer:</strong> Components subscribe to their domain store and manage internal rendering state privately</li>
+      </ul>
+      <p>The key insight: <strong>no state object is ever shared between domains</strong>. Domains share events (data copies), not references. This means Domain A can never hold a stale reference to Domain B&rsquo;s internal state. Every cross-domain interaction is explicit, typed, and documented.</p>
+    </div>
+  </details>
+</section>
+
+<!-- ====================================================================== -->
+<!-- SECTION 7: Why This Works Better Than Global State                     -->
+<!-- ====================================================================== -->
+<section>
+  <h2>&#9656; Why This Works Better Than Global State</h2>
+  <p>The monolith pattern is global state: one giant store, every component can read and write anything. It works fine with 5 components. It becomes unmanageable with 84 micro frontends.</p>
+
+  <h3>The Problem with Global State at Scale</h3>
+  <table class="compare-table">
+    <thead>
+      <tr><th>Aspect</th><th class="bad">Global State (Monolith)</th><th class="good">Domain-Scoped State (Target)</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Dependencies</td>
+        <td>Invisible. Any component can read any state slice. Changes ripple unpredictably.</td>
+        <td>Explicit. Components only access their domain store. Cross-domain uses documented events.</td>
+      </tr>
+      <tr>
+        <td>Testing</td>
+        <td>Must mock the entire global state tree to test one component.</td>
+        <td>Mock only the domain store. Isolated, fast, reliable tests.</td>
+      </tr>
+      <tr>
+        <td>Deployment</td>
+        <td>Store schema changes require synchronized deployments across all consumers.</td>
+        <td>Domain store changes deploy independently. Event contracts are versioned.</td>
+      </tr>
+      <tr>
+        <td>Performance</td>
+        <td>Every state change can trigger re-renders in all 84 MFEs that subscribe.</td>
+        <td>State changes only affect components in the owning domain. Other domains are untouched.</td>
+      </tr>
+      <tr>
+        <td>Debugging</td>
+        <td>&ldquo;Who changed this state?&rdquo; could be any of 84 MFEs. Good luck.</td>
+        <td>State changes come from within the domain or from documented bus events. Clear audit trail.</td>
+      </tr>
+      <tr>
+        <td>Onboarding</td>
+        <td>New developers must understand the entire state tree to work on any feature.</td>
+        <td>New developers learn their domain&rsquo;s store and its event contracts. Scoped, manageable.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="industry-std">
+    <strong>Industry Standard: Bounded Context Communication</strong>
+    Domain-Driven Design (DDD) calls this principle &ldquo;Bounded Contexts.&rdquo; Each domain is a bounded context with its own internal model. Communication between contexts happens through well-defined contracts&mdash;never through shared internal state. This is the pattern used by Amazon&rsquo;s service teams, Spotify&rsquo;s squads, and every successful microservices architecture.
+  </div>
+
+  <h3>The Bottom Line</h3>
+  <div class="callout success">
+    <strong>Explicit Is Always Better Than Implicit</strong>
+    In a domain-scoped architecture, if Cart needs to know something from Checkout, there is a documented event for it in the App Catalog. The contract is typed. The payload is versioned. The subscribers are listed. There is no hidden coupling, no mystery dependencies, no &ldquo;it worked on my machine.&rdquo; Every communication path is visible, testable, and governable.
+  </div>
+
+  <details>
+    <summary>Deep Dive: Migration Path from Global to Domain State <span class="detail-summary">How to get there incrementally</span></summary>
+    <div class="detail-body">
+      <p>You don&rsquo;t need to rip out global state on day one. The migration is incremental:</p>
+      <ol>
+        <li><strong>Identify domain boundaries:</strong> Map which state slices belong to which domain. The domain map (next page) defines these boundaries.</li>
+        <li><strong>Extract domain stores:</strong> For each domain, create a scoped store that owns its state slices. The global store becomes a thin proxy that delegates to domain stores.</li>
+        <li><strong>Replace direct reads with events:</strong> Where domains currently read each other&rsquo;s state directly, introduce message bus events. The consuming domain subscribes to the event and maintains its own local copy of the data it needs.</li>
+        <li><strong>Remove the global store:</strong> Once all state is owned by domain stores and all cross-domain communication uses the bus, the global store can be deleted. Each domain is fully independent.</li>
+      </ol>
+      <p>Each step is independently valuable. Even step 1 alone gives you a clear picture of state ownership that you don&rsquo;t have today.</p>
+    </div>
+  </details>
+</section>
+
+</main>
+
+<div style="max-width:900px;margin:0 auto;padding:0 1.5rem;">
+  <div class="page-nav">
+    <a href="05-copy-split-strip.html"><span class="pn-label">&larr; Previous</span><span class="pn-title">Copy, Split, Strip</span></a>
+    <a href="06-domain-map.html" class="next"><span class="pn-label">Next &rarr;</span><span class="pn-title">The Domain Map</span></a>
+  </div>
+</div>
+
+<footer>Medline Platform Evolution &mdash; v5 &mdash; 2026-04-05 &mdash; Technical Director Series &mdash; Confidential</footer>
+<div class="toast" id="toast">Copied!</div>
+<script src="shared.js"></script>
+</body>
+</html>

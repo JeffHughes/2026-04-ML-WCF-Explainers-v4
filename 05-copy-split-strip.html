@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Copy, Split, Strip &mdash; Medline Platform Evolution</title>
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<div class="progress-bar"></div>
+<nav>
+  <a href="index.html" class="logo">ML Evolution</a>
+  <div class="nav-links">
+    <a href="01-executive-summary.html">Summary</a>
+    <a href="02-current-state.html">Today</a>
+    <a href="03-why-change.html">Why</a>
+    <a href="04-migration-overview.html">Strategy</a>
+    <a href="05-copy-split-strip.html" class="active">Copy-Split</a>
+    <a href="06-domain-map.html">Domains</a>
+    <a href="07-catalog-domain.html">Catalog</a>
+    <a href="08-cart-checkout.html">Cart</a>
+    <a href="09-remaining-domains.html">Other</a>
+    <a href="10-shell-architecture.html">Shell</a>
+    <a href="11-shell-swap.html">Swap</a>
+    <a href="12-web-component-wrapping.html">Wrapping</a>
+    <a href="13-hydration-csr.html">CSR</a>
+    <a href="14-component-standards.html">Standards</a>
+    <a href="15-component-transition.html">Transition</a>
+    <a href="16-app-catalog.html">Catalog</a>
+    <a href="17-api-scanning.html">Scanning</a>
+    <a href="18-bff-pattern.html">BFF</a>
+    <a href="19-managing-drift.html">Drift</a>
+    <a href="20-core-cadence.html">Cadence</a>
+    <a href="21-testing-strategy.html">Testing</a>
+    <a href="22-blue-green-rollouts.html">Deploy</a>
+    <a href="23-migration-timeline.html">Timeline</a>
+    <a href="24-team-impact.html">Teams</a>
+    <a href="25-key-principles.html">Principles</a>
+    <a href="dev-environment.html">DevEx</a>
+  </div>
+  <button class="theme-toggle" id="themeToggle" title="Toggle theme">&#9790;</button>
+</nav>
+
+<div class="hero">
+  <div class="page-num">Migration Mechanics</div>
+  <h1>Copy, Split, Strip: The Safest Migration in the World</h1>
+  <p class="subtitle">Copy the monolith, delete what you don't need, deploy the same code with less of it. Zero risk because it's the same code your teams already trust.</p>
+</div>
+
+<main>
+
+<!-- Why It's the Safest -->
+<section>
+  <h2>Why Copy-Split-Strip Is the Safest Approach</h2>
+  <p>Most migration strategies involve <em>rewriting</em> code. Rewriting is dangerous because new code has new bugs. It hasn't been battle-tested by real traffic. It hasn't survived edge cases that took years to discover.</p>
+  <p>Copy-split-strip is different. You're not writing new code. You're taking code that <strong>already works in production</strong> and removing the parts that don't belong to your domain. The code that runs after the extraction is a <em>subset</em> of the code that was running before. Same logic. Same tests. Same infrastructure. Just less of it.</p>
+
+  <div class="callout success">
+    <strong>The Safety Guarantee</strong>
+    If the monolith works today, the extracted domain works today. You're running the same code with fewer routes, fewer components, and fewer dependencies. The only change is subtraction.
+  </div>
+
+  <div class="industry-std">
+    <strong>Industry-Standard Decomposition</strong>
+    Copy-split-strip is a variant of the "branch by abstraction" technique documented by Paul Hammant and widely used at Google, Facebook, and other large-scale engineering organizations. The key insight: decomposition by <em>subtraction</em> is always safer than decomposition by <em>construction</em>.
+  </div>
+</section>
+
+<!-- The Five Steps -->
+<section>
+  <h2>The Five Steps</h2>
+
+  <div class="mermaid-wrap" id="d05-1">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">Fullscreen</button>
+    </div>
+    <div class="mw-view">
+      <div class="mermaid-inner" data-src="graph LR
+  S1[Step 1\nCOPY\nClone entire repo] --> S2[Step 2\nRENAME\nDomain identity]
+  S2 --> S3[Step 3\nSTRIP\nDelete non-domain code]
+  S3 --> S4[Step 4\nDEPLOY\nSame K8s, same SSR]
+  S4 --> S5[Step 5\nVERIFY\nSame tests, same infra]
+  S5 --> S6[ROUTE\nShift traffic]
+  FB[Fallback: Monolith still running] -.-> S4
+  FB -.-> S5
+  FB -.-> S6
+  style S1 fill:#58a6ff,stroke:#58a6ff,color:#fff
+  style S2 fill:#58a6ff,stroke:#58a6ff,color:#fff
+  style S3 fill:#d2a8ff,stroke:#d2a8ff,color:#000
+  style S4 fill:#f0883e,stroke:#f0883e,color:#fff
+  style S5 fill:#3fb950,stroke:#3fb950,color:#fff
+  style S6 fill:#3fb950,stroke:#3fb950,color:#fff
+  style FB fill:#8b949e,stroke:#8b949e,color:#fff"></div>
+    </div>
+    <div class="mw-caption">Figure 5-1: Copy-split-strip flow — the monolith remains as fallback at every step</div>
+  </div>
+
+  <h3>Step 1: Copy the Entire Repository</h3>
+  <p>Create a complete clone of the monolith repository. This is a <code>git clone</code> followed by removing the <code>.git</code> directory and initializing a new repository. The new repo contains everything the monolith contains&mdash;all MFEs, all routes, all components, all tests.</p>
+  <p>Why copy everything? Because it's simpler and safer than trying to extract only what you need. When you start with everything, you can verify at any point that the full system still works. Then you subtract.</p>
+
+  <h3>Step 2: Rename to the Domain</h3>
+  <p>Rename the repository to reflect its domain identity: <code>mfe-catalog</code>, <code>mfe-cart</code>, <code>mfe-checkout</code>, etc. Update the <code>package.json</code> name, the K8s service name, and the CI/CD pipeline name. The code inside is still identical to the monolith.</p>
+
+  <h3>Step 3: Strip Non-Domain Code</h3>
+  <p>This is the core step. Systematically delete everything that doesn't belong to this domain:</p>
+  <ul>
+    <li>Delete MFE directories for other domains</li>
+    <li>Delete route definitions for other domains</li>
+    <li>Delete page components for other domains</li>
+    <li>Delete test files for other domains</li>
+    <li>Run <code>npm prune</code> to remove unused dependencies</li>
+    <li>Remove unused shared utilities (tree-shaking will catch most of this)</li>
+  </ul>
+
+  <h3>Step 4: Deploy Exactly As-Is</h3>
+  <p>Deploy the stripped domain using the same infrastructure as the monolith: same K8s configuration (adjusted for lower resource needs), same SSR setup, same environment variables, same secrets. The only difference is that this service handles fewer routes.</p>
+
+  <h3>Step 5: Verify and Route</h3>
+  <p>Run the domain's test suite. It should pass because the code is identical to what was tested in the monolith. Then gradually route traffic for this domain's URLs from the monolith to the new domain service.</p>
+</section>
+
+<!-- Step-by-Step Walkthrough -->
+<section>
+  <h2>Detailed Walkthrough</h2>
+
+  <details>
+    <summary>Step-by-Step Walkthrough <span class="detail-summary">Concrete commands and decisions</span></summary>
+    <div class="detail-body">
+      <h4>1. Repository Setup</h4>
+      <pre><code># Clone the monolith
+git clone https://git.internal/platform/ecommerce-monolith.git mfe-catalog
+cd mfe-catalog
+
+# Reset git history (fresh start for the domain)
+rm -rf .git
+git init
+git add .
+git commit -m "Initial: copy from monolith at commit abc123"</code></pre>
+      <p>Document the source commit hash. This creates a clear audit trail showing exactly which version of the monolith was used as the starting point.</p>
+
+      <h4>2. Identity Changes</h4>
+      <pre><code># Update package.json
+{
+  "name": "@medline/mfe-catalog",
+  "version": "1.0.0",
+  ...
+}
+
+# Update K8s service name in deployment.yaml
+metadata:
+  name: mfe-catalog
+  namespace: ecommerce
+
+# Update CI/CD pipeline name
+name: mfe-catalog-pipeline</code></pre>
+
+      <h4>3. The Strip Process</h4>
+      <p>This is where domain knowledge matters. The domain team identifies which directories, routes, and components belong to them. A typical catalog domain strip looks like:</p>
+      <pre><code># Delete other domain MFE directories
+rm -rf src/mfes/cart/
+rm -rf src/mfes/checkout/
+rm -rf src/mfes/account/
+rm -rf src/mfes/admin/
+# ... delete all non-catalog MFEs
+
+# Delete other domain routes
+# In next.config.js or routes.js, remove non-catalog routes
+
+# Delete other domain tests
+rm -rf tests/cart/
+rm -rf tests/checkout/
+# ... delete all non-catalog tests
+
+# Clean up dependencies
+npm prune
+npm audit fix</code></pre>
+
+      <h4>4. Validation</h4>
+      <pre><code># Run the domain's test suite
+npm test -- --scope=catalog
+
+# Run the build
+npm run build
+
+# Deploy to staging
+kubectl apply -f k8s/staging/
+
+# Smoke test
+curl -s https://staging.catalog.internal/api/health</code></pre>
+    </div>
+  </details>
+
+  <details>
+    <summary>What Gets Deleted <span class="detail-summary">Concrete examples per domain type</span></summary>
+    <div class="detail-body">
+      <h4>For a Catalog Domain Extraction</h4>
+      <table class="compare-table">
+        <thead>
+          <tr><th>Directory/File</th><th>Action</th><th>Reason</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>src/mfes/cart/</code></td><td class="bad">Delete</td><td>Cart domain code, not catalog</td></tr>
+          <tr><td><code>src/mfes/checkout/</code></td><td class="bad">Delete</td><td>Checkout domain code</td></tr>
+          <tr><td><code>src/mfes/account/</code></td><td class="bad">Delete</td><td>Account domain code</td></tr>
+          <tr><td><code>src/mfes/catalog/</code></td><td class="good">Keep</td><td>This is our domain</td></tr>
+          <tr><td><code>src/mfes/search/</code></td><td class="neutral">Evaluate</td><td>Search may be part of catalog or separate domain</td></tr>
+          <tr><td><code>src/shared/utils/</code></td><td class="good">Keep initially</td><td>Shared utilities; tree-shaking removes unused ones</td></tr>
+          <tr><td><code>src/shared/components/</code></td><td class="good">Keep initially</td><td>Shared UI components used by catalog</td></tr>
+          <tr><td><code>pages/cart/</code></td><td class="bad">Delete</td><td>Cart routes</td></tr>
+          <tr><td><code>pages/checkout/</code></td><td class="bad">Delete</td><td>Checkout routes</td></tr>
+          <tr><td><code>pages/products/</code></td><td class="good">Keep</td><td>Product listing and detail pages</td></tr>
+          <tr><td><code>pages/categories/</code></td><td class="good">Keep</td><td>Category browsing pages</td></tr>
+          <tr><td><code>tests/cart/</code></td><td class="bad">Delete</td><td>Cart tests</td></tr>
+          <tr><td><code>tests/catalog/</code></td><td class="good">Keep</td><td>Our tests</td></tr>
+        </tbody>
+      </table>
+
+      <h4>The Rule of Thumb</h4>
+      <p>When in doubt, <strong>keep it</strong>. It's safer to have extra code that's unused than to accidentally delete something the domain needs. Tree-shaking and dead-code elimination will handle unused imports in the build. You can always delete more later.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>What Stays <span class="detail-summary">The shared infrastructure that every domain keeps</span></summary>
+    <div class="detail-body">
+      <h4>Every Domain Keeps</h4>
+      <ul>
+        <li><strong>K8s configuration:</strong> Deployment manifests, service definitions, ingress rules (adjusted for the domain's routes)</li>
+        <li><strong>CI/CD pipeline:</strong> Build, test, deploy scripts (simplified for one domain instead of 84 MFEs)</li>
+        <li><strong>Shared utilities:</strong> Authentication helpers, API client wrappers, logging utilities (initially kept as-is, later extracted to shared packages if needed)</li>
+        <li><strong>Shared components:</strong> Header, footer, navigation components that the domain renders (these are candidates for the shared/core domain in later phases)</li>
+        <li><strong>Configuration:</strong> Environment variables, feature flags, configuration files relevant to this domain</li>
+        <li><strong>Monitoring:</strong> Health check endpoints, metrics exporters, logging configuration</li>
+      </ul>
+
+      <h4>Gradual Cleanup</h4>
+      <p>After the initial extraction, the domain team can incrementally clean up remaining unused code. This is low-priority because the unused code doesn't affect runtime behavior&mdash;it just takes up space in the repository. Clean it up when convenient, not urgently.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>Risk Mitigation <span class="detail-summary">What could go wrong and how we handle it</span></summary>
+    <div class="detail-body">
+      <h4>Risk: We deleted something the domain needs</h4>
+      <p><strong>Mitigation:</strong> The build will fail. If it builds but tests fail, the tests catch it. If tests pass but runtime fails, the staging environment catches it. At every stage, the monolith is still running and serving traffic. Restore the file from the monolith commit hash and re-strip.</p>
+
+      <h4>Risk: The domain has a hidden dependency on another domain's code</h4>
+      <p><strong>Mitigation:</strong> This is actually the most valuable discovery in the process. It reveals coupling that wasn't documented. When found, you have two choices: (a) keep the dependency temporarily and plan to decouple it, or (b) extract the shared code into a shared package that both domains can consume.</p>
+
+      <h4>Risk: Performance is different as a standalone service</h4>
+      <p><strong>Mitigation:</strong> The standalone service is doing <em>less work</em> than the monolith (fewer routes, fewer components). Performance should be the same or better. If it's worse, it reveals a resource contention issue in the monolith that was masking individual domain performance.</p>
+
+      <h4>Risk: The team doesn't know which files belong to their domain</h4>
+      <p><strong>Mitigation:</strong> Start with an overly generous definition of the domain (keep more than you need). The domain team knows their routes and their pages. Delete other domains' routes and pages first. Everything else can be cleaned up iteratively. See <a href="06-domain-map.html">Page 6: Domain Map</a> for detailed domain definitions.</p>
+
+      <div class="callout">
+        <strong>The Fallback Is Always There</strong>
+        At every step of the copy-split-strip process, the original monolith is still running and serving traffic. If the extracted domain has any issues, traffic routes back to the monolith. There is no point of no return until you explicitly decommission the monolith routes&mdash;and that only happens after weeks of validated production traffic on the domain service.
+      </div>
+    </div>
+  </details>
+</section>
+
+<!-- Before/After File Tree -->
+<section>
+  <h2>Before &amp; After: File Tree</h2>
+  <p>Here's a concrete example of what the repository looks like before and after a catalog domain extraction:</p>
+
+  <div class="mermaid-wrap" id="d05-2">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">Fullscreen</button>
+    </div>
+    <div class="mw-view">
+      <div class="mermaid-inner" data-src="graph TB
+  subgraph Before[&quot;BEFORE: Monolith Repository&quot;]
+    direction TB
+    R1[ecommerce-monolith/]
+    R1 --> S1[src/mfes/catalog/]
+    R1 --> S2[src/mfes/cart/]
+    R1 --> S3[src/mfes/checkout/]
+    R1 --> S4[src/mfes/account/]
+    R1 --> S5[src/mfes/search/]
+    R1 --> S6[src/mfes/... 79 more/]
+    R1 --> S7[src/shared/]
+    R1 --> P1[pages/ all routes]
+    R1 --> T1[tests/ all tests]
+    R1 --> K1[k8s/ monolith deploy]
+  end
+  subgraph After[&quot;AFTER: Catalog Domain Repository&quot;]
+    direction TB
+    R2[mfe-catalog/]
+    R2 --> D1[src/mfes/catalog/]
+    R2 --> D2[src/shared/ trimmed]
+    R2 --> D3[pages/products/]
+    R2 --> D4[pages/categories/]
+    R2 --> D5[tests/catalog/]
+    R2 --> D6[k8s/ catalog deploy]
+  end
+  Before -.copy + strip.-> After
+  style R1 fill:#f85149,stroke:#f85149,color:#fff
+  style R2 fill:#3fb950,stroke:#3fb950,color:#fff
+  style S2 fill:#8b949e,stroke:#8b949e,color:#fff
+  style S3 fill:#8b949e,stroke:#8b949e,color:#fff
+  style S4 fill:#8b949e,stroke:#8b949e,color:#fff
+  style S6 fill:#8b949e,stroke:#8b949e,color:#fff"></div>
+    </div>
+    <div class="mw-caption">Figure 5-2: File tree before and after catalog domain extraction — greyed-out directories are deleted</div>
+  </div>
+</section>
+
+<!-- The Timeline for One Domain -->
+<section>
+  <h2>Timeline for One Domain Extraction</h2>
+  <p>A single domain extraction typically takes 1&ndash;2 weeks from copy to production traffic:</p>
+
+  <table class="compare-table">
+    <thead>
+      <tr><th>Day</th><th>Activity</th><th>Duration</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Day 1</strong></td><td>Copy repository, rename, update identity</td><td>2-4 hours</td></tr>
+      <tr><td><strong>Day 1-2</strong></td><td>Strip non-domain code (routes, MFEs, tests)</td><td>4-8 hours</td></tr>
+      <tr><td><strong>Day 2-3</strong></td><td>Build validation, test suite verification</td><td>4-8 hours</td></tr>
+      <tr><td><strong>Day 3-4</strong></td><td>Deploy to staging, smoke testing</td><td>4-8 hours</td></tr>
+      <tr><td><strong>Day 4-5</strong></td><td>Staging validation (automated + manual)</td><td>1-2 days</td></tr>
+      <tr><td><strong>Day 5-7</strong></td><td>Canary deployment (1% → 10% → 50% traffic)</td><td>2-3 days</td></tr>
+      <tr><td><strong>Day 7-10</strong></td><td>Full traffic on domain service, monitoring</td><td>2-3 days</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout">
+    <strong>Repeatable Process</strong>
+    The first domain extraction takes the longest because the team is learning the process. Subsequent extractions are faster&mdash;the second domain typically takes 3-5 days, and by the fourth or fifth, the process is down to 2-3 days.
+  </div>
+</section>
+
+<!-- FAQ -->
+<section>
+  <h2>Common Questions</h2>
+
+  <details>
+    <summary>What about shared state between domains? <span class="detail-summary">How do Cart and Catalog communicate?</span></summary>
+    <div class="detail-body">
+      <p>Domains communicate through well-defined API contracts, not shared state. When the Catalog domain needs to add an item to the Cart, it calls the Cart domain's API endpoint. The Cart domain owns its own state.</p>
+      <p>For real-time UI updates (like "item added to cart" notifications), domains communicate through browser-level events (Custom Events on the window object). This is a standards-based, framework-agnostic pattern.</p>
+      <p>See <a href="06-domain-map.html">Page 6: Domain Map</a> for detailed data flow between domains.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>What about shared components like the header? <span class="detail-summary">Who owns the shared UI?</span></summary>
+    <div class="detail-body">
+      <p>The header, footer, navigation, and authentication components belong to the "Shared/Core" domain. This domain is extracted just like any other. It provides shared components as Web Components that other domains can consume.</p>
+      <p>Initially, each extracted domain carries its own copy of shared components (remember, we copied the entire monolith). Over time, these are replaced with the shared domain's Web Component versions. But there's no rush&mdash;the copied versions work fine.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>Do we need to extract all domains at once? <span class="detail-summary">Can we do one at a time?</span></summary>
+    <div class="detail-body">
+      <p><strong>Absolutely not.</strong> Extract one domain at a time. Start with the domain that has the clearest boundaries and the most to gain from independence (typically Catalog or Search). Prove the pattern. Build team confidence. Then extract the next domain.</p>
+      <p>The monolith continues to serve all un-extracted domains. As domains are extracted one by one, the monolith shrinks. Eventually, it serves no traffic and can be decommissioned.</p>
+    </div>
+  </details>
+</section>
+
+</main>
+
+<div style="max-width:900px;margin:0 auto;padding:0 1.5rem;">
+  <div class="page-nav">
+    <a href="04-migration-overview.html"><span class="pn-label">&larr; Previous</span><span class="pn-title">The Migration Strategy</span></a>
+    <a href="06-domain-map.html" class="next"><span class="pn-label">Next &rarr;</span><span class="pn-title">The Domain Map</span></a>
+  </div>
+</div>
+
+<footer>Medline Platform Evolution &mdash; v5 &mdash; 2026-04-05 &mdash; Technical Director Series &mdash; Confidential</footer>
+<div class="toast" id="toast">Copied!</div>
+<script src="shared.js"></script>
+</body>
+</html>

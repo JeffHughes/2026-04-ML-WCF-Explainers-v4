@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Component Transition: React to HTML-First &mdash; Medline Platform Evolution</title>
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<div class="progress-bar"></div>
+<nav>
+  <a href="index.html" class="logo">ML Evolution</a>
+  <div class="nav-links">
+    <a href="01-executive-summary.html">Summary</a>
+    <a href="02-current-state.html">Today</a>
+    <a href="03-why-change.html">Why</a>
+    <a href="04-migration-overview.html">Strategy</a>
+    <a href="05-copy-split-strip.html">Copy-Split</a>
+    <a href="06-domain-map.html">Domains</a>
+    <a href="07-catalog-domain.html">Catalog</a>
+    <a href="08-cart-checkout.html">Cart</a>
+    <a href="09-remaining-domains.html">Other</a>
+    <a href="10-shell-architecture.html">Shell</a>
+    <a href="11-shell-swap.html">Swap</a>
+    <a href="12-web-component-wrapping.html">Wrapping</a>
+    <a href="13-hydration-csr.html">CSR</a>
+    <a href="14-component-standards.html">Standards</a>
+    <a href="15-component-transition.html" class="active">Transition</a>
+    <a href="16-app-catalog.html">Catalog</a>
+    <a href="17-api-scanning.html">Scanning</a>
+    <a href="18-bff-pattern.html">BFF</a>
+    <a href="19-managing-drift.html">Drift</a>
+    <a href="20-core-cadence.html">Cadence</a>
+    <a href="21-testing-strategy.html">Testing</a>
+    <a href="22-blue-green-rollouts.html">Deploy</a>
+    <a href="23-migration-timeline.html">Timeline</a>
+    <a href="24-team-impact.html">Teams</a>
+    <a href="25-key-principles.html">Principles</a>
+    <a href="dev-environment.html">DevEx</a>
+  </div>
+  <button class="theme-toggle" id="themeToggle" title="Toggle theme">&#9790;</button>
+</nav>
+<div class="hero">
+  <div class="page-num">Component Strategy</div>
+  <h1>Component Transition: React to HTML-First</h1>
+  <p class="subtitle">A phased, zero-pressure path from React 17 to standards-based components &mdash; at every team&rsquo;s own pace</p>
+</div>
+<main>
+
+<!-- ────────────────────────────────────────── -->
+<section>
+  <h2>The Transition Philosophy</h2>
+  <p>This is not a rewrite mandate. This is not a &ldquo;drop everything and migrate&rdquo; directive. This is a <strong>four-phase transition</strong> where every phase is optional for every team, and the only forcing function is the team&rsquo;s own assessment of what serves them best.</p>
+  <p>React 17 components work today. They will work tomorrow. They will work five years from now &mdash; wrapped in Web Component shells, served from CDN, independently versioned. The transition to HTML-first MV* patterns is about <strong>expanding what&rsquo;s possible</strong>, not replacing what works.</p>
+
+  <div class="callout">
+    <strong>The Core Promise</strong>
+    No team will ever be forced to rewrite a working component. The system is designed so that React components and WCFramework components coexist indefinitely. The import map doesn&rsquo;t care what&rsquo;s inside the Shadow DOM.
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="stat-num">4</div>
+      <div class="stat-label">Transition Phases</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num green">0</div>
+      <div class="stat-label">Forced Migrations</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num purple">2</div>
+      <div class="stat-label">Component Sets Per Year</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num orange">&infin;</div>
+      <div class="stat-label">React Compatibility Horizon</div>
+    </div>
+  </div>
+</section>
+
+<!-- ────────────────────────────────────────── -->
+<section>
+  <h2>The Four Phases</h2>
+
+  <h3>Phase 1: Wrap &amp; Ship</h3>
+  <p>Every existing React component gets wrapped in a Web Component shell. This is automated &mdash; a build-time transformation, not a manual rewrite. The React component stays identical inside. The outside world sees a standard <code>ml-</code> Custom Element.</p>
+  <ul>
+    <li>React 17 internals remain untouched</li>
+    <li>Wrapper translates attributes &rarr; props, CustomEvents &rarr; callbacks</li>
+    <li>Shadow DOM encapsulates React&rsquo;s CSS</li>
+    <li>Published to CDN with the standard version path</li>
+    <li>Existing tests continue to pass &mdash; nothing changed inside</li>
+  </ul>
+
+  <h3>Phase 2: New Components Go HTML-First</h3>
+  <p>All <strong>new</strong> components are built with the WCFramework &mdash; an HTML-first MV* pattern where the starting point is HTML and CSS, not JSX and a virtual DOM. Developers who know HTML, CSS, and JavaScript can build production components on day one.</p>
+  <ul>
+    <li>No JSX transpilation needed</li>
+    <li>No virtual DOM diffing overhead</li>
+    <li>No build-step complexity &mdash; the component IS the deliverable</li>
+    <li>Standard template literals, standard event listeners, standard DOM APIs</li>
+    <li>Smaller bundle sizes &mdash; no framework runtime shipped per component</li>
+  </ul>
+
+  <h3>Phase 3: Selective Rewrite</h3>
+  <p>High-traffic, high-change components that benefit from smaller bundles and simpler maintenance are rewritten in WCFramework &mdash; <strong>at the team&rsquo;s discretion and pace</strong>. This is optimization, not obligation.</p>
+  <ul>
+    <li>Product cards, search results, and navigation components are prime candidates</li>
+    <li>Components that change weekly benefit from the simpler authoring model</li>
+    <li>Performance-critical components benefit from no virtual DOM overhead</li>
+    <li>The old React version stays on CDN as a rollback target</li>
+  </ul>
+
+  <h3>Phase 4: Long-Tail Stability</h3>
+  <p>Low-traffic, low-change components (admin panels, account settings, legacy integrations) can stay React <strong>indefinitely</strong>. There is no Phase 5 that says &ldquo;everything must be WCFramework.&rdquo; If it works, it ships.</p>
+  <ul>
+    <li>React compatibility wrappers are maintained alongside WCFramework components</li>
+    <li>Two component sets published yearly: one WCFramework, one React compatibility</li>
+    <li>Five-year-old components are first-class citizens &mdash; the import map treats them identically</li>
+  </ul>
+</section>
+
+<!-- ────────────────────────────────────────── -->
+<section>
+  <h2>Transition Timeline</h2>
+
+  <div class="mermaid-wrap" id="d15-1">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">&#x26F6;</button>
+    </div>
+    <div class="mw-view"><div class="mermaid-inner" data-src="gantt
+    title Component Transition Timeline
+    dateFormat YYYY-MM
+    axisFormat %Y Q%q
+    section Phase 1 — Wrap
+    Automated React wrapping       :done, p1a, 2026-01, 2026-04
+    CDN publish all wrapped components :done, p1b, 2026-03, 2026-05
+    section Phase 2 — New HTML-First
+    WCFramework templates available   :active, p2a, 2026-04, 2026-06
+    New components built HTML-first    :p2b, 2026-05, 2027-12
+    section Phase 3 — Selective Rewrite
+    High-traffic component rewrites    :p3a, 2026-07, 2027-06
+    Performance optimization cycle     :p3b, 2027-01, 2027-12
+    section Phase 4 — Long Tail
+    React compatibility maintained     :p4a, 2026-01, 2028-12
+    Annual dual-publish cycle          :p4b, 2027-01, 2028-12"></div></div>
+    <div class="mw-caption">Transition Timeline &mdash; Four overlapping phases; React compatibility extends indefinitely</div>
+  </div>
+
+  <div class="industry-std">
+    <strong>Industry Standard: Incremental Migration</strong>
+    Google&rsquo;s migration from GWT to modern web components, Shopify&rsquo;s transition from jQuery to web-native Polaris, and GitHub&rsquo;s move from jQuery to Catalyst components all followed this same pattern: wrap first, build new with the target, selectively rewrite, and let the long tail live. Forced rewrites fail. Gradual transitions succeed.
+  </div>
+</section>
+
+<!-- ────────────────────────────────────────── -->
+<section>
+  <h2>Why HTML-First Matters</h2>
+  <p>The argument for HTML-first development is not about technology preference. It&rsquo;s about <strong>accessibility of the development experience</strong> to the widest possible talent pool.</p>
+
+  <div class="callout success">
+    <strong>&ldquo;Patterns that require a PhD in build tooling to create a button component are not accessible to 80% of the world&rsquo;s frontend developers.&rdquo;</strong>
+    When a component starts with an HTML template, a CSS stylesheet, and JavaScript event handlers &mdash; that&rsquo;s a language every web developer on the planet already speaks.
+  </div>
+
+  <table class="compare-table">
+    <thead>
+      <tr><th>Dimension</th><th class="bad">JSX + Virtual DOM</th><th class="good">HTML-First MV*</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Learning Curve</strong></td>
+        <td class="bad">JSX syntax, hooks lifecycle, build pipeline, state management library</td>
+        <td class="good">HTML templates, CSS, standard DOM events &mdash; skills every developer already has</td>
+      </tr>
+      <tr>
+        <td><strong>Build Step</strong></td>
+        <td class="bad">Babel/SWC transpilation, bundler config, JSX transform, source maps</td>
+        <td class="good">Optional build step; component works as-authored in the browser</td>
+      </tr>
+      <tr>
+        <td><strong>Runtime Overhead</strong></td>
+        <td class="bad">Framework runtime (~40KB min-gzipped) + virtual DOM diffing per render</td>
+        <td class="good">No framework runtime; direct DOM manipulation at browser-native speed</td>
+      </tr>
+      <tr>
+        <td><strong>Debugging</strong></td>
+        <td class="bad">Component tree ≠ DOM tree; requires framework-specific devtools</td>
+        <td class="good">What you see in DevTools IS the component; standard browser debugging</td>
+      </tr>
+      <tr>
+        <td><strong>Team Onboarding</strong></td>
+        <td class="bad">New hires need React-specific training, hook patterns, state management patterns</td>
+        <td class="good">Anyone who can write HTML/CSS/JS is productive immediately</td>
+      </tr>
+      <tr>
+        <td><strong>Talent Pool</strong></td>
+        <td class="bad">React developers (subset of web developers)</td>
+        <td class="good">All web developers globally</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ────────────────────────────────────────── -->
+<section>
+  <h2>Decision Tree: Should I Rewrite This Component?</h2>
+  <p>Not every component should be rewritten. Use this decision tree to determine whether a rewrite provides meaningful value or whether the existing React component should stay wrapped.</p>
+
+  <div class="mermaid-wrap" id="d15-2">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">&#x26F6;</button>
+    </div>
+    <div class="mw-view"><div class="mermaid-inner" data-src="flowchart TD
+    START[&quot;Component exists as wrapped React&quot;] --> Q1{&quot;Changed more than 3x in last quarter?&quot;}
+    Q1 -->|Yes| Q2{&quot;Bundle size > 50KB gzipped?&quot;}
+    Q1 -->|No| KEEP[&quot;Keep React wrapper — stable is good&quot;]
+    Q2 -->|Yes| REWRITE[&quot;Strong candidate for WCFramework rewrite&quot;]
+    Q2 -->|No| Q3{&quot;Team has capacity and interest?&quot;}
+    Q3 -->|Yes| REWRITE
+    Q3 -->|No| KEEP
+    REWRITE --> PLAN[&quot;Schedule in next sprint cycle&quot;]
+    KEEP --> MONITOR[&quot;Review again next quarter&quot;]
+    style START fill:#1c2333,stroke:#58a6ff,color:#58a6ff
+    style REWRITE fill:#0d2818,stroke:#3fb950,color:#3fb950
+    style KEEP fill:#161b22,stroke:#d2a8ff,color:#d2a8ff
+    style PLAN fill:#0d2818,stroke:#3fb950,color:#3fb950
+    style MONITOR fill:#161b22,stroke:#d2a8ff,color:#d2a8ff
+    style Q1 fill:#1c2333,stroke:#f0883e,color:#f0883e
+    style Q2 fill:#1c2333,stroke:#f0883e,color:#f0883e
+    style Q3 fill:#1c2333,stroke:#f0883e,color:#f0883e"></div></div>
+    <div class="mw-caption">Decision Tree &mdash; Rewrite only when frequency, size, and capacity all align; keeping a wrapped React component is always a valid choice</div>
+  </div>
+</section>
+
+<!-- ────────────────────────────────────────── -->
+<section>
+  <h2>Dual Publishing Model</h2>
+  <p>Twice a year, the shared component team publishes two complete sets of every shared component:</p>
+
+  <details>
+    <summary>WCFramework Component Set <span class="detail-summary">HTML-first, zero-runtime</span></summary>
+    <div class="detail-body">
+      <p>The primary component set, built with the standards-based component framework:</p>
+      <ul>
+        <li>No framework runtime shipped &mdash; just the component code</li>
+        <li>Smaller bundle sizes (typically 60-70% smaller than React equivalents)</li>
+        <li>Browser-native rendering performance</li>
+        <li>Standard debugging with browser DevTools</li>
+        <li>Recommended for all new development</li>
+      </ul>
+    </div>
+  </details>
+
+  <details>
+    <summary>React Compatibility Set <span class="detail-summary">For existing React-based domains</span></summary>
+    <div class="detail-body">
+      <p>A fully maintained React wrapper set for teams that haven&rsquo;t transitioned:</p>
+      <ul>
+        <li>Identical visual output and behavior to the WCFramework set</li>
+        <li>React-friendly prop interfaces alongside standard attributes</li>
+        <li>Same CDN distribution, same versioning, same rollback capability</li>
+        <li>Published and supported indefinitely &mdash; no sunset date</li>
+        <li>Teams migrate when they choose, not when they&rsquo;re forced</li>
+      </ul>
+    </div>
+  </details>
+
+  <details>
+    <summary>Version Synchronization <span class="detail-summary">How both sets stay aligned</span></summary>
+    <div class="detail-body">
+      <p>Both component sets share the same version number and the same visual test suite:</p>
+      <ul>
+        <li>Version <code>2.3.0</code> of the WCFramework set and <code>2.3.0</code> of the React set produce identical rendered output</li>
+        <li>Pixel-perfect visual regression tests run against both sets</li>
+        <li>API contract tests verify attribute/event/slot parity</li>
+        <li>If a bug is fixed in one set, the same fix is applied to the other</li>
+      </ul>
+    </div>
+  </details>
+</section>
+
+<!-- ────────────────────────────────────────── -->
+<section>
+  <h2>What Teams Choose, Teams Own</h2>
+  <p>The transition is not managed top-down. Every team makes their own choices based on their own context. The platform&rsquo;s job is to make every option easy, safe, and reversible.</p>
+
+  <div class="themes-grid">
+    <div class="theme-card">
+      <div class="theme-icon">&#x1F3AF;</div>
+      <h4>Last Year&rsquo;s Stack Is Fine</h4>
+      <p>Components built last year work identically today. The import map doesn&rsquo;t care when a component was authored.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#x23F3;</div>
+      <h4>Five Years Ago Is Fine</h4>
+      <p>Legacy components wrapped in Web Component shells have the same CDN presence and the same deployment model as brand-new WCFramework components.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#x1F504;</div>
+      <h4>The Import Map Doesn&rsquo;t Care</h4>
+      <p>Whether the component is React inside or WCFramework inside, the import map resolves the same <code>ml-</code> tag to the same CDN path. The shell is agnostic.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#x1F6E1;</div>
+      <h4>Rollback Is Instant</h4>
+      <p>Every transition step produces a new CDN artifact. The previous version is still there. Rollback is a version pointer change, not a rebuild.</p>
+    </div>
+  </div>
+
+  <div class="callout warn">
+    <strong>The Anti-Pattern We&rsquo;re Avoiding</strong>
+    Mandating a company-wide rewrite from one framework to another is the single most common cause of multi-year platform stalls. Teams stop delivering features to rewrite working code. The new framework ships bugs the old one had already fixed. Morale drops. Deadlines slip. This transition model eliminates that entirely.
+  </div>
+</section>
+
+</main>
+<div style="max-width:900px;margin:0 auto;padding:0 1.5rem;">
+  <div class="page-nav">
+    <a href="14-component-standards.html"><span class="pn-label">&larr; Previous</span><span class="pn-title">Component Standards</span></a>
+    <a href="16-app-catalog.html" class="next"><span class="pn-label">Next &rarr;</span><span class="pn-title">The App Catalog</span></a>
+  </div>
+</div>
+<footer>Medline Platform Evolution &mdash; v5 &mdash; 2026-04-05 &mdash; Technical Director Series &mdash; Confidential</footer>
+<div class="toast" id="toast">Copied!</div>
+<script src="shared.js"></script>
+</body>
+</html>

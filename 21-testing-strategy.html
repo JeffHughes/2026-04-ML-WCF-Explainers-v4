@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Testing Strategy: Domain-Level Confidence &mdash; Medline Platform Evolution</title>
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<div class="progress-bar"></div>
+<nav>
+  <a href="index.html" class="logo">ML Evolution</a>
+  <div class="nav-links">
+    <a href="01-executive-summary.html">Summary</a>
+    <a href="02-current-state.html">Today</a>
+    <a href="03-why-change.html">Why</a>
+    <a href="04-migration-overview.html">Strategy</a>
+    <a href="05-copy-split-strip.html">Copy-Split</a>
+    <a href="06-domain-map.html">Domains</a>
+    <a href="07-catalog-domain.html">Catalog</a>
+    <a href="08-cart-checkout.html">Cart</a>
+    <a href="09-remaining-domains.html">Other</a>
+    <a href="10-shell-architecture.html">Shell</a>
+    <a href="11-shell-swap.html">Swap</a>
+    <a href="12-web-component-wrapping.html">Wrapping</a>
+    <a href="13-hydration-csr.html">CSR</a>
+    <a href="14-component-standards.html">Standards</a>
+    <a href="15-component-transition.html">Transition</a>
+    <a href="16-app-catalog.html">Catalog</a>
+    <a href="17-api-scanning.html">Scanning</a>
+    <a href="18-bff-pattern.html">BFF</a>
+    <a href="19-managing-drift.html">Drift</a>
+    <a href="20-core-cadence.html">Cadence</a>
+    <a href="21-testing-strategy.html" class="active">Testing</a>
+    <a href="22-blue-green-rollouts.html">Deploy</a>
+    <a href="23-migration-timeline.html">Timeline</a>
+    <a href="24-team-impact.html">Teams</a>
+    <a href="25-key-principles.html">Principles</a>
+    <a href="dev-environment.html">DevEx</a>
+  </div>
+  <button class="theme-toggle" id="themeToggle" title="Toggle theme">&#9790;</button>
+</nav>
+<div class="hero">
+  <div class="page-num">Operations</div>
+  <h1>Testing Strategy: Domain-Level Confidence</h1>
+  <p class="subtitle">How domain-scoped testing, contract verification, and automated quality gates give every team confidence to ship independently — without standing up the entire monolith.</p>
+</div>
+<main>
+
+<!-- ═══ Section 1: The Testing Problem ═══ -->
+<section>
+  <h2>The Monolith Testing Problem</h2>
+  <p>In the current monolith, testing a single button change requires <strong>standing up the entire application</strong>. Build times are long, test suites are fragile, and a failure in one domain's tests can block every other domain's deployment. This is the testing equivalent of a traffic jam — one accident stops everyone.</p>
+
+  <div class="callout warn">
+    <strong>&#9888;&#65039; The Anti-Pattern</strong>
+    If your test suite requires standing up the entire monolith, your test suite is the problem. Domain-scoped testing inverts this: each team tests their own domain in isolation, with contract checks at the boundaries.
+  </div>
+
+  <p>The modernized architecture changes testing fundamentally. Because each domain is independently deployable, each domain is also <strong>independently testable</strong>. Most testing happens within a single domain's boundary, with lightweight contract checks at the integration points.</p>
+
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="stat-num">5</div>
+      <div class="stat-label">Testing layers</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num green">90%</div>
+      <div class="stat-label">Tests are domain-scoped</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num purple">10%</div>
+      <div class="stat-label">Cross-domain E2E tests</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num orange">0</div>
+      <div class="stat-label">Monolith builds needed</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ Section 2: Testing Pyramid ═══ -->
+<section>
+  <h2>The Domain Testing Pyramid</h2>
+  <p>Each domain follows a structured testing pyramid. The base is wide (fast, cheap, plentiful unit tests) and the top is narrow (slow, expensive, minimal E2E tests). This is not a new concept — but applying it at the <strong>domain level</strong> rather than the application level is what makes it work at scale.</p>
+
+  <h3>Testing Pyramid with Domain Scope</h3>
+  <div class="mermaid-wrap" id="d21-1">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">Fullscreen</button>
+    </div>
+    <div class="mw-view">
+      <div class="mermaid-inner" data-src="graph TB
+  subgraph pyramid [Domain Testing Pyramid]
+    E2E[E2E Tests<br/>Critical user journeys<br/>Cross-domain: login → search → cart → checkout]
+    VR[Visual Regression<br/>Screenshot comparison<br/>Component-level change detection]
+    CT[Contract Tests<br/>Frontend ↔ BFF ↔ Backend<br/>API schema verification]
+    IT[Integration Tests<br/>Domain + BFF end-to-end<br/>Real HTTP, mocked backends]
+    UT[Unit Tests<br/>Component isolation<br/>Fast, local, CI-friendly]
+  end
+  UT --> IT --> CT --> VR --> E2E
+  style UT fill:#0d2818,stroke:#3fb950,color:#e6edf3
+  style IT fill:#122a1a,stroke:#3fb950,color:#e6edf3
+  style CT fill:#1c2333,stroke:#58a6ff,color:#e6edf3
+  style VR fill:#1c2333,stroke:#d2a8ff,color:#e6edf3
+  style E2E fill:#2d1b00,stroke:#f0883e,color:#e6edf3"></div>
+    </div>
+    <div class="mw-caption">Fig 21.1 — Domain testing pyramid: most tests are fast, local, and domain-scoped</div>
+  </div>
+
+  <h3>Layer-by-Layer Breakdown</h3>
+
+  <details>
+    <summary>&#127919; Unit Tests — Fast, Local, CI-Friendly <span class="detail-summary">Base of the pyramid</span></summary>
+    <div class="detail-body">
+      <p>Each Web Component is tested in isolation using standard DOM testing utilities. Tests run in milliseconds, require no network, and execute in CI without any special infrastructure.</p>
+      <ul>
+        <li><strong>Scope:</strong> Single component, single function, single utility</li>
+        <li><strong>Speed:</strong> Entire domain suite runs in under 30 seconds</li>
+        <li><strong>Tools:</strong> Standard test runners (Vitest, Web Test Runner) with DOM assertion libraries</li>
+        <li><strong>Coverage target:</strong> 80%+ line coverage per domain</li>
+        <li><strong>Who runs them:</strong> Every developer, on every commit, in every CI pipeline</li>
+      </ul>
+      <pre><code>// Example: Testing a product-card Web Component
+describe('product-card', () => {
+  it('renders product name in shadow DOM', async () => {
+    const el = document.createElement('ml-product-card');
+    el.setAttribute('name', 'Surgical Gloves');
+    document.body.appendChild(el);
+    const nameEl = el.shadowRoot.querySelector('.product-name');
+    expect(nameEl.textContent).toBe('Surgical Gloves');
+  });
+});</code></pre>
+    </div>
+  </details>
+
+  <details>
+    <summary>&#128279; Integration Tests — Domain + BFF <span class="detail-summary">Real HTTP, mocked backends</span></summary>
+    <div class="detail-body">
+      <p>Integration tests verify that a domain's frontend communicates correctly with its BFF (Backend-for-Frontend). The BFF is started locally, and backend services behind it are mocked using contract stubs.</p>
+      <ul>
+        <li><strong>Scope:</strong> Full domain frontend + its BFF, mocked downstream services</li>
+        <li><strong>Speed:</strong> Suite runs in 1–3 minutes</li>
+        <li><strong>Key validation:</strong> HTTP request/response shapes, error handling, loading states</li>
+        <li><strong>Who runs them:</strong> CI pipeline on every pull request</li>
+      </ul>
+    </div>
+  </details>
+
+  <details>
+    <summary>&#128220; Contract Tests — API Boundary Verification <span class="detail-summary">Prevents integration drift</span></summary>
+    <div class="detail-body">
+      <p>Contract tests verify that the agreed-upon API shapes between services are maintained. If the Catalog BFF expects a certain response format from the Product Service, the contract test catches any deviation <em>before</em> deployment.</p>
+      <ul>
+        <li><strong>Scope:</strong> API boundaries — frontend↔BFF and BFF↔backend</li>
+        <li><strong>Pattern:</strong> Consumer-driven contracts (Pact or similar)</li>
+        <li><strong>Key insight:</strong> Contracts are checked independently by both sides — no coordination needed</li>
+        <li><strong>Failure mode:</strong> Contract mismatch fails the CI pipeline of the breaking side</li>
+      </ul>
+    </div>
+  </details>
+
+  <details>
+    <summary>&#128247; Visual Regression — Screenshot Comparison <span class="detail-summary">Catch UI drift</span></summary>
+    <div class="detail-body">
+      <p>Every component in the App Catalog has baseline screenshots. When a component changes, visual regression compares the new rendering against the baseline. Pixel-level differences are flagged for human review.</p>
+      <ul>
+        <li><strong>Scope:</strong> Individual components and key page compositions</li>
+        <li><strong>Tools:</strong> Chromatic, Percy, or similar screenshot diffing services</li>
+        <li><strong>Threshold:</strong> Configurable pixel-diff tolerance per component</li>
+        <li><strong>Approval flow:</strong> Visual changes require explicit sign-off in the PR</li>
+      </ul>
+    </div>
+  </details>
+
+  <details>
+    <summary>&#127919; E2E Tests — Critical User Journeys <span class="detail-summary">Top of the pyramid</span></summary>
+    <div class="detail-body">
+      <p>End-to-end tests cover the handful of <strong>critical user journeys</strong> that span multiple domains: login → search → product detail → add to cart → checkout. These are expensive, slow, and deliberately minimal.</p>
+      <ul>
+        <li><strong>Scope:</strong> Multi-domain journeys running against a staging environment</li>
+        <li><strong>Count:</strong> 10–20 scenarios, not hundreds</li>
+        <li><strong>Speed:</strong> Suite runs in 5–10 minutes</li>
+        <li><strong>When:</strong> Nightly against staging, and before production import-map updates</li>
+        <li><strong>Key insight:</strong> Cross-domain tests are minimal because contracts are enforced at the boundaries</li>
+      </ul>
+    </div>
+  </details>
+</section>
+
+<!-- ═══ Section 3: Contract Testing Deep Dive ═══ -->
+<section>
+  <h2>Contract Testing: The Boundary Guardian</h2>
+  <p>Contracts are the <strong>single most important testing innovation</strong> in this architecture. They replace the need for full-stack integration tests by verifying that each side of an API boundary honors the agreed-upon shape.</p>
+
+  <h3>Contract Testing Flow</h3>
+  <div class="mermaid-wrap" id="d21-2">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">Fullscreen</button>
+    </div>
+    <div class="mw-view">
+      <div class="mermaid-inner" data-src="sequenceDiagram
+  participant FE as Domain Frontend
+  participant BFF as Domain BFF
+  participant BE as Backend Service
+  participant CR as Contract Registry
+  FE->>CR: Publish consumer contract<br/>(expected request/response)
+  BFF->>CR: Publish provider contract<br/>(actual API schema)
+  CR->>CR: Verify: consumer ⊆ provider?
+  CR-->>FE: ✅ Contract valid
+  CR-->>BFF: ✅ Contract valid
+  Note over CR: If mismatch detected:
+  CR-->>FE: ❌ Breaking change in BFF
+  CR-->>BFF: ❌ Consumer expects field X
+  BFF->>BE: Publish consumer contract<br/>(BFF → Backend)
+  BE->>CR: Publish provider contract<br/>(Backend API schema)
+  CR->>CR: Verify BFF↔Backend contract
+  CR-->>BFF: ✅ Backend contract valid
+  CR-->>BE: ✅ Backend contract valid"></div>
+    </div>
+    <div class="mw-caption">Fig 21.2 — Contract testing flow: each boundary is independently verified without full-stack integration</div>
+  </div>
+
+  <div class="industry-std">
+    <strong>Industry Standard: Consumer-Driven Contracts</strong>
+    Consumer-driven contract testing (pioneered by Pact and adopted by organizations like Atlassian, ING Bank, and the UK Government Digital Service) is the proven approach for testing service boundaries without end-to-end integration environments. It scales linearly with the number of services.
+  </div>
+
+  <h3>Why Contracts Reduce Cross-Domain Testing</h3>
+  <table class="compare-table">
+    <thead>
+      <tr>
+        <th>Aspect</th>
+        <th class="good">Contract-Based Testing</th>
+        <th class="bad">Monolith Integration Testing</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Test scope</td>
+        <td class="good">Single boundary at a time</td>
+        <td class="bad">Entire application stack</td>
+      </tr>
+      <tr>
+        <td>Execution speed</td>
+        <td class="good">Seconds per contract</td>
+        <td class="bad">Minutes to hours for full suite</td>
+      </tr>
+      <tr>
+        <td>Failure isolation</td>
+        <td class="good">Pinpoints exact breaking boundary</td>
+        <td class="bad">Failure could be anywhere in the stack</td>
+      </tr>
+      <tr>
+        <td>Infrastructure needed</td>
+        <td class="good">None — runs against schemas</td>
+        <td class="bad">Full environment with all services</td>
+      </tr>
+      <tr>
+        <td>Team coordination</td>
+        <td class="good">Async — each side publishes independently</td>
+        <td class="bad">Sync — all teams must be on same build</td>
+      </tr>
+      <tr>
+        <td>Scaling</td>
+        <td class="good">Linear — add a contract per boundary</td>
+        <td class="bad">Exponential — every service combination</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ═══ Section 4: App Catalog & Test Targeting ═══ -->
+<section>
+  <h2>App Catalog-Driven Test Targeting</h2>
+  <p>The App Catalog doesn't just track which components exist — it also tracks <strong>which domains use which components</strong>. This dependency graph powers intelligent test targeting: when a shared component changes, only the domains that consume it are tested.</p>
+
+  <h3>How Test Targeting Works</h3>
+  <ol>
+    <li>A developer changes the <code>ml-data-table</code> core component</li>
+    <li>The App Catalog identifies that Catalog, Orders, and Inventory domains consume <code>ml-data-table</code></li>
+    <li>CI triggers test suites <strong>only for those three domains</strong></li>
+    <li>Cart, Checkout, and Account domains are unaffected — their pipelines don't run</li>
+  </ol>
+
+  <div class="callout success">
+    <strong>&#9989; Smart Test Targeting</strong>
+    Instead of running every test for every change, the system knows which domains are affected and runs only those tests. This cuts CI time dramatically and eliminates false-positive failures from unrelated domains.
+  </div>
+
+  <details>
+    <summary>Dependency Graph Example <span class="detail-summary">Component → Domain mapping</span></summary>
+    <div class="detail-body">
+      <pre><code>{
+  "ml-data-table": {
+    "consumers": ["catalog", "orders", "inventory"],
+    "version": "5.2.0",
+    "testSuites": [
+      "catalog/unit", "catalog/integration",
+      "orders/unit", "orders/integration",
+      "inventory/unit"
+    ]
+  },
+  "ml-product-card": {
+    "consumers": ["catalog", "search"],
+    "version": "5.1.0",
+    "testSuites": [
+      "catalog/unit", "catalog/visual",
+      "search/unit", "search/visual"
+    ]
+  }
+}</code></pre>
+    </div>
+  </details>
+
+  <details>
+    <summary>CI Pipeline Integration <span class="detail-summary">Automated test selection</span></summary>
+    <div class="detail-body">
+      <p>The CI pipeline queries the App Catalog's dependency graph at the start of every build. It compares the changed files against the component-to-domain mapping and generates a targeted test plan.</p>
+      <ul>
+        <li><strong>Changed file analysis:</strong> Git diff → affected components</li>
+        <li><strong>Catalog query:</strong> Affected components → consuming domains</li>
+        <li><strong>Test plan generation:</strong> Consuming domains → test suites to execute</li>
+        <li><strong>Parallel execution:</strong> Each domain's tests run in parallel workers</li>
+        <li><strong>Result aggregation:</strong> All results reported back to the PR as status checks</li>
+      </ul>
+    </div>
+  </details>
+</section>
+
+<!-- ═══ Section 5: Quality Gates ═══ -->
+<section>
+  <h2>Automated Quality Gates</h2>
+  <p>Every domain deployment passes through a series of automated quality gates. These gates are enforced by CI — no human approval needed for standard deployments. The gates are:</p>
+
+  <div class="themes-grid">
+    <div class="theme-card">
+      <div class="theme-icon">&#9989;</div>
+      <h4>Unit Test Gate</h4>
+      <p>All unit tests pass. Coverage threshold met (80%+ lines). No new warnings introduced.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#128220;</div>
+      <h4>Contract Gate</h4>
+      <p>All consumer and provider contracts verified. No breaking changes at any API boundary.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#128247;</div>
+      <h4>Visual Regression Gate</h4>
+      <p>No unintended visual changes. Pixel-diff within tolerance. Intentional changes approved in PR.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#128218;</div>
+      <h4>Catalog Validation Gate</h4>
+      <p>Component metadata valid. Documentation complete. Required props documented. Examples render correctly.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#128275;</div>
+      <h4>Security Gate</h4>
+      <p>Dependency audit clean. No known CVEs. CSP headers verified. No inline scripts or eval() usage.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#9855;</div>
+      <h4>Accessibility Gate</h4>
+      <p>axe-core automated scan passes. No critical or serious violations. ARIA attributes validated.</p>
+    </div>
+  </div>
+
+  <div class="industry-std">
+    <strong>Industry Standard: Shift-Left Quality</strong>
+    Netflix, Spotify, and Amazon all enforce automated quality gates in their CI pipelines. The principle is "shift left" — catch defects as early as possible, ideally before the code leaves the developer's machine. This includes automated CVE (Common Vulnerabilities and Exposures) scanning on every build so known security vulnerabilities are caught before they ever reach production. Automated gates make this happen without manual review bottlenecks.
+  </div>
+</section>
+
+</main>
+<div style="max-width:900px;margin:0 auto;padding:0 1.5rem;">
+  <div class="page-nav">
+    <a href="20-core-cadence.html"><span class="pn-label">&larr; Previous</span><span class="pn-title">The 1-Year Core Update Cadence</span></a>
+    <a href="22-blue-green-rollouts.html" class="next"><span class="pn-label">Next &rarr;</span><span class="pn-title">Blue/Green Deployments</span></a>
+  </div>
+</div>
+<footer>Medline Platform Evolution &mdash; v5 &mdash; 2026-04-05 &mdash; Technical Director Series &mdash; Confidential</footer>
+<div class="toast" id="toast">Copied!</div>
+<script src="shared.js"></script>
+</body>
+</html>

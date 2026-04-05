@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Infrastructure &amp; Tooling Readiness &mdash; Medline Platform Evolution</title>
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<div class="progress-bar"></div>
+<nav>
+  <a href="p-index.html" class="logo">ML Progress</a>
+  <div class="nav-links">
+    <a href="index.html">&larr; Migration Series</a>
+    <a href="p01-executive-dashboard.html">Dashboard</a>
+    <a href="p02-poc-results.html">POCs</a>
+    <a href="p03-domain-extraction-status.html">Domains</a>
+    <a href="p04-shell-and-components.html">Shell</a>
+    <a href="p05-infrastructure-status.html" class="active">Infra</a>
+    <a href="p06-risk-register.html">Risks</a>
+    <a href="p07-next-milestones.html">Next 90d</a>
+  </div>
+  <button class="theme-toggle" id="themeToggle" title="Toggle theme">&#9790;</button>
+</nav>
+
+<div class="hero">
+  <div class="page-num">Delivery Tracking &middot; P5</div>
+  <h1>Infrastructure &amp; Tooling Readiness</h1>
+  <p class="subtitle">The foundation that makes everything else possible. CDN pipelines, import maps, API scanning, contract testing, and the CI/CD gates protecting production.</p>
+</div>
+
+<main>
+
+<!-- Infrastructure Overview -->
+<section>
+  <h2>Infrastructure Overview</h2>
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="stat-num green">4</div>
+      <div class="stat-label">Systems Complete</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">2</div>
+      <div class="stat-label">In Progress</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num purple">2</div>
+      <div class="stat-label">Planned</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num orange">8</div>
+      <div class="stat-label">Total Systems</div>
+    </div>
+  </div>
+
+  <table class="compare-table">
+    <thead>
+      <tr><th>System</th><th>Status</th><th>What It Does</th><th>Completion</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>CDN Pipeline</td><td class="good">&#9989; Complete</td><td>Components publish to CDN on merge to main</td><td class="good">100%</td></tr>
+      <tr><td>Import Map Management</td><td class="good">&#9989; Complete</td><td>Automated version updates &amp; rollback</td><td class="good">100%</td></tr>
+      <tr><td>API Scanner</td><td class="good">&#9989; Complete</td><td>Discovers endpoints, extracts contracts</td><td class="good">100%</td></tr>
+      <tr><td>Contract Testing</td><td class="good">&#9989; Complete</td><td>Validates API contracts in CI/CD</td><td class="good">100%</td></tr>
+      <tr><td>App Catalog Dashboard</td><td class="neutral">&#128309; Active</td><td>UI showing component registry &amp; health</td><td class="neutral">80%</td></tr>
+      <tr><td>Change-Mod Scripts</td><td class="neutral">&#128309; Active</td><td>Automated framework update preparation</td><td class="neutral">65%</td></tr>
+      <tr><td>Visual Regression</td><td>&#9898; Planned</td><td>Automated pixel-diff testing per component</td><td>0%</td></tr>
+      <tr><td>Canary Deployment</td><td>&#9898; Planned</td><td>Percentage-based rollout per domain</td><td>0%</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- CDN Pipeline -->
+<section>
+  <h2>&#9989; CDN Pipeline</h2>
+  <p>Every component &mdash; wrapped React or native WCFramework &mdash; is automatically built, versioned, and published to the CDN when merged to its domain&rsquo;s main branch. No manual deployment steps.</p>
+
+  <details>
+    <summary>Pipeline Details <span class="detail-summary">How the CDN pipeline works</span></summary>
+    <div class="detail-body">
+      <h4>Build Flow</h4>
+      <ol>
+        <li>Developer merges PR to domain&rsquo;s <code>main</code> branch</li>
+        <li>CI runs unit tests, integration tests, and contract tests</li>
+        <li>If all pass: component is built, tree-shaken, and minified</li>
+        <li>Versioned artifact published to CDN: <code>cdn.medline.com/mfe/{domain}@{version}/</code></li>
+        <li>Import map is automatically updated with new version</li>
+        <li>CDN cache is invalidated for the updated module</li>
+      </ol>
+      <h4>Key Metrics</h4>
+      <ul>
+        <li>Average build-to-CDN time: <strong>3 minutes 42 seconds</strong></li>
+        <li>CDN edge propagation: <strong>&lt; 30 seconds</strong> globally</li>
+        <li>Rollback time: <strong>&lt; 15 seconds</strong> (import map version revert)</li>
+      </ul>
+    </div>
+  </details>
+
+  <div class="industry-std">
+    <strong>Industry Standard: Immutable Artifact Deployment</strong>
+    Every CDN artifact is immutable and versioned. Rollback means pointing the import map to the previous version &mdash; no rebuild, no redeploy. Same pattern used by npm, Docker registries, and Cloudflare Pages.
+  </div>
+</section>
+
+<!-- Import Map Management -->
+<section>
+  <h2>&#9989; Import Map Management</h2>
+  <p>The import map is the single source of truth for which version of every domain module is loaded by the shell. Updates are automated; rollbacks are instant.</p>
+
+  <details>
+    <summary>Import Map Lifecycle <span class="detail-summary">Version management details</span></summary>
+    <div class="detail-body">
+      <h4>Automated Version Updates</h4>
+      <p>When a domain publishes a new version to CDN, the import map service updates the corresponding entry. The shell fetches the import map on page load, so users get the new version on their next navigation.</p>
+      <h4>Rollback Procedure</h4>
+      <p>The import map service maintains a history of all versions. Rollback is a single API call that reverts the entry to the previous version. The CDN still has the old artifact (immutable), so rollback takes effect in &lt; 15 seconds.</p>
+      <h4>Canary Support (Planned)</h4>
+      <p>The import map service will support percentage-based routing: serve the new version to 5% of users, validate metrics, then promote to 100%. Infrastructure is ready; the canary logic is planned for Q2.</p>
+    </div>
+  </details>
+</section>
+
+<!-- API Scanner -->
+<section>
+  <h2>&#9989; API Scanner</h2>
+  <p>The API scanner runs against all BFF endpoints in staging on every deployment. It discovers endpoints, extracts OpenAPI contracts, builds dependency graphs, and flags breaking changes before they reach production.</p>
+
+  <details>
+    <summary>Scanner Capabilities <span class="detail-summary">What the scanner does</span></summary>
+    <div class="detail-body">
+      <h4>Discovery</h4>
+      <p>Scans all running BFF instances, discovers endpoints via OpenAPI spec (if available) or traffic analysis. Currently tracking <strong>23 endpoints</strong> across 4 BFF services.</p>
+      <h4>Contract Extraction</h4>
+      <p>Generates OpenAPI specs for every endpoint, including request/response schemas, required fields, and authentication requirements. Specs are committed to the <code>ml-api-contracts</code> repository.</p>
+      <h4>Breaking Change Detection</h4>
+      <p>Compares new contract against the baseline. Flags: removed fields, type changes, new required fields, removed endpoints. Integrated as a CI gate &mdash; PRs with breaking changes are blocked until reviewed.</p>
+      <h4>Performance</h4>
+      <ul>
+        <li>Full scan time: 2 minutes 18 seconds</li>
+        <li>False positive rate: 4.3% (1 false positive per 23 endpoints)</li>
+        <li>Runs on: every PR to domain main branch + nightly full scan</li>
+      </ul>
+    </div>
+  </details>
+</section>
+
+<!-- Contract Testing -->
+<section>
+  <h2>&#9989; Contract Testing</h2>
+  <p>Consumer-driven contract tests run in every domain&rsquo;s CI pipeline. If a domain&rsquo;s BFF changes break another domain&rsquo;s expectations, the build fails before merge.</p>
+
+  <details>
+    <summary>Contract Testing Details <span class="detail-summary">How contracts are validated</span></summary>
+    <div class="detail-body">
+      <h4>How It Works</h4>
+      <ol>
+        <li>Each domain declares what it expects from other domains&rsquo; BFFs (consumer contracts)</li>
+        <li>Provider domains run these consumer contracts as part of their CI</li>
+        <li>If a provider change violates a consumer contract, the provider&rsquo;s build fails</li>
+        <li>Teams negotiate contract changes via PR review</li>
+      </ol>
+      <h4>Current Coverage</h4>
+      <ul>
+        <li><strong>Catalog &rarr; Search:</strong> 4 contract tests (product search, typeahead, facets, suggestions)</li>
+        <li><strong>Cart &rarr; Catalog:</strong> 3 contract tests (product details, pricing, availability)</li>
+        <li><strong>Mini-Cart &rarr; Cart:</strong> 2 contract tests (item count, cart total)</li>
+        <li><strong>Checkout &rarr; Cart:</strong> 5 contract tests (full cart, promotions, shipping, tax, payment)</li>
+      </ul>
+    </div>
+  </details>
+
+  <div class="industry-std">
+    <strong>Industry Standard: Consumer-Driven Contracts</strong>
+    Consumer-driven contract testing (Pact pattern) is the standard approach for ensuring micro services and micro frontends don&rsquo;t break each other. Teams move fast independently while contracts catch integration failures in CI.
+  </div>
+</section>
+
+<!-- App Catalog Dashboard -->
+<section>
+  <h2>&#128309; App Catalog Dashboard &mdash; 80% Complete</h2>
+  <p>The App Catalog is the single registry showing every micro frontend, component, API endpoint, and their relationships. The backend is complete; the UI is 80% done.</p>
+
+  <details>
+    <summary>Dashboard Features <span class="detail-summary">What the dashboard shows</span></summary>
+    <div class="detail-body">
+      <h4>&#9989; Completed Features</h4>
+      <ul>
+        <li>Component registry: name, version, domain, status, last deploy date</li>
+        <li>API endpoint registry: URL, method, contract version, health</li>
+        <li>Dependency graph visualization: interactive, filterable by domain</li>
+        <li>Version history: every deploy with rollback links</li>
+        <li>Search and filtering: by domain, status, component type</li>
+      </ul>
+      <h4>&#128309; Remaining</h4>
+      <ul>
+        <li>Health monitoring integration: real-time health indicators per component</li>
+        <li>Breaking change timeline: visual history of contract changes</li>
+        <li>Team ownership view: which team owns each component and API</li>
+      </ul>
+      <h4>Target: April 18, 2026</h4>
+    </div>
+  </details>
+</section>
+
+<!-- Change-Mod Scripts -->
+<section>
+  <h2>&#128309; Change-Mod Scripts &mdash; 65% Complete</h2>
+  <p>Change-mod scripts automate framework updates across all domains. When a new WCFramework version is released, these scripts prepare the upgrade: update dependencies, run codemods, validate tests, and generate PRs.</p>
+
+  <details>
+    <summary>Script Status <span class="detail-summary">What&rsquo;s built and what remains</span></summary>
+    <div class="detail-body">
+      <h4>&#9989; Completed</h4>
+      <ul>
+        <li>Core framework: dependency update automation across all domain repos</li>
+        <li>Codemod engine: AST-based code transformations for API changes</li>
+        <li>Test validation: automated test runs after codemod application</li>
+        <li>PR generation: creates upgrade PRs with detailed changelogs</li>
+      </ul>
+      <h4>&#128309; Remaining</h4>
+      <ul>
+        <li>Domain-specific scripts: custom codemods for domain-specific patterns &mdash; <em>3 of 9 domains done</em></li>
+        <li>Rollback scripts: automated revert if upgrade tests fail</li>
+        <li>Scheduling: cron-based monthly execution with dashboard reporting</li>
+      </ul>
+    </div>
+  </details>
+</section>
+
+<!-- Planned: Visual Regression & Canary -->
+<section>
+  <h2>&#9898; Planned Systems</h2>
+  <div class="themes-grid">
+    <div class="theme-card">
+      <div class="theme-icon">&#128247;</div>
+      <h4>Visual Regression Testing</h4>
+      <p>Automated screenshot comparison per component on every PR. Catches unintended visual changes before they reach staging. Tooling evaluated: Chromatic and Playwright visual comparisons. Target: Q2.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#128038;</div>
+      <h4>Canary Deployment</h4>
+      <p>Percentage-based rollout per domain. Deploy to 5% of users, validate error rates and performance, then promote to 100%. Import map infrastructure supports this today; canary logic is the remaining work. Target: Q2.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Infrastructure Map Diagram -->
+<section>
+  <h2>Infrastructure Map</h2>
+  <div class="mermaid-wrap" id="dp05-1">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">&#9974;</button>
+    </div>
+    <div class="mw-view">
+      <div class="mermaid-inner" data-src="graph LR
+  DEV[Developer PR] --> CI[CI Pipeline]
+  CI --> UT[Unit Tests]
+  CI --> CT[Contract Tests]
+  CI --> SC[API Scanner]
+  UT --> GATE{All Pass?}
+  CT --> GATE
+  SC --> GATE
+  GATE -->|Yes| BUILD[Build &amp; Version]
+  GATE -->|No| BLOCK[PR Blocked]
+  BUILD --> CDN[CDN Publish]
+  CDN --> IM[Import Map Update]
+  IM --> SHELL[Shell Loads New Version]
+
+  SHELL --> MON[Performance Monitoring]
+  MON --> CAT_D[App Catalog Dashboard]
+
+  style GATE fill:#3fb950,stroke:#3fb950,color:#fff
+  style BLOCK fill:#f85149,stroke:#f85149,color:#fff
+  style CDN fill:#58a6ff,stroke:#58a6ff,color:#fff
+  style SHELL fill:#d2a8ff,stroke:#d2a8ff,color:#000
+  style CAT_D fill:#f0883e,stroke:#f0883e,color:#fff"></div>
+    </div>
+    <div class="mw-caption">CI/CD pipeline with automated gates &mdash; every merge goes through tests, scanning, and contract validation</div>
+  </div>
+</section>
+
+<!-- CI/CD Pipeline Detail -->
+<section>
+  <h2>CI/CD Pipeline Gates</h2>
+  <div class="mermaid-wrap" id="dp05-2">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">&#9974;</button>
+    </div>
+    <div class="mw-view">
+      <div class="mermaid-inner" data-src="graph TD
+  subgraph Gates[Automated CI/CD Gates]
+    G1[&#9989; Unit Tests] --> G2[&#9989; Integration Tests]
+    G2 --> G3[&#9989; Contract Tests]
+    G3 --> G4[&#9989; API Scanner]
+    G4 --> G5[&#9989; Bundle Size Check]
+    G5 --> G6[&#128309; Visual Regression - planned]
+    G6 --> G7[&#128309; Canary Validation - planned]
+  end
+
+  Gates --> PROD[Production Deploy]
+
+  style G1 fill:#3fb950,stroke:#3fb950,color:#fff
+  style G2 fill:#3fb950,stroke:#3fb950,color:#fff
+  style G3 fill:#3fb950,stroke:#3fb950,color:#fff
+  style G4 fill:#3fb950,stroke:#3fb950,color:#fff
+  style G5 fill:#3fb950,stroke:#3fb950,color:#fff
+  style G6 fill:#f0883e,stroke:#f0883e,color:#fff
+  style G7 fill:#f0883e,stroke:#f0883e,color:#fff
+  style PROD fill:#58a6ff,stroke:#58a6ff,color:#fff"></div>
+    </div>
+    <div class="mw-caption">CI/CD gate status &mdash; green = operational, orange = planned</div>
+  </div>
+
+  <div class="industry-std">
+    <strong>Industry Standard: Shift-Left Quality Gates</strong>
+    Catching issues in CI/CD (unit tests, contract tests, API scanning, bundle size) is dramatically less expensive than catching them in production. This shift-left pattern is standard at Google, Amazon, and Microsoft for micro frontend architectures.
+  </div>
+</section>
+
+</main>
+
+<div style="max-width:900px;margin:0 auto;padding:0 1.5rem;">
+  <div class="page-nav">
+    <a href="p04-shell-and-components.html"><span class="pn-label">&larr; Previous</span><span class="pn-title">Shell &amp; Components</span></a>
+    <a href="p06-risk-register.html" class="next"><span class="pn-label">Next &rarr;</span><span class="pn-title">Risk Register</span></a>
+  </div>
+</div>
+
+<footer>Medline Platform Evolution &mdash; Progress Dashboard &mdash; v5 &mdash; 2026-04-05 &mdash; Confidential</footer>
+<div class="toast" id="toast">Copied!</div>
+<script src="shared.js"></script>
+</body>
+</html>

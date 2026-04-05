@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Training at a Glance &mdash; Medline Platform Evolution</title>
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<div class="progress-bar"></div>
+<nav>
+  <a href="t-index.html" class="logo">ML Training</a>
+  <div class="nav-links">
+    <a href="index.html">&larr; Migration Series</a>
+    <a href="t01-overview.html" class="active">Overview</a>
+    <a href="t02-domain-developer.html">Domain Dev</a>
+    <a href="t03-component-author.html">Component Author</a>
+    <a href="t04-platform-engineer.html">Platform Eng</a>
+    <a href="t05-sign-off-gates.html">Gates</a>
+    <a href="t06-certification.html">Certification</a>
+    <a href="t07-onboarding-checklist.html">Day One</a>
+  </div>
+  <button class="theme-toggle" id="themeToggle" title="Toggle theme">&#9790;</button>
+</nav>
+
+<div class="hero">
+  <div class="page-num">Training &mdash; Page 1 of 7</div>
+  <h1>Training at a Glance</h1>
+  <p class="subtitle">The 30-second version. Three tracks, hands-on modules, automated sign-off. Everything you need to know about how developers get trained and certified for the new platform.</p>
+</div>
+
+<main>
+
+<!-- The System in One Paragraph -->
+<section>
+  <h2>The Entire System in 30 Seconds</h2>
+  <p>Every developer picks one of <strong>three training tracks</strong> based on their role: Domain Developer, Component Author, or Platform Engineer. Each track has a series of <strong>hands-on modules</strong>&mdash;not slide decks, not lectures, real exercises. Each module ends with an <strong>automated exercise</strong> that the pipeline validates. Complete all modules in your track, and you earn a <strong>certification badge</strong> that grants <strong>production deploy access</strong>.</p>
+  <p>No meetings required for sign-off. No manager approval needed. <strong>The pipeline IS the sign-off.</strong></p>
+
+  <div class="callout success">
+    <strong>The One-Line Summary</strong>
+    Complete your track &rarr; pass the automated exercises &rarr; earn your badge &rarr; deploy to production. That's it.
+  </div>
+</section>
+
+<!-- Three Training Tracks -->
+<section>
+  <h2>Three Training Tracks</h2>
+  <p>Every developer falls into one of three roles. Each role has a dedicated training track with progressively deeper modules.</p>
+
+  <div class="themes-grid">
+    <div class="theme-card">
+      <div class="theme-icon">💻</div>
+      <h4>Domain Developer</h4>
+      <p><strong>6 modules &bull; ~3 weeks</strong><br>For developers who work within a single domain (Catalog, Cart, Account, etc.). The most common track. Covers domain structure, component usage, BFF integration, local dev, deployment, and debugging.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">🧩</div>
+      <h4>Component Author</h4>
+      <p><strong>7 modules &bull; ~4 weeks</strong><br>For developers who build shared ML- components used across domains. Covers Custom Elements, Shadow DOM, styling encapsulation, publishing, WCFramework internals, React wrappers, and documentation.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">⚙️</div>
+      <h4>Platform Engineer</h4>
+      <p><strong>6 modules &bull; ~3 weeks</strong><br>For the team maintaining the shell, catalog, and infrastructure. Covers shell architecture, catalog operations, API scanning, CDN management, core cadence, and monitoring.</p>
+    </div>
+  </div>
+
+  <div class="mermaid-wrap" id="dt01-1">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">&#9974;</button>
+    </div>
+    <div class="mw-view">
+      <div class="mermaid-inner" data-src="graph TD
+  START[New Developer] --> PICK{Pick Your Track}
+  PICK -->|Most devs| DD[Domain Developer\n6 Modules]
+  PICK -->|Shared components| CA[Component Author\n7 Modules]
+  PICK -->|Infrastructure| PE[Platform Engineer\n6 Modules]
+  DD --> CERT[Automated Certification\nPipeline Validates Exercises]
+  CA --> CERT
+  PE --> CERT
+  CERT --> BADGE[Badge Earned\nProduction Access Granted]
+  style START fill:#58a6ff,stroke:#58a6ff,color:#fff
+  style DD fill:#d2a8ff,stroke:#d2a8ff,color:#000
+  style CA fill:#d2a8ff,stroke:#d2a8ff,color:#000
+  style PE fill:#d2a8ff,stroke:#d2a8ff,color:#000
+  style CERT fill:#f0883e,stroke:#f0883e,color:#fff
+  style BADGE fill:#3fb950,stroke:#3fb950,color:#fff"></div>
+    </div>
+    <div class="mw-caption">Three tracks, one destination: every path leads to certified production access</div>
+  </div>
+
+  <div class="industry-std">
+    <strong>Industry Standard: Role-Based Training Tracks</strong>
+    Competency-based certification is the industry standard for enterprise development teams. Rather than generic training for everyone, role-specific tracks ensure each developer learns exactly what they need for their daily work&mdash;nothing more, nothing less.
+  </div>
+</section>
+
+<!-- How Modules Work -->
+<section>
+  <h2>How Modules Work</h2>
+  <p>Every module across all three tracks follows the same structure. No surprises.</p>
+
+  <div class="themes-grid">
+    <div class="theme-card">
+      <div class="theme-icon">📖</div>
+      <h4>1. Learn</h4>
+      <p>Short documentation page covering the concept. Diagrams, examples, code snippets. Takes 30&ndash;60 minutes to read.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">🛠️</div>
+      <h4>2. Exercise</h4>
+      <p>A hands-on task in a real codebase (sandbox environment). Build something, fix something, deploy something. Takes 1&ndash;3 hours.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">✅</div>
+      <h4>3. Validate</h4>
+      <p>Push your exercise to the pipeline. Automated gates check your work. Pass = module complete. Fail = clear feedback on what to fix.</p>
+    </div>
+  </div>
+
+  <details>
+    <summary>What does &ldquo;automated validation&rdquo; actually mean? <span class="detail-summary">How the pipeline checks your work</span></summary>
+    <div class="detail-body">
+      <p>When you push your exercise code, the CI/CD pipeline runs a specific set of checks for that module:</p>
+      <ul>
+        <li><strong>Code structure</strong> &mdash; does your code follow the expected file layout and naming conventions?</li>
+        <li><strong>Test coverage</strong> &mdash; do your tests pass, and do they cover the required scenarios?</li>
+        <li><strong>Component contract</strong> &mdash; if you built a component, are all attributes documented and events typed?</li>
+        <li><strong>Integration</strong> &mdash; does your code work with the rest of the domain/system?</li>
+      </ul>
+      <p>Each check produces a pass/fail result with a descriptive message. If you fail, you fix and re-push. There is no limit on attempts.</p>
+    </div>
+  </details>
+</section>
+
+<!-- Sign-off Is Automated -->
+<section>
+  <h2>Sign-off Is Automated</h2>
+  <p>The old model: complete training, schedule a review meeting, wait for a manager to approve, get access. That model doesn't scale across timezones. It creates bottlenecks. It introduces subjectivity.</p>
+  <p>The new model: <strong>the pipeline is the sign-off.</strong></p>
+
+  <div class="mermaid-wrap" id="dt01-2">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">&#9974;</button>
+    </div>
+    <div class="mw-view">
+      <div class="mermaid-inner" data-src="graph LR
+  A[Complete Module\nHands-on Exercise] -->|Push code| B[Pipeline Runs\nAutomated Gates]
+  B -->|All pass| C[Module Signed Off\nAutomatic]
+  B -->|Any fail| D[Clear Feedback\nFix and Retry]
+  D -->|Re-push| B
+  C --> E{All Modules\nComplete?}
+  E -->|Yes| F[Badge Earned\nProduction Access]
+  E -->|No| G[Next Module]
+  G --> A
+  style A fill:#58a6ff,stroke:#58a6ff,color:#fff
+  style B fill:#f0883e,stroke:#f0883e,color:#fff
+  style C fill:#3fb950,stroke:#3fb950,color:#fff
+  style D fill:#f85149,stroke:#f85149,color:#fff
+  style F fill:#3fb950,stroke:#3fb950,color:#fff
+  style G fill:#d2a8ff,stroke:#d2a8ff,color:#000"></div>
+    </div>
+    <div class="mw-caption">Automated sign-off loop: exercise &rarr; pipeline &rarr; pass/fail &rarr; repeat until certified</div>
+  </div>
+
+  <div class="industry-std">
+    <strong>Industry Standard: Pipeline-Based Sign-off</strong>
+    Automated sign-off removes timezone bottlenecks, subjective reviews, and scheduling delays. If the code passes objective, reproducible criteria, it ships. This is how high-velocity enterprise teams operate at scale.
+  </div>
+</section>
+
+<!-- What This Means for You -->
+<section>
+  <h2>What This Means for You</h2>
+  <details>
+    <summary>For Directors <span class="detail-summary">Strategic benefits</span></summary>
+    <div class="detail-body">
+      <p><strong>Predictable onboarding.</strong> Every new developer follows the same documented path. You can forecast ramp-up time accurately. A domain developer is productive in 3 weeks. A component author in 4 weeks.</p>
+      <p><strong>No bottlenecks.</strong> Sign-off doesn't depend on any individual manager's availability. The pipeline validates competency 24/7, across every timezone.</p>
+      <p><strong>Measurable quality.</strong> Certification is objective. Either the developer's code passes the automated gates, or it doesn't. No ambiguity.</p>
+    </div>
+  </details>
+  <details>
+    <summary>For Team Leads <span class="detail-summary">Operational benefits</span></summary>
+    <div class="detail-body">
+      <p><strong>Clear expectations.</strong> Each module has documented sign-off criteria. Your developers know exactly what &ldquo;done&rdquo; looks like before they start.</p>
+      <p><strong>Track progress.</strong> The App Catalog shows each developer's certification status. You see at a glance who's certified for what and who's still in training.</p>
+      <p><strong>No training meetings.</strong> You don't need to schedule review sessions. The pipeline handles validation. Your time is freed for actual leadership work.</p>
+    </div>
+  </details>
+  <details>
+    <summary>For Developers <span class="detail-summary">Day-to-day benefits</span></summary>
+    <div class="detail-body">
+      <p><strong>Self-paced.</strong> Work through modules at your own speed. No waiting for cohorts or scheduled sessions. No timezone dependencies.</p>
+      <p><strong>Hands-on.</strong> You learn by building, not by watching. Every module produces something real that you can reference later.</p>
+      <p><strong>Clear feedback.</strong> When an exercise fails validation, you get specific, actionable feedback. Not &ldquo;try harder&rdquo;&mdash;exactly what check failed and why.</p>
+    </div>
+  </details>
+</section>
+
+<!-- Quick Reference Table -->
+<section>
+  <h2>Quick Reference</h2>
+  <table class="compare-table">
+    <thead>
+      <tr><th>Track</th><th>Modules</th><th>Duration</th><th>Who</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Domain Developer</strong></td><td>6</td><td>~3 weeks</td><td>Most developers</td></tr>
+      <tr><td><strong>Component Author</strong></td><td>7</td><td>~4 weeks</td><td>Shared component builders</td></tr>
+      <tr><td><strong>Platform Engineer</strong></td><td>6</td><td>~3 weeks</td><td>Shell/catalog/infra team</td></tr>
+    </tbody>
+  </table>
+  <p>All tracks end the same way: automated certification, badge earned, production access granted. Read the detailed track pages (T2&ndash;T4) for module-by-module breakdowns.</p>
+</section>
+
+</main>
+
+<div style="max-width:900px;margin:0 auto;padding:0 1.5rem;">
+  <div class="page-nav">
+    <a href="t-index.html"><span class="pn-label">&larr; Previous</span><span class="pn-title">Training Hub</span></a>
+    <a href="t02-domain-developer.html" class="next"><span class="pn-label">Next &rarr;</span><span class="pn-title">Track: Domain Developer</span></a>
+  </div>
+</div>
+
+<footer>Medline Platform Evolution &mdash; Training &amp; Sign-off Plan &mdash; v5 &mdash; 2026-04-05 &mdash; Confidential</footer>
+<div class="toast" id="toast">Copied!</div>
+<script src="shared.js"></script>
+</body>
+</html>

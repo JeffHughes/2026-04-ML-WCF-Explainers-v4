@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Progress Dashboard: POCs, Tasks &amp; Status &mdash; Medline Platform Evolution</title>
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<div class="progress-bar"></div>
+<nav>
+  <a href="p-index.html" class="logo">ML Progress</a>
+  <div class="nav-links">
+    <a href="index.html">&larr; Migration Series</a>
+    <a href="p01-executive-dashboard.html">Dashboard</a>
+    <a href="p02-poc-results.html">POCs</a>
+    <a href="p03-domain-extraction-status.html">Domains</a>
+    <a href="p04-shell-and-components.html">Shell</a>
+    <a href="p05-infrastructure-status.html">Infra</a>
+    <a href="p06-risk-register.html">Risks</a>
+    <a href="p07-next-milestones.html">Next 90d</a>
+  </div>
+  <button class="theme-toggle" id="themeToggle" title="Toggle theme">&#9790;</button>
+</nav>
+
+<div class="hero">
+  <div class="page-num">Delivery Tracking</div>
+  <h1>Progress Dashboard: POCs, Tasks &amp; Status</h1>
+  <p class="subtitle">Real-time delivery tracking for the Medline Platform Evolution. What&rsquo;s done, what&rsquo;s active, and what&rsquo;s next.</p>
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="stat-num green">3 POCs</div>
+      <div class="stat-label">Completed successfully</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">Phase 1</div>
+      <div class="stat-label">Domain extraction in progress</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num orange">12 Domains</div>
+      <div class="stat-label">Mapped and prioritized</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num purple">147 Components</div>
+      <div class="stat-label">Cataloged and tracked</div>
+    </div>
+  </div>
+</div>
+
+<main>
+
+<!-- Workstream Overview Gantt -->
+<section>
+  <h2>Workstream Overview</h2>
+  <p>All active workstreams across the evolution program. Green indicates completed work, blue shows active efforts, and gray marks planned future work.</p>
+
+  <div class="mermaid-wrap" id="dp00-1">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">&#9974;</button>
+    </div>
+    <div class="mw-view">
+      <div class="mermaid-inner" data-src="gantt
+  title Evolution Program — All Workstreams
+  dateFormat YYYY-MM-DD
+  axisFormat %b %d
+
+  section POCs
+  Domain Extraction POC        :done, poc1, 2026-01-06, 2026-01-10
+  Web Component Wrapping POC   :done, poc2, 2026-01-13, 2026-01-17
+  App Catalog Scanner POC      :done, poc3, 2026-01-20, 2026-01-24
+
+  section Domain Extraction
+  Catalog domain               :done, d1, 2026-01-27, 2026-02-14
+  Shared/Core isolation        :done, d2, 2026-02-03, 2026-02-21
+  Cart domain                  :active, d3, 2026-03-02, 2026-04-11
+  Search domain                :active, d4, 2026-03-16, 2026-04-25
+  Mini-Cart                    :d5, 2026-04-27, 2026-05-22
+  Checkout                     :d6, 2026-05-04, 2026-06-12
+  Account                      :d7, 2026-06-15, 2026-07-24
+  Content/CMS                  :d8, 2026-07-06, 2026-08-14
+
+  section Shell &amp; Components
+  WCFramework shell v0.9       :done, s1, 2026-02-10, 2026-03-07
+  Component wrapping (42)      :active, s2, 2026-03-03, 2026-04-18
+  Native components (16)       :active, s3, 2026-03-17, 2026-05-02
+
+  section Infrastructure
+  CDN pipeline                 :done, i1, 2026-02-17, 2026-03-07
+  Import map automation        :done, i2, 2026-02-24, 2026-03-14
+  API scanner                  :done, i3, 2026-01-27, 2026-02-14
+  App Catalog dashboard        :active, i4, 2026-03-10, 2026-04-18"></div>
+    </div>
+    <div class="mw-caption">Full program Gantt chart &mdash; updated 2026-04-05</div>
+  </div>
+
+  <div class="industry-std">
+    <strong>Industry Standard: Program-Level Visibility</strong>
+    All workstreams tracked in a single Gantt with consistent status indicators. Every stakeholder sees the same source of truth, updated weekly.
+  </div>
+</section>
+
+<!-- Dashboard Pages -->
+<section>
+  <h2>Dashboard Pages</h2>
+  <p>Each page below drills into a specific workstream. Start with the Executive Dashboard for the 60-second overview, then dive into areas that matter to you.</p>
+  <div class="doc-grid">
+    <a href="p01-executive-dashboard.html" class="doc-card">
+      <div class="card-num">P1</div>
+      <div class="card-body">
+        <h3>Status at a Glance</h3>
+        <p class="card-desc">The 60-second executive dashboard. Overall progress, workstream status, milestones, blockers &mdash; everything a director needs on one page.</p>
+        <div class="card-tags"><span class="tag">executive</span><span class="tag">dashboard</span></div>
+      </div>
+      <div class="card-arrow">&rarr;</div>
+    </a>
+    <a href="p02-poc-results.html" class="doc-card">
+      <div class="card-num">P2</div>
+      <div class="card-body">
+        <h3>Proof of Concept Results</h3>
+        <p class="card-desc">Three POCs completed: Domain Extraction, Web Component Wrapping, and App Catalog Scanning. Results, evidence, and key findings.</p>
+        <div class="card-tags"><span class="tag">POC</span><span class="tag">validation</span></div>
+      </div>
+      <div class="card-arrow">&rarr;</div>
+    </a>
+    <a href="p03-domain-extraction-status.html" class="doc-card">
+      <div class="card-num">P3</div>
+      <div class="card-body">
+        <h3>Domain Extraction Progress</h3>
+        <p class="card-desc">Status of all 9 domain extractions: 2 complete, 2 in progress, 5 planned. Blockers, dependencies, and extraction order rationale.</p>
+        <div class="card-tags"><span class="tag">domains</span><span class="tag">extraction</span></div>
+      </div>
+      <div class="card-arrow">&rarr;</div>
+    </a>
+    <a href="p04-shell-and-components.html" class="doc-card">
+      <div class="card-num">P4</div>
+      <div class="card-body">
+        <h3>Shell &amp; Component Catalog</h3>
+        <p class="card-desc">WCFramework shell status, 147 components cataloged, wrapping progress, and CDN deployment pipeline status.</p>
+        <div class="card-tags"><span class="tag">shell</span><span class="tag">components</span></div>
+      </div>
+      <div class="card-arrow">&rarr;</div>
+    </a>
+    <a href="p05-infrastructure-status.html" class="doc-card">
+      <div class="card-num">P5</div>
+      <div class="card-body">
+        <h3>Infrastructure &amp; Tooling</h3>
+        <p class="card-desc">CDN pipelines, import map management, API scanning, contract testing, and CI/CD gate status across all workstreams.</p>
+        <div class="card-tags"><span class="tag">infra</span><span class="tag">tooling</span></div>
+      </div>
+      <div class="card-arrow">&rarr;</div>
+    </a>
+    <a href="p06-risk-register.html" class="doc-card">
+      <div class="card-num">P6</div>
+      <div class="card-body">
+        <h3>Risk Register &amp; Mitigations</h3>
+        <p class="card-desc">Five tracked risks with likelihood, impact, mitigation strategies, owners, and current status. Honest assessment of what could go wrong.</p>
+        <div class="card-tags"><span class="tag">risks</span><span class="tag">mitigations</span></div>
+      </div>
+      <div class="card-arrow">&rarr;</div>
+    </a>
+    <a href="p07-next-milestones.html" class="doc-card">
+      <div class="card-num">P7</div>
+      <div class="card-body">
+        <h3>Next 90 Days</h3>
+        <p class="card-desc">The near-term roadmap: milestones, deliverables, success criteria, and decision gates for the next 12 weeks of execution.</p>
+        <div class="card-tags"><span class="tag">milestones</span><span class="tag">roadmap</span></div>
+      </div>
+      <div class="card-arrow">&rarr;</div>
+    </a>
+  </div>
+</section>
+
+<!-- Quick Status Summary -->
+<section>
+  <h2>Quick Status Summary</h2>
+  <table class="compare-table">
+    <thead>
+      <tr><th>Workstream</th><th>Status</th><th>Progress</th><th>Next Milestone</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Proof of Concepts</td><td class="good">&#10003; Complete</td><td class="good">3/3 passed</td><td>N/A &mdash; all validated</td></tr>
+      <tr><td>Domain Extraction</td><td class="neutral">&#128309; Active</td><td class="neutral">2/9 complete</td><td>Cart extraction &mdash; Apr 11</td></tr>
+      <tr><td>Shell &amp; Components</td><td class="neutral">&#128309; Active</td><td class="neutral">Shell v0.9 live</td><td>42 wrapped components &mdash; Apr 18</td></tr>
+      <tr><td>Infrastructure</td><td class="neutral">&#128309; Active</td><td class="good">4/8 complete</td><td>App Catalog UI &mdash; Apr 18</td></tr>
+      <tr><td>Risk Management</td><td class="good">&#10003; Tracked</td><td class="good">5 risks mitigated</td><td>Monthly review &mdash; Apr 30</td></tr>
+    </tbody>
+  </table>
+</section>
+
+</main>
+
+<div style="max-width:900px;margin:0 auto;padding:0 1.5rem;">
+  <div class="page-nav">
+    <a href="index.html"><span class="pn-label">&larr; Back to</span><span class="pn-title">Migration Series</span></a>
+    <a href="p01-executive-dashboard.html" class="next"><span class="pn-label">Next &rarr;</span><span class="pn-title">Executive Dashboard</span></a>
+  </div>
+</div>
+
+<footer>Medline Platform Evolution &mdash; Progress Dashboard &mdash; v5 &mdash; 2026-04-05 &mdash; Confidential</footer>
+<div class="toast" id="toast">Copied!</div>
+<script src="shared.js"></script>
+</body>
+</html>

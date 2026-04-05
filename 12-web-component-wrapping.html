@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wrapping React Micro Frontends in Web Components &mdash; Medline Platform Evolution</title>
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<div class="progress-bar"></div>
+<nav>
+  <a href="index.html" class="logo">ML Evolution</a>
+  <div class="nav-links">
+    <a href="01-executive-summary.html">Summary</a>
+    <a href="02-current-state.html">Today</a>
+    <a href="03-why-change.html">Why</a>
+    <a href="04-migration-overview.html">Strategy</a>
+    <a href="05-copy-split-strip.html">Copy-Split</a>
+    <a href="06-domain-map.html">Domains</a>
+    <a href="07-catalog-domain.html">Catalog</a>
+    <a href="08-cart-checkout.html">Cart</a>
+    <a href="09-remaining-domains.html">Other</a>
+    <a href="10-shell-architecture.html">Shell</a>
+    <a href="11-shell-swap.html">Swap</a>
+    <a href="12-web-component-wrapping.html" class="active">Wrapping</a>
+    <a href="13-hydration-csr.html">CSR</a>
+    <a href="14-component-standards.html">Standards</a>
+    <a href="15-component-transition.html">Transition</a>
+    <a href="16-app-catalog.html">Catalog</a>
+    <a href="17-api-scanning.html">Scanning</a>
+    <a href="18-bff-pattern.html">BFF</a>
+    <a href="19-managing-drift.html">Drift</a>
+    <a href="20-core-cadence.html">Cadence</a>
+    <a href="21-testing-strategy.html">Testing</a>
+    <a href="22-blue-green-rollouts.html">Deploy</a>
+    <a href="23-migration-timeline.html">Timeline</a>
+    <a href="24-team-impact.html">Teams</a>
+    <a href="25-key-principles.html">Principles</a>
+    <a href="dev-environment.html">DevEx</a>
+  </div>
+  <button class="theme-toggle" id="themeToggle" title="Toggle theme">&#9790;</button>
+</nav>
+<div class="hero">
+  <div class="page-num">New Architecture</div>
+  <h1>Wrapping React Micro Frontends in Web Components</h1>
+  <p class="subtitle">The bridge pattern &mdash; add a standard interface around existing code without changing a single line of React</p>
+</div>
+<main>
+
+  <!-- ════════════════════════════════════════════ -->
+  <section>
+    <h2>The Core Idea</h2>
+    <p>Every existing React micro frontend gets a thin Web Component wrapper. The wrapper creates a Shadow DOM boundary, mounts the React app inside it, and exposes a standard Web Component API (attributes in, events out). From the shell&rsquo;s perspective, it&rsquo;s just a <code>&lt;ml-catalog-plp&gt;</code> custom element. What&rsquo;s running inside &mdash; React, vanilla JS, or anything else &mdash; is an internal implementation detail.</p>
+
+    <div class="callout success">
+      <strong>&#9989; This Is NOT a Rewrite</strong>
+      The React code inside the wrapper doesn&rsquo;t change. Not a single component, not a single state hook, not a single API call. The wrapper is an <em>adapter</em> that gives existing React code a standards-based interface. It&rsquo;s the difference between remodeling a house and putting a new front door on it.
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════ -->
+  <section>
+    <h2>Wrapper Architecture</h2>
+
+    <div class="mermaid-wrap" id="d12-1">
+      <div class="mw-toolbar">
+        <button onclick="mzoom(this,1.2)">+</button>
+        <button onclick="mzoom(this,0.8)">&minus;</button>
+        <button onclick="mreset(this)">Reset</button>
+        <button onclick="mfull(this)">&#x26F6;</button>
+      </div>
+      <div class="mw-view"><div class="mermaid-inner" data-src="graph TB
+    subgraph SHELL[&quot;CSR Shell&quot;]
+      OUTLET[Domain Outlet]
+    end
+    subgraph WC[&quot;Web Component Wrapper — ml-catalog-plp&quot;]
+      SD[Shadow DOM Boundary]
+      subgraph REACT[&quot;React Application — Unchanged&quot;]
+        ROOT[ReactDOM.render]
+        APP[App Component]
+        COMP1[ProductGrid]
+        COMP2[FilterPanel]
+        COMP3[Pagination]
+        STATE[State Management]
+        API[API Client]
+      end
+      ATTRS[Attributes In: category, page, sort]
+      EVENTS[Events Out: ml:add-to-cart, ml:navigate]
+    end
+
+    OUTLET --> WC
+    ATTRS --> ROOT
+    APP --> COMP1
+    APP --> COMP2
+    APP --> COMP3
+    APP --> STATE
+    STATE --> API
+
+    style SHELL fill:#1a2744,stroke:#58a6ff,color:#e6edf3
+    style WC fill:#0d2818,stroke:#3fb950,color:#e6edf3
+    style REACT fill:#2a1a3a,stroke:#d2a8ff,color:#e6edf3"></div></div>
+      <div class="mw-caption">Wrapper architecture &mdash; the React application runs unchanged inside a Shadow DOM boundary, communicating via attributes and events</div>
+    </div>
+
+    <h3>How It Works Step by Step</h3>
+    <ol>
+      <li>The shell navigates to <code>/products/gloves</code></li>
+      <li>The shell creates <code>&lt;ml-catalog-plp category=&quot;gloves&quot;&gt;</code> and inserts it into the DOM</li>
+      <li>The custom element&rsquo;s <code>connectedCallback</code> fires</li>
+      <li>The wrapper creates a Shadow DOM root</li>
+      <li>The wrapper injects required styles into the Shadow DOM (scoped, isolated)</li>
+      <li>The wrapper calls the React render function, mounting the React app into the Shadow DOM</li>
+      <li>The React app renders exactly as it always has &mdash; components, state, API calls, everything</li>
+      <li>When the React app needs to communicate outward (e.g., user clicks &ldquo;Add to Cart&rdquo;), it calls a callback that dispatches a <code>CustomEvent</code></li>
+      <li>When the shell updates attributes (e.g., user navigates to a different category), the wrapper&rsquo;s <code>attributeChangedCallback</code> passes new props to React</li>
+    </ol>
+  </section>
+
+  <!-- ════════════════════════════════════════════ -->
+  <section>
+    <h2>The Wrapper Code</h2>
+    <p>Here&rsquo;s the complete wrapper pattern. This is the <em>only new code</em> needed to make a React MFE work in the standards-based shell:</p>
+
+    <pre><code>// ml-catalog-plp.js — Web Component wrapper for the Catalog PLP React app
+import { render, unmount } from './react-app/index.js'; // existing React entry point
+
+class MLCatalogPLP extends HTMLElement {
+  // Declare which attributes the shell can pass
+  static get observedAttributes() {
+    return ['category', 'page', 'sort', 'filters'];
+  }
+
+  constructor() {
+    super();
+    // Create Shadow DOM for style/DOM isolation
+    this.attachShadow({ mode: 'open' });
+    this._mountPoint = document.createElement('div');
+    this._mountPoint.id = 'react-root';
+    this.shadowRoot.appendChild(this._mountPoint);
+  }
+
+  connectedCallback() {
+    // Called when the element is added to the DOM
+    this._renderReact();
+  }
+
+  disconnectedCallback() {
+    // Called when the element is removed — clean up React
+    unmount(this._mountPoint);
+  }
+
+  attributeChangedCallback(name, oldVal, newVal) {
+    // Called when an observed attribute changes — re-render React with new props
+    if (oldVal !== newVal &amp;&amp; this.isConnected) {
+      this._renderReact();
+    }
+  }
+
+  _renderReact() {
+    // Gather attributes as props
+    const props = {
+      category: this.getAttribute('category'),
+      page: this.getAttribute('page') || '1',
+      sort: this.getAttribute('sort') || 'relevance',
+      filters: this.getAttribute('filters'),
+      // Callback for outbound events
+      onAddToCart: (detail) =&gt; {
+        this.dispatchEvent(new CustomEvent('ml:add-to-cart', {
+          bubbles: true, composed: true, detail
+        }));
+      },
+      onNavigate: (path) =&gt; {
+        this.dispatchEvent(new CustomEvent('ml:navigate', {
+          bubbles: true, composed: true, detail: { path }
+        }));
+      }
+    };
+    // Mount the React app into the Shadow DOM
+    render(this._mountPoint, props);
+  }
+}
+
+// Register the custom element
+customElements.define('ml-catalog-plp', MLCatalogPLP);</code></pre>
+
+    <div class="callout">
+      <strong>&#128161; That&rsquo;s the Entire Wrapper</strong>
+      ~50 lines of code. No build tool changes. No React component modifications. The React <code>render()</code> function already exists &mdash; it&rsquo;s the same entry point the React app uses today. The wrapper just calls it inside a Shadow DOM instead of <code>document.getElementById('root')</code>.
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════ -->
+  <section>
+    <h2>Data Flow Through the Wrapper</h2>
+
+    <div class="mermaid-wrap" id="d12-2">
+      <div class="mw-toolbar">
+        <button onclick="mzoom(this,1.2)">+</button>
+        <button onclick="mzoom(this,0.8)">&minus;</button>
+        <button onclick="mreset(this)">Reset</button>
+        <button onclick="mfull(this)">&#x26F6;</button>
+      </div>
+      <div class="mw-view"><div class="mermaid-inner" data-src="sequenceDiagram
+    participant Shell
+    participant Wrapper as Web Component Wrapper
+    participant React as React App (Unchanged)
+    participant BFF as Domain BFF
+
+    Shell->>Wrapper: Create ml-catalog-plp category=gloves
+    Wrapper->>Wrapper: attachShadow, create mount point
+    Wrapper->>React: render(mountPoint, { category: gloves })
+    React->>BFF: GET /products?category=gloves
+    BFF-->>React: Product JSON
+    React->>React: Render product grid (normal React rendering)
+
+    Note over Shell,React: User clicks Add to Cart on a product
+
+    React->>Wrapper: props.onAddToCart({ sku: MED-123, qty: 1 })
+    Wrapper->>Shell: dispatchEvent(ml:add-to-cart)
+    Shell->>Shell: Event bus routes to Cart domain
+
+    Note over Shell,React: User navigates to page 2
+
+    Shell->>Wrapper: setAttribute(page, 2)
+    Wrapper->>Wrapper: attributeChangedCallback fires
+    Wrapper->>React: render(mountPoint, { category: gloves, page: 2 })
+    React->>BFF: GET /products?category=gloves&amp;page=2
+    BFF-->>React: Page 2 products
+    React->>React: Re-render grid with new data"></div></div>
+      <div class="mw-caption">Data flow &mdash; attributes flow in from the shell, events flow out to the shell, React handles everything in between</div>
+    </div>
+
+    <h3>The Two-Way Contract</h3>
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Direction</th>
+          <th>Mechanism</th>
+          <th>Standard</th>
+          <th>Example</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>In</strong> (Shell &rarr; Domain)</td>
+          <td>HTML attributes</td>
+          <td>W3C Custom Elements <code>observedAttributes</code></td>
+          <td><code>&lt;ml-catalog-plp category=&quot;gloves&quot; page=&quot;2&quot;&gt;</code></td>
+        </tr>
+        <tr>
+          <td><strong>Out</strong> (Domain &rarr; Shell)</td>
+          <td>Custom Events</td>
+          <td>W3C DOM Events with <code>composed: true</code></td>
+          <td><code>new CustomEvent('ml:add-to-cart', { detail })</code></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>This is the <strong>same interface contract</strong> used by every native HTML element. An <code>&lt;input&gt;</code> takes attributes (<code>value</code>, <code>type</code>, <code>placeholder</code>) and fires events (<code>input</code>, <code>change</code>, <code>focus</code>). Web Component wrappers work exactly the same way.</p>
+  </section>
+
+  <!-- ════════════════════════════════════════════ -->
+  <section>
+    <h2>Shadow DOM: Why It Matters</h2>
+    <p>Shadow DOM provides <strong>true isolation</strong> between the wrapper and the rest of the page. This solves some of the most painful problems in micro frontend architectures:</p>
+
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Problem</th>
+          <th>Without Shadow DOM</th>
+          <th>With Shadow DOM</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>CSS leakage</td>
+          <td class="bad">Domain A&rsquo;s styles bleed into Domain B. Global <code>.button</code> class conflicts everywhere.</td>
+          <td class="good">Styles are scoped. Domain A&rsquo;s <code>.button</code> can&rsquo;t affect Domain B.</td>
+        </tr>
+        <tr>
+          <td>DOM collisions</td>
+          <td class="bad">Two domains using <code>document.getElementById('root')</code> conflict.</td>
+          <td class="good">Each domain has its own DOM tree inside Shadow DOM.</td>
+        </tr>
+        <tr>
+          <td>Global state pollution</td>
+          <td class="bad">Domains accidentally modify each other&rsquo;s DOM via <code>document.querySelector</code>.</td>
+          <td class="good">Shadow DOM is invisible to external <code>querySelector</code> calls.</td>
+        </tr>
+        <tr>
+          <td>Framework conflicts</td>
+          <td class="bad">Two versions of React can&rsquo;t coexist on the same page.</td>
+          <td class="good">Each Shadow DOM can load its own framework version in isolation.</td>
+        </tr>
+        <tr>
+          <td>Third-party script interference</td>
+          <td class="bad">Analytics scripts, chat widgets, A/B testing tools modify the DOM unpredictably.</td>
+          <td class="good">Shadow DOM elements are protected from external DOM manipulation.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="industry-std">
+      <strong>Industry Standard: Shadow DOM Encapsulation</strong>
+      Shadow DOM is a W3C standard implemented in all modern browsers. It&rsquo;s used by YouTube (the video player is a Shadow DOM tree), GitHub (many interactive elements use Shadow DOM), and Salesforce Lightning Web Components. It&rsquo;s the browser-native solution to the micro frontend isolation problem.
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════ -->
+  <section>
+    <h2>Handling Styles Inside Shadow DOM</h2>
+    <p>One question that comes up immediately: &ldquo;How do I get my React app&rsquo;s CSS into the Shadow DOM?&rdquo; There are three approaches, and the right one depends on how your React app currently manages styles:</p>
+
+    <details>
+      <summary>Approach 1: Inject CSS into Shadow DOM <span class="detail-summary">Best for apps with external CSS files</span></summary>
+      <div class="detail-body">
+        <p>If your React app uses external CSS files (imported via bundler), inject them as <code>&lt;style&gt;</code> or <code>&lt;link&gt;</code> elements into the Shadow DOM root:</p>
+        <pre><code>connectedCallback() {
+  // Inject styles into Shadow DOM
+  const style = document.createElement('link');
+  style.rel = 'stylesheet';
+  style.href = new URL('./styles.css', import.meta.url).href;
+  this.shadowRoot.prepend(style);
+
+  this._renderReact();
+}</code></pre>
+        <p>This works because styles inside Shadow DOM are scoped &mdash; they only apply to elements within that Shadow DOM tree.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary>Approach 2: Constructable Stylesheets <span class="detail-summary">Best for programmatic style injection</span></summary>
+      <div class="detail-body">
+        <p>Use the <code>CSSStyleSheet</code> constructor to create a stylesheet and adopt it into the Shadow DOM:</p>
+        <pre><code>const sheet = new CSSStyleSheet();
+sheet.replaceSync(cssText); // cssText is your component's CSS string
+this.shadowRoot.adoptedStyleSheets = [sheet];</code></pre>
+        <p>Constructable Stylesheets are a browser standard that allows sharing stylesheet objects across multiple Shadow DOM trees efficiently.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary>Approach 3: CSS-in-JS (Emotion, Styled Components) <span class="detail-summary">Works automatically with Shadow DOM target</span></summary>
+      <div class="detail-body">
+        <p>If your React app uses CSS-in-JS (Emotion, styled-components), configure the style injection target to point at the Shadow DOM root instead of <code>&lt;head&gt;</code>:</p>
+        <pre><code>// Emotion: specify container
+import { CacheProvider } from '@emotion/react';
+import createCache from '@emotion/cache';
+
+const cache = createCache({
+  key: 'ml-catalog',
+  container: this.shadowRoot // Styles inject here, not &lt;head&gt;
+});</code></pre>
+        <p>Most CSS-in-JS libraries support a custom injection point. Once configured, styles flow into the Shadow DOM automatically.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ════════════════════════════════════════════ -->
+  <section>
+    <h2>The Gradual Migration Path</h2>
+    <p>The wrapper is a bridge, not the destination. Over time, teams can replace the React internals with WCFramework components at their own pace. This is a <strong>team-level decision</strong>, not a platform-wide mandate.</p>
+
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Stage</th>
+          <th>What&rsquo;s Inside the Wrapper</th>
+          <th>Shell Sees</th>
+          <th>When</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Stage 1</strong></td>
+          <td>Full React app, unchanged</td>
+          <td><code>&lt;ml-catalog-plp&gt;</code></td>
+          <td>Day 1 of shell swap</td>
+        </tr>
+        <tr>
+          <td><strong>Stage 2</strong></td>
+          <td>React app with some WCFramework sub-components</td>
+          <td><code>&lt;ml-catalog-plp&gt;</code></td>
+          <td>When team has capacity</td>
+        </tr>
+        <tr>
+          <td><strong>Stage 3</strong></td>
+          <td>Fully WCFramework, no React dependency</td>
+          <td><code>&lt;ml-catalog-plp&gt;</code></td>
+          <td>When team does next major rewrite</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p><strong>The shell never knows and never cares</strong> what&rsquo;s inside the wrapper. It just renders <code>&lt;ml-catalog-plp&gt;</code> and passes attributes. Whether that element contains React 17, React 19, vanilla JS, or WCFramework components is invisible to the shell. This is the power of the Web Component boundary.</p>
+
+    <div class="callout">
+      <strong>&#128161; No Big Bang Rewrite</strong>
+      Teams migrate their internals when it makes sense for them: during a feature rewrite, when fixing a major bug, or when upgrading a dependency. The wrapper buys you time &mdash; potentially years. You never have to rewrite everything. You just have to wrap everything once (in ~50 lines), and then the internal migration happens organically.
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════ -->
+  <section>
+    <h2>Common Questions</h2>
+
+    <details>
+      <summary>Can two domains use different React versions? <span class="detail-summary">Yes, via Shadow DOM isolation</span></summary>
+      <div class="detail-body">
+        <p>Yes. Because each domain runs inside its own Shadow DOM and loads its own bundled dependencies, Domain A can run React 17 while Domain B runs React 18 (or any other version). There&rsquo;s no shared React runtime &mdash; each domain bundles its own. This eliminates the &ldquo;coordinated React upgrade&rdquo; problem that plagues monolithic micro frontend architectures.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary>What about performance? Doesn&rsquo;t bundling React per domain increase total JS? <span class="detail-summary">Shared externals via import map</span></summary>
+      <div class="detail-body">
+        <p>Initially, yes &mdash; each domain bundles its own React. But the import map can be used to share a single React instance across domains that use the same version:</p>
+        <pre><code>// In the import map
+"react": "https://cdn.medline.com/shared/react@17.0.2/index.js",
+"react-dom": "https://cdn.medline.com/shared/react-dom@17.0.2/index.js"</code></pre>
+        <p>Domains that want to share React reference it as an external. Domains that need a different version bundle their own. The import map gives you per-domain control.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary>How do I test the wrapper? <span class="detail-summary">Unit tests + integration tests + visual regression</span></summary>
+      <div class="detail-body">
+        <ul>
+          <li><strong>Unit test the wrapper</strong> &mdash; Verify <code>connectedCallback</code> mounts React, <code>disconnectedCallback</code> unmounts, <code>attributeChangedCallback</code> re-renders with new props</li>
+          <li><strong>Integration test</strong> &mdash; Load the custom element in a test harness, set attributes, verify DOM output, verify events fire correctly</li>
+          <li><strong>Visual regression</strong> &mdash; Screenshot the wrapped component and compare with the unwrapped version. They should look identical.</li>
+          <li><strong>Existing React tests</strong> &mdash; These continue to pass without modification. The wrapper doesn&rsquo;t change React&rsquo;s behavior.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details>
+      <summary>What about server-side rendering? <span class="detail-summary">Not needed in the CSR shell</span></summary>
+      <div class="detail-body">
+        <p>The new CSR shell doesn&rsquo;t do server-side rendering. Domains render client-side inside the browser. For SEO-critical pages (PDP, PLP), pre-rendering or static site generation handles the SEO requirement (see page 13: CSR Hydration). The wrapper pattern is purely client-side.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary>Can I use this pattern for non-React MFEs? <span class="detail-summary">Yes &mdash; any framework works</span></summary>
+      <div class="detail-body">
+        <p>The wrapper pattern works with any UI framework or library. Replace <code>ReactDOM.render()</code> with:</p>
+        <ul>
+          <li><strong>Vue</strong> &mdash; <code>createApp(App).mount(this._mountPoint)</code></li>
+          <li><strong>Svelte</strong> &mdash; <code>new App({ target: this._mountPoint })</code></li>
+          <li><strong>Vanilla JS</strong> &mdash; <code>this._mountPoint.innerHTML = template(props)</code></li>
+          <li><strong>WCFramework</strong> &mdash; Already a Web Component, no wrapper needed</li>
+        </ul>
+        <p>The shell only cares about the custom element API. What runs inside is each team&rsquo;s choice.</p>
+      </div>
+    </details>
+  </section>
+
+</main>
+<div style="max-width:900px;margin:0 auto;padding:0 1.5rem;">
+  <div class="page-nav">
+    <a href="11-shell-swap.html"><span class="pn-label">&larr; Previous</span><span class="pn-title">The Shell Swap</span></a>
+    <a href="13-hydration-csr.html" class="next"><span class="pn-label">Next &rarr;</span><span class="pn-title">CSR Hydration: Why Client-Side Wins</span></a>
+  </div>
+</div>
+<footer>Medline Platform Evolution &mdash; v5 &mdash; 2026-04-05 &mdash; Technical Director Series &mdash; Confidential</footer>
+<div class="toast" id="toast">Copied!</div>
+<script src="shared.js"></script>
+</body>
+</html>

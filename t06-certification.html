@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Certification: Prove It, Ship It &mdash; Medline Platform Evolution</title>
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<div class="progress-bar"></div>
+<nav>
+  <a href="t-index.html" class="logo">ML Training</a>
+  <div class="nav-links">
+    <a href="index.html">&larr; Migration Series</a>
+    <a href="t01-overview.html">Overview</a>
+    <a href="t02-domain-developer.html">Domain Dev</a>
+    <a href="t03-component-author.html">Component Author</a>
+    <a href="t04-platform-engineer.html">Platform Eng</a>
+    <a href="t05-sign-off-gates.html">Gates</a>
+    <a href="t06-certification.html" class="active">Certification</a>
+    <a href="t07-onboarding-checklist.html">Day One</a>
+  </div>
+  <button class="theme-toggle" id="themeToggle" title="Toggle theme">&#9790;</button>
+</nav>
+
+<div class="hero">
+  <div class="page-num">Training &mdash; Page 6 of 7</div>
+  <h1>Certification: Prove It, Ship It</h1>
+  <p class="subtitle">Complete your track, pass the automated exercises, earn your badge, get production access. No manager approval needed. The system validates competency.</p>
+</div>
+
+<main>
+
+<!-- How Certification Works -->
+<section>
+  <h2>How Certification Works</h2>
+  <p>Certification is the outcome of completing your training track. It's not a test you schedule. It's not a meeting you attend. It's the natural result of passing all your module exercises through the automated pipeline.</p>
+
+  <div class="themes-grid">
+    <div class="theme-card">
+      <div class="theme-icon">📚</div>
+      <h4>Step 1: Complete Modules</h4>
+      <p>Work through all modules in your track (Domain Developer: 6, Component Author: 7, Platform Engineer: 6). Each module has a hands-on exercise.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">🔬</div>
+      <h4>Step 2: Pass Exercises</h4>
+      <p>Each exercise is validated by the automated pipeline. The same seven gates that guard production code guard your exercises. Pass = module complete.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">🏅</div>
+      <h4>Step 3: Earn Your Badge</h4>
+      <p>When all modules in your track are complete, the system automatically issues your certification badge. No waiting. No approval chain.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">🚀</div>
+      <h4>Step 4: Production Access</h4>
+      <p>Your badge grants production deploy access for your role. Domain Developer badge = deploy your domain. Component Author badge = publish components. Platform Engineer badge = manage infrastructure.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Certification Flow Diagram -->
+<section>
+  <h2>Certification Flow</h2>
+
+  <div class="mermaid-wrap" id="dt06-1">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">&#9974;</button>
+    </div>
+    <div class="mw-view">
+      <div class="mermaid-inner" data-src="graph TD
+  M1[Module 1\nExercise Complete] --> M2[Module 2\nExercise Complete]
+  M2 --> M3[Module 3\nExercise Complete]
+  M3 --> MN[... Remaining\nModules]
+  MN --> LAST[Final Module\nExercise Complete]
+  LAST --> VAL[System Validates\nAll Modules Passed]
+  VAL --> BADGE[Badge Issued\nAutomatic]
+  BADGE --> ACCESS[Production Access\nGranted Immediately]
+  ACCESS --> CATALOG[Visible in App Catalog\nWho Can Deploy What]
+  style M1 fill:#58a6ff,stroke:#58a6ff,color:#fff
+  style M2 fill:#58a6ff,stroke:#58a6ff,color:#fff
+  style M3 fill:#58a6ff,stroke:#58a6ff,color:#fff
+  style MN fill:#d2a8ff,stroke:#d2a8ff,color:#000
+  style LAST fill:#d2a8ff,stroke:#d2a8ff,color:#000
+  style VAL fill:#f0883e,stroke:#f0883e,color:#fff
+  style BADGE fill:#3fb950,stroke:#3fb950,color:#fff
+  style ACCESS fill:#3fb950,stroke:#3fb950,color:#fff
+  style CATALOG fill:#3fb950,stroke:#3fb950,color:#fff"></div>
+    </div>
+    <div class="mw-caption">Certification flow: complete modules &rarr; system validates &rarr; badge issued &rarr; production access granted</div>
+  </div>
+
+  <div class="industry-std">
+    <strong>Industry Standard: Competency-Based Access Control</strong>
+    Competency-based access control removes bottlenecks and ensures only qualified developers touch production. Instead of relying on job titles or manager approvals, access is granted based on demonstrated skills. This is the model used by leading DevOps organizations worldwide.
+  </div>
+</section>
+
+<!-- Badge Types -->
+<section>
+  <h2>Badge Types</h2>
+  <p>Three badges correspond to three training tracks. Each badge grants specific production privileges.</p>
+
+  <table class="compare-table">
+    <thead>
+      <tr><th>Badge</th><th>Track</th><th>Production Access</th><th>Visible In</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>🟦 Domain Developer</strong></td>
+        <td>6 modules</td>
+        <td class="good">Deploy your assigned domain(s)</td>
+        <td>App Catalog &mdash; domain team roster</td>
+      </tr>
+      <tr>
+        <td><strong>🟪 Component Author</strong></td>
+        <td>7 modules</td>
+        <td class="good">Publish ML- components to CDN &amp; catalog</td>
+        <td>App Catalog &mdash; component ownership</td>
+      </tr>
+      <tr>
+        <td><strong>🟧 Platform Engineer</strong></td>
+        <td>6 modules</td>
+        <td class="good">Manage shell, import maps, catalog, CDN</td>
+        <td>App Catalog &mdash; platform team roster</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <details>
+    <summary>Can a developer earn multiple badges? <span class="detail-summary">Multi-track certification</span></summary>
+    <div class="detail-body">
+      <p>Yes. A developer can complete multiple tracks and earn multiple badges. Common combinations:</p>
+      <ul>
+        <li><strong>Domain Developer + Component Author</strong> &mdash; for senior developers who both build features and contribute shared components</li>
+        <li><strong>Component Author + Platform Engineer</strong> &mdash; for tech leads who build components and maintain infrastructure</li>
+        <li><strong>All three</strong> &mdash; for architects and principal engineers who need full platform access</li>
+      </ul>
+      <p>Each track is independent. Completing one does not require completing another.</p>
+    </div>
+  </details>
+</section>
+
+<!-- Badges in the App Catalog -->
+<section>
+  <h2>Badges in the App Catalog</h2>
+  <p>Certification badges are not just status symbols. They're functional. The App Catalog uses badges to enforce access control.</p>
+
+  <details>
+    <summary>How badge-based access works <span class="detail-summary">Functional access control</span></summary>
+    <div class="detail-body">
+      <ul>
+        <li><strong>Deploy pipelines</strong> check for the appropriate badge before allowing a production deployment</li>
+        <li><strong>Component publish</strong> pipelines check for the Component Author badge</li>
+        <li><strong>Infrastructure changes</strong> require the Platform Engineer badge</li>
+        <li><strong>The App Catalog dashboard</strong> shows each developer's badges and what they're authorized to deploy</li>
+        <li><strong>Team leads</strong> can see at a glance which team members are certified and which are still in training</li>
+      </ul>
+      <p>This is not honor-system access control. The pipeline enforces it. A developer without the right badge literally cannot trigger a production deployment.</p>
+    </div>
+  </details>
+
+  <div class="industry-std">
+    <strong>Industry Standard: Automated Access Governance</strong>
+    Automated, role-based access control tied to demonstrated competency is the industry standard for regulated and high-scale environments. It satisfies audit requirements, eliminates privilege creep, and ensures every production deployment is performed by someone who has proven they know what they're doing.
+  </div>
+</section>
+
+<!-- Recertification -->
+<section>
+  <h2>Recertification</h2>
+  <p>When the core cadence annual update happens, a short recertification module is published. This ensures everyone stays current with platform changes.</p>
+
+  <details>
+    <summary>How recertification works <span class="detail-summary">Annual update + short module</span></summary>
+    <div class="detail-body">
+      <h4>The Process</h4>
+      <ol>
+        <li><strong>Annual core update ships</strong> &mdash; the platform engineering team releases the new core version</li>
+        <li><strong>Recert module published</strong> &mdash; a focused module covering what changed, what's new, and what developers need to know</li>
+        <li><strong>Developers complete the recert</strong> &mdash; typically 2&ndash;4 hours, covering only the delta (not re-doing the full track)</li>
+        <li><strong>Badge refreshed</strong> &mdash; badge is updated to the current year's version</li>
+        <li><strong>Grace period</strong> &mdash; developers have 30 days from the annual update to complete recertification. During the grace period, existing access continues.</li>
+      </ol>
+      <h4>What If I Don't Recertify?</h4>
+      <p>After the 30-day grace period, production deploy access is suspended until recertification is complete. Staging access remains. This is a safety measure, not a punishment&mdash;the platform has changed, and we need to ensure everyone operating on it understands the changes.</p>
+    </div>
+  </details>
+
+  <div class="mermaid-wrap" id="dt06-2">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">&#9974;</button>
+    </div>
+    <div class="mw-view">
+      <div class="mermaid-inner" data-src="graph LR
+  UPDATE[Annual Core Update] -->|Publish| RECERT[Recert Module\n2-4 Hours]
+  RECERT -->|Complete within 30 days| REFRESH[Badge Refreshed\nAccess Continues]
+  RECERT -->|Miss deadline| SUSPEND[Access Suspended\nStaging Only]
+  SUSPEND -->|Complete recert| REFRESH
+  style UPDATE fill:#58a6ff,stroke:#58a6ff,color:#fff
+  style RECERT fill:#d2a8ff,stroke:#d2a8ff,color:#000
+  style REFRESH fill:#3fb950,stroke:#3fb950,color:#fff
+  style SUSPEND fill:#f85149,stroke:#f85149,color:#fff"></div>
+    </div>
+    <div class="mw-caption">Recertification: annual update triggers a short module. Complete within 30 days to keep production access.</div>
+  </div>
+</section>
+
+<!-- No Manager Approval -->
+<section>
+  <h2>No Manager Approval Needed</h2>
+  <p>This is worth repeating. The entire certification and access control system is automated. There is no step where a developer waits for a manager to click &ldquo;approve.&rdquo;</p>
+
+  <div class="callout success">
+    <strong>The Guarantee</strong>
+    If you complete the exercises and the pipeline validates your work, you earn your badge. Period. No politics. No waiting. No subjectivity. The system validates competency, not relationships.
+  </div>
+
+  <details>
+    <summary>Why remove managers from the sign-off loop? <span class="detail-summary">Scaling across timezones</span></summary>
+    <div class="detail-body">
+      <p>Three reasons:</p>
+      <ol>
+        <li><strong>Timezone scaling</strong> &mdash; with teams across multiple timezones, waiting for a manager in a different timezone creates 24-hour delays. The pipeline runs 24/7.</li>
+        <li><strong>Objectivity</strong> &mdash; automated gates are objective and reproducible. Two developers with the same skill level get the same result every time.</li>
+        <li><strong>Manager time</strong> &mdash; managers should spend time on leadership, mentoring, and strategic work&mdash;not reviewing training exercises that a pipeline can validate better.</li>
+      </ol>
+      <p>Managers still see all certification data in the App Catalog. They still know who's certified and who isn't. They just don't need to be in the critical path.</p>
+    </div>
+  </details>
+
+  <div class="industry-std">
+    <strong>Industry Standard: Self-Service Developer Platforms</strong>
+    Self-service developer platforms&mdash;where developers can onboard, train, certify, and deploy without waiting for manual approvals&mdash;are the defining pattern of modern platform engineering. Gartner, Forrester, and ThoughtWorks Technology Radar all identify this as a key enabler of developer productivity at scale.
+  </div>
+</section>
+
+</main>
+
+<div style="max-width:900px;margin:0 auto;padding:0 1.5rem;">
+  <div class="page-nav">
+    <a href="t05-sign-off-gates.html"><span class="pn-label">&larr; Previous</span><span class="pn-title">Automated Sign-off Gates</span></a>
+    <a href="t07-onboarding-checklist.html" class="next"><span class="pn-label">Next &rarr;</span><span class="pn-title">Day One: New Developer Checklist</span></a>
+  </div>
+</div>
+
+<footer>Medline Platform Evolution &mdash; Training &amp; Sign-off Plan &mdash; v5 &mdash; 2026-04-05 &mdash; Confidential</footer>
+<div class="toast" id="toast">Copied!</div>
+<script src="shared.js"></script>
+</body>
+</html>

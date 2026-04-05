@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Component Standards: The ML- Convention &mdash; Medline Platform Evolution</title>
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<div class="progress-bar"></div>
+<nav>
+  <a href="index.html" class="logo">ML Evolution</a>
+  <div class="nav-links">
+    <a href="01-executive-summary.html">Summary</a>
+    <a href="02-current-state.html">Today</a>
+    <a href="03-why-change.html">Why</a>
+    <a href="04-migration-overview.html">Strategy</a>
+    <a href="05-copy-split-strip.html">Copy-Split</a>
+    <a href="06-domain-map.html">Domains</a>
+    <a href="07-catalog-domain.html">Catalog</a>
+    <a href="08-cart-checkout.html">Cart</a>
+    <a href="09-remaining-domains.html">Other</a>
+    <a href="10-shell-architecture.html">Shell</a>
+    <a href="11-shell-swap.html">Swap</a>
+    <a href="12-web-component-wrapping.html">Wrapping</a>
+    <a href="13-hydration-csr.html">CSR</a>
+    <a href="14-component-standards.html" class="active">Standards</a>
+    <a href="15-component-transition.html">Transition</a>
+    <a href="16-app-catalog.html">Catalog</a>
+    <a href="17-api-scanning.html">Scanning</a>
+    <a href="18-bff-pattern.html">BFF</a>
+    <a href="19-managing-drift.html">Drift</a>
+    <a href="20-core-cadence.html">Cadence</a>
+    <a href="21-testing-strategy.html">Testing</a>
+    <a href="22-blue-green-rollouts.html">Deploy</a>
+    <a href="23-migration-timeline.html">Timeline</a>
+    <a href="24-team-impact.html">Teams</a>
+    <a href="25-key-principles.html">Principles</a>
+    <a href="dev-environment.html">DevEx</a>
+  </div>
+  <button class="theme-toggle" id="themeToggle" title="Toggle theme">&#9790;</button>
+</nav>
+<div class="hero">
+  <div class="page-num">Component Strategy</div>
+  <h1>Component Standards: The ML- Convention</h1>
+  <p class="subtitle">One naming convention, one contract model, total independence &mdash; the rules every Medline component follows</p>
+</div>
+<main>
+
+<!-- ────────────────────────────────────────── -->
+<section>
+  <h2>Why Standards Matter at Scale</h2>
+  <p>When you have 84+ micro frontends, each owned by a different team, each deployed independently, the only thing that keeps the system coherent is a <strong>shared convention</strong>. Not a shared codebase. Not a shared build. A convention.</p>
+  <p>The <code>ml-</code> prefix convention gives every team a predictable, discoverable, and collision-proof naming system. Every component in the Medline ecosystem starts with <code>ml-</code>, followed by a domain-specific or shared identifier. No exceptions.</p>
+
+  <div class="callout">
+    <strong>The Rule Is Simple</strong>
+    If it renders pixels on a Medline page, it&rsquo;s a Web Component with an <code>ml-</code> prefix. If it doesn&rsquo;t have the prefix, it&rsquo;s not a Medline component and the shell won&rsquo;t load it.
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="stat-num">ml-</div>
+      <div class="stat-label">Universal Prefix</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num green">1</div>
+      <div class="stat-label">Module per Component</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num purple">0</div>
+      <div class="stat-label">Global CSS Leakage</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num orange">CDN</div>
+      <div class="stat-label">Single Distribution Channel</div>
+    </div>
+  </div>
+</section>
+
+<!-- ────────────────────────────────────────── -->
+<section>
+  <h2>The Component Contract</h2>
+  <p>Every <code>ml-</code> component follows a strict interface contract. This contract is what makes components framework-agnostic from the outside, regardless of what technology powers them internally.</p>
+
+  <h3>Three Pillars of the Contract</h3>
+  <ul>
+    <li><strong>Documented Attributes</strong> &mdash; Every input the component accepts is a standard HTML attribute. No framework-specific bindings. <code>&lt;ml-product-card sku="12345" variant="compact"&gt;</code></li>
+    <li><strong>Documented Events</strong> &mdash; Every output the component emits is a standard <code>CustomEvent</code>. No framework-specific event systems. <code>el.addEventListener('ml-add-to-cart', handler)</code></li>
+    <li><strong>Documented Slots</strong> &mdash; Content projection uses standard <code>&lt;slot&gt;</code> elements. No framework-specific content projection. <code>&lt;ml-card&gt;&lt;span slot="title"&gt;My Title&lt;/span&gt;&lt;/ml-card&gt;</code></li>
+  </ul>
+
+  <div class="industry-std">
+    <strong>Industry Standard: Custom Elements v2</strong>
+    The W3C Custom Elements specification defines exactly this pattern &mdash; attributes in, events out, slots for composition. Every major browser supports it natively. No polyfills needed. This is the same component model used by GitHub, Salesforce Lightning, Adobe Spectrum, and SAP UI5.
+  </div>
+
+  <h3>Shadow DOM Isolation</h3>
+  <p>Every <code>ml-</code> component uses Shadow DOM to encapsulate its styles. This means:</p>
+  <ul>
+    <li>Component CSS cannot leak out into the page</li>
+    <li>Page CSS cannot accidentally break the component</li>
+    <li>Two components from two different teams, built at two different times, with two different CSS methodologies &mdash; they coexist peacefully</li>
+    <li>No more <code>!important</code> wars. No more naming collision debugging. No more &ldquo;it worked on my page but broke on yours.&rdquo;</li>
+  </ul>
+
+  <h3>Self-Registration</h3>
+  <p>Every component self-registers via <code>customElements.define()</code>. There is no central registration file. No manifest that needs updating. When the browser loads <code>ml-product-card.js</code>, the component announces itself to the DOM and is immediately available.</p>
+  <pre><code>// ml-product-card.js
+class MlProductCard extends HTMLElement {
+  constructor() {
+    super();
+    this.attachShadow({ mode: 'open' });
+  }
+  // ... component logic
+}
+customElements.define('ml-product-card', MlProductCard);</code></pre>
+</section>
+
+<!-- ────────────────────────────────────────── -->
+<section>
+  <h2>Component Anatomy</h2>
+  <p>Every <code>ml-</code> component follows the same internal architecture, regardless of size or complexity. Understanding this anatomy makes building and debugging components predictable across every team.</p>
+
+  <div class="mermaid-wrap" id="d14-1">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">&#x26F6;</button>
+    </div>
+    <div class="mw-view"><div class="mermaid-inner" data-src="graph TB
+    subgraph BROWSER[&quot;Browser DOM&quot;]
+      HOST[&quot;ml-product-card&quot;]
+      ATTR[&quot;Attributes: sku, variant, locale&quot;]
+      EVT[&quot;Events: ml-add-to-cart, ml-view-detail&quot;]
+      SLOT[&quot;Slots: title, badge, actions&quot;]
+    end
+    subgraph SHADOW[&quot;Shadow DOM Boundary&quot;]
+      STYLE[&quot;Scoped &lt;style&gt; — no leakage&quot;]
+      TPL[&quot;Template / Render Tree&quot;]
+      LOGIC[&quot;Internal Logic — WCFramework or React&quot;]
+      SLOTS_INT[&quot;&lt;slot&gt; projection points&quot;]
+    end
+    HOST --> SHADOW
+    ATTR -->|&quot;observed&quot;| LOGIC
+    LOGIC -->|&quot;dispatches&quot;| EVT
+    SLOT -->|&quot;projected into&quot;| SLOTS_INT
+    STYLE -.->|&quot;isolated&quot;| TPL
+    style BROWSER fill:#1c2333,stroke:#58a6ff,color:#e6edf3
+    style SHADOW fill:#0d2818,stroke:#3fb950,color:#e6edf3
+    style HOST fill:#161b22,stroke:#58a6ff,color:#58a6ff
+    style ATTR fill:#161b22,stroke:#d2a8ff,color:#d2a8ff
+    style EVT fill:#161b22,stroke:#f0883e,color:#f0883e
+    style SLOT fill:#161b22,stroke:#3fb950,color:#3fb950
+    style STYLE fill:#122a1a,stroke:#3fb950,color:#3fb950
+    style TPL fill:#122a1a,stroke:#3fb950,color:#3fb950
+    style LOGIC fill:#122a1a,stroke:#3fb950,color:#3fb950
+    style SLOTS_INT fill:#122a1a,stroke:#3fb950,color:#3fb950"></div></div>
+    <div class="mw-caption">Component Anatomy &mdash; Shadow DOM boundary enforces style isolation; attributes flow in, events flow out, slots project content</div>
+  </div>
+</section>
+
+<!-- ────────────────────────────────────────── -->
+<section>
+  <h2>CDN Module Loading</h2>
+  <p>Components are distributed via CDN, not npm. This is a critical distinction: build once, deploy many. When a component is loaded from CDN, every consumer gets the exact same artifact. No build-step variations. No version resolution surprises. No <code>node_modules</code> deduplication games.</p>
+
+  <h3>The Version Path Convention</h3>
+  <p>Every component version is immutable on CDN. The URL encodes the exact version:</p>
+  <pre><code>/components/ml-product-card/2.1.0/ml-product-card.js
+/components/ml-cart-summary/1.4.2/ml-cart-summary.js
+/components/ml-address-form/3.0.0/ml-address-form.js</code></pre>
+  <p>The shell&rsquo;s import map resolves component names to CDN paths. Each domain&rsquo;s import map can pin to a different version. Catalog can use <code>ml-header@2.3</code> while Cart stays on <code>ml-header@2.1</code>. No coordination required.</p>
+
+  <div class="mermaid-wrap" id="d14-2">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">&#x26F6;</button>
+    </div>
+    <div class="mw-view"><div class="mermaid-inner" data-src="sequenceDiagram
+    participant IM as Import Map
+    participant CDN as CDN Edge
+    participant BR as Browser
+    participant DOM as DOM Registry
+    IM->>CDN: Resolve ml-product-card → /components/ml-product-card/2.1.0/ml-product-card.js
+    CDN->>BR: Deliver ES module (cached at edge)
+    BR->>BR: Execute module
+    BR->>DOM: customElements.define('ml-product-card', ...)
+    DOM->>BR: Component available in page
+    Note over IM,DOM: Each domain has its own import map — each can pin different versions
+    Note over CDN: Immutable artifacts — v2.1.0 never changes once published"></div></div>
+    <div class="mw-caption">CDN Module Loading &mdash; Import map resolves names to versioned CDN URLs; browser registers the Custom Element on load</div>
+  </div>
+
+  <div class="callout success">
+    <strong>Cache Forever</strong>
+    Because each version has its own URL path, CDN cache headers can be set to <code>max-age=31536000</code> (one year). Users who have loaded a version once never download it again. New versions get new URLs &mdash; no cache busting needed.
+  </div>
+</section>
+
+<!-- ────────────────────────────────────────── -->
+<section>
+  <h2>Naming Convention Examples</h2>
+  <p>The naming convention encodes purpose and ownership directly in the tag name:</p>
+
+  <table class="compare-table">
+    <thead>
+      <tr><th>Component Tag</th><th>Domain</th><th>Purpose</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>ml-product-card</code></td><td>Catalog</td><td>Product display card with image, price, actions</td></tr>
+      <tr><td><code>ml-cart-summary</code></td><td>Cart</td><td>Cart item count and subtotal badge</td></tr>
+      <tr><td><code>ml-address-form</code></td><td>Account</td><td>Address capture and validation form</td></tr>
+      <tr><td><code>ml-search-bar</code></td><td>Search</td><td>Global search input with suggestions</td></tr>
+      <tr><td><code>ml-header</code></td><td>Shared</td><td>Site-wide header with navigation</td></tr>
+      <tr><td><code>ml-footer</code></td><td>Shared</td><td>Site-wide footer with links</td></tr>
+      <tr><td><code>ml-breadcrumb</code></td><td>Shared</td><td>Navigation breadcrumb trail</td></tr>
+      <tr><td><code>ml-modal</code></td><td>Shared</td><td>Generic modal dialog container</td></tr>
+      <tr><td><code>ml-toast</code></td><td>Shared</td><td>Notification toast messages</td></tr>
+      <tr><td><code>ml-pagination</code></td><td>Shared</td><td>Page navigation controls</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ────────────────────────────────────────── -->
+<section>
+  <h2>Shared npm Package vs. CDN Web Component</h2>
+  <p>The traditional approach of distributing UI components as npm packages creates hidden coupling. CDN Web Components eliminate every one of those coupling points.</p>
+
+  <table class="compare-table">
+    <thead>
+      <tr><th>Dimension</th><th class="bad">Shared npm Package</th><th class="good">CDN Web Component</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Style Isolation</strong></td>
+        <td class="bad">CSS leaks between consumers; requires BEM/CSS Modules/naming discipline</td>
+        <td class="good">Shadow DOM enforces isolation at the browser level</td>
+      </tr>
+      <tr>
+        <td><strong>Versioning</strong></td>
+        <td class="bad">npm resolution can install different versions across consumers; deduplication is unpredictable</td>
+        <td class="good">Exact version in URL path; every consumer of v2.1.0 gets identical artifact</td>
+      </tr>
+      <tr>
+        <td><strong>Independence</strong></td>
+        <td class="bad">Consumer must rebuild and redeploy to pick up a new version</td>
+        <td class="good">Update the import map &mdash; no rebuild, no redeploy of consumer</td>
+      </tr>
+      <tr>
+        <td><strong>Build Coupling</strong></td>
+        <td class="bad">Package must be compatible with consumer&rsquo;s bundler, framework version, and build config</td>
+        <td class="good">Pre-built ES module; no bundler interaction needed</td>
+      </tr>
+      <tr>
+        <td><strong>Runtime Sharing</strong></td>
+        <td class="bad">Shared dependency must match consumer&rsquo;s version exactly or risk duplicates</td>
+        <td class="good">Component bundles its own dependencies inside Shadow DOM</td>
+      </tr>
+      <tr>
+        <td><strong>Framework Lock-in</strong></td>
+        <td class="bad">Package assumes React (or specific framework); consumers must use the same</td>
+        <td class="good">Standard HTML element; works with any framework or no framework</td>
+      </tr>
+      <tr>
+        <td><strong>Rollback</strong></td>
+        <td class="bad">Revert package version, rebuild, test, redeploy</td>
+        <td class="good">Change import map version pointer; old artifact still on CDN</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="industry-std">
+    <strong>Industry Standard: CDN-First Component Distribution</strong>
+    Salesforce Lightning, Adobe Spectrum, and Shopify Polaris all distribute their design system components as pre-built modules on CDN. The npm package is a convenience wrapper; the CDN artifact is the source of truth. This pattern has been proven at scales far larger than Medline.
+  </div>
+</section>
+
+<!-- ────────────────────────────────────────── -->
+<section>
+  <h2>The Standard Interface Contract</h2>
+
+  <details>
+    <summary>Attribute Contract <span class="detail-summary">How data flows in</span></summary>
+    <div class="detail-body">
+      <p>Every attribute a component accepts is documented in the App Catalog. Attributes follow standard HTML conventions:</p>
+      <ul>
+        <li>Lowercase, hyphen-separated: <code>product-id</code>, <code>display-mode</code>, <code>max-items</code></li>
+        <li>Primitive types only: strings, numbers, booleans (via presence/absence)</li>
+        <li>Complex data passed via properties (set via JavaScript): <code>el.items = [...]</code></li>
+        <li>Changes reflected via <code>attributeChangedCallback</code> for reactive updates</li>
+      </ul>
+      <pre><code>&lt;ml-product-card
+  sku="ML-12345"
+  variant="compact"
+  show-price
+  locale="en-US"
+&gt;&lt;/ml-product-card&gt;</code></pre>
+    </div>
+  </details>
+
+  <details>
+    <summary>Event Contract <span class="detail-summary">How data flows out</span></summary>
+    <div class="detail-body">
+      <p>Every event a component emits is a standard <code>CustomEvent</code> with a documented <code>detail</code> payload:</p>
+      <ul>
+        <li>Event names prefixed with <code>ml-</code>: <code>ml-add-to-cart</code>, <code>ml-navigate</code>, <code>ml-filter-change</code></li>
+        <li>Payload in <code>event.detail</code>: <code>{ sku: 'ML-12345', quantity: 1 }</code></li>
+        <li>Events bubble through Shadow DOM boundary (composed: true)</li>
+        <li>Consumers listen with standard <code>addEventListener</code> &mdash; no framework binding needed</li>
+      </ul>
+      <pre><code>// Inside the component
+this.dispatchEvent(new CustomEvent('ml-add-to-cart', {
+  detail: { sku: this.getAttribute('sku'), quantity: 1 },
+  bubbles: true, composed: true
+}));
+
+// Consumer code — any framework
+document.querySelector('ml-product-card')
+  .addEventListener('ml-add-to-cart', (e) =&gt; {
+    console.log('Added:', e.detail.sku);
+  });</code></pre>
+    </div>
+  </details>
+
+  <details>
+    <summary>Slot Contract <span class="detail-summary">How content is composed</span></summary>
+    <div class="detail-body">
+      <p>Named slots allow consumers to project content into specific regions of the component:</p>
+      <ul>
+        <li>Named slots documented in the App Catalog: <code>title</code>, <code>actions</code>, <code>badge</code>, <code>footer</code></li>
+        <li>Default slot for unnamed content projection</li>
+        <li>Slot content styled by the consumer, not the component (light DOM CSS applies)</li>
+        <li>Fallback content inside the slot for when nothing is projected</li>
+      </ul>
+      <pre><code>&lt;ml-card&gt;
+  &lt;span slot="title"&gt;Featured Product&lt;/span&gt;
+  &lt;img slot="badge" src="sale-badge.svg" alt="On Sale"&gt;
+  &lt;div slot="actions"&gt;
+    &lt;button&gt;Add to Cart&lt;/button&gt;
+  &lt;/div&gt;
+  &lt;p&gt;Default slot: This product is amazing.&lt;/p&gt;
+&lt;/ml-card&gt;</code></pre>
+    </div>
+  </details>
+</section>
+
+<!-- ────────────────────────────────────────── -->
+<section>
+  <h2>Enforcement &amp; Governance</h2>
+  <p>Standards only work if they&rsquo;re enforced. Here&rsquo;s how the <code>ml-</code> convention is maintained across all teams:</p>
+
+  <div class="themes-grid">
+    <div class="theme-card">
+      <div class="theme-icon">&#x1F6E1;</div>
+      <h4>CI Pipeline Validation</h4>
+      <p>Every component PR runs automated checks: <code>ml-</code> prefix present, Shadow DOM attached, contract documented, no global style leakage.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#x1F4CB;</div>
+      <h4>App Catalog Registration</h4>
+      <p>Components that don&rsquo;t register in the App Catalog cannot be published to CDN. Registration includes attribute, event, and slot documentation.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#x1F50D;</div>
+      <h4>Runtime Scanner</h4>
+      <p>The API scanner detects undocumented components in production pages and flags them for review. No rogue components in the wild.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#x1F4E6;</div>
+      <h4>Template Generators</h4>
+      <p>Team scaffolding tools generate new components with all conventions pre-applied. The right structure is the default structure.</p>
+    </div>
+  </div>
+
+  <div class="callout warn">
+    <strong>Standards Without Enforcement Are Suggestions</strong>
+    The difference between a standard and a suggestion is automation. Every convention described on this page is enforced by CI, validated by scanners, and baked into templates. Teams don&rsquo;t have to remember the rules &mdash; the tools enforce them.
+  </div>
+</section>
+
+</main>
+<div style="max-width:900px;margin:0 auto;padding:0 1.5rem;">
+  <div class="page-nav">
+    <a href="13-hydration-csr.html"><span class="pn-label">&larr; Previous</span><span class="pn-title">Hydration &amp; CSR</span></a>
+    <a href="15-component-transition.html" class="next"><span class="pn-label">Next &rarr;</span><span class="pn-title">Component Transition</span></a>
+  </div>
+</div>
+<footer>Medline Platform Evolution &mdash; v5 &mdash; 2026-04-05 &mdash; Technical Director Series &mdash; Confidential</footer>
+<div class="toast" id="toast">Copied!</div>
+<script src="shared.js"></script>
+</body>
+</html>

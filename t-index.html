@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Training &amp; Sign-off Plan &mdash; Medline Platform Evolution</title>
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<div class="progress-bar"></div>
+<nav>
+  <a href="t-index.html" class="logo">ML Training</a>
+  <div class="nav-links">
+    <a href="index.html">&larr; Migration Series</a>
+    <a href="t01-overview.html">Overview</a>
+    <a href="t02-domain-developer.html">Domain Dev</a>
+    <a href="t03-component-author.html">Component Author</a>
+    <a href="t04-platform-engineer.html">Platform Eng</a>
+    <a href="t05-sign-off-gates.html">Gates</a>
+    <a href="t06-certification.html">Certification</a>
+    <a href="t07-onboarding-checklist.html">Day One</a>
+  </div>
+  <button class="theme-toggle" id="themeToggle" title="Toggle theme">&#9790;</button>
+</nav>
+
+<div class="hero">
+  <div class="page-num">Training &amp; Certification</div>
+  <h1>Training &amp; Sign-off Plan</h1>
+  <p class="subtitle">How every developer&mdash;from day-one hires to seasoned engineers&mdash;gets trained, certified, and approved for production access. No guesswork. No bottlenecks. Automated quality at every step.</p>
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="stat-num green">4-Week Ramp</div>
+      <div class="stat-label">New dev &rarr; productive</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">Zero Guesswork</div>
+      <div class="stat-label">Every step documented</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num purple">Automated Gates</div>
+      <div class="stat-label">Quality enforced by pipeline</div>
+    </div>
+  </div>
+</div>
+
+<main>
+
+<!-- Overview Diagram -->
+<section>
+  <h2>The Training System at a Glance</h2>
+  <p>From a new developer's first day to production deploy access&mdash;every step is documented, exercised, and validated by the pipeline. No meetings needed for sign-off. The system validates competency automatically.</p>
+
+  <div class="mermaid-wrap" id="dt00-1">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">&#9974;</button>
+    </div>
+    <div class="mw-view">
+      <div class="mermaid-inner" data-src="graph LR
+  A[Onboarding\nDay-One Checklist] -->|Complete setup| B[Training Tracks\nDomain Dev / Component Author / Platform Eng]
+  B -->|Modules + exercises| C[Certification\nAutomated Validation]
+  C -->|Pass all gates| D[Sign-off\nBadge Earned]
+  D -->|Access granted| E[Production Access\nDeploy with confidence]
+  style A fill:#58a6ff,stroke:#58a6ff,color:#fff
+  style B fill:#d2a8ff,stroke:#d2a8ff,color:#000
+  style C fill:#f0883e,stroke:#f0883e,color:#fff
+  style D fill:#3fb950,stroke:#3fb950,color:#fff
+  style E fill:#3fb950,stroke:#3fb950,color:#fff"></div>
+    </div>
+    <div class="mw-caption">End-to-end training flow: onboarding &rarr; track completion &rarr; automated certification &rarr; production access</div>
+  </div>
+
+  <div class="industry-std">
+    <strong>Industry Standard: Competency-Based Certification</strong>
+    Leading enterprise development organizations use structured, competency-based training programs with automated validation. This removes subjective gatekeeping and ensures every developer who touches production has proven their skills hands-on.
+  </div>
+</section>
+
+<!-- Training Pages Grid -->
+<section>
+  <h2>Training Series</h2>
+  <p>Seven documents cover everything from the 30-second overview to the step-by-step day-one checklist. A director reads the overview. A team lead reads the first three. A developer reads them all.</p>
+
+  <div class="doc-grid">
+    <a href="t01-overview.html" class="doc-card">
+      <div class="card-num">T1</div>
+      <div class="card-body">
+        <h3>Training at a Glance</h3>
+        <p class="card-desc">The 30-second version. Three tracks, automated sign-off, no meetings required. Everything you need to know in one page.</p>
+        <div class="card-tags"><span class="tag">overview</span><span class="tag">executive</span></div>
+      </div>
+      <div class="card-arrow">&rarr;</div>
+    </a>
+    <a href="t02-domain-developer.html" class="doc-card">
+      <div class="card-num">T2</div>
+      <div class="card-body">
+        <h3>Track: Domain Developer</h3>
+        <p class="card-desc">Six modules covering domain anatomy, component contracts, BFF integration, local dev, deployment, and debugging. The most common training path.</p>
+        <div class="card-tags"><span class="tag">domain</span><span class="tag">developer</span></div>
+      </div>
+      <div class="card-arrow">&rarr;</div>
+    </a>
+    <a href="t03-component-author.html" class="doc-card">
+      <div class="card-num">T3</div>
+      <div class="card-body">
+        <h3>Track: Component Author</h3>
+        <p class="card-desc">Seven modules on building shared ML- components: Custom Elements, Shadow DOM styling, publishing, WCFramework internals, React wrappers, and documentation.</p>
+        <div class="card-tags"><span class="tag">components</span><span class="tag">authoring</span></div>
+      </div>
+      <div class="card-arrow">&rarr;</div>
+    </a>
+    <a href="t04-platform-engineer.html" class="doc-card">
+      <div class="card-num">T4</div>
+      <div class="card-body">
+        <h3>Track: Platform Engineer</h3>
+        <p class="card-desc">Six modules on shell architecture, App Catalog operations, API scanning, CDN management, core cadence, and monitoring. For the team that keeps everything running.</p>
+        <div class="card-tags"><span class="tag">platform</span><span class="tag">infrastructure</span></div>
+      </div>
+      <div class="card-arrow">&rarr;</div>
+    </a>
+    <a href="t05-sign-off-gates.html" class="doc-card">
+      <div class="card-num">T5</div>
+      <div class="card-body">
+        <h3>Automated Sign-off Gates</h3>
+        <p class="card-desc">Seven automated pipeline gates that enforce quality: code standards, component contracts, test coverage, API compatibility, visual regression, catalog registration, and security scanning.</p>
+        <div class="card-tags"><span class="tag">automation</span><span class="tag">quality</span></div>
+      </div>
+      <div class="card-arrow">&rarr;</div>
+    </a>
+    <a href="t06-certification.html" class="doc-card">
+      <div class="card-num">T6</div>
+      <div class="card-body">
+        <h3>Certification &amp; Badges</h3>
+        <p class="card-desc">How developers earn production access: complete modules, pass automated exercises, earn badges, and get deploy rights. No manager approval needed.</p>
+        <div class="card-tags"><span class="tag">certification</span><span class="tag">badges</span></div>
+      </div>
+      <div class="card-arrow">&rarr;</div>
+    </a>
+    <a href="t07-onboarding-checklist.html" class="doc-card">
+      <div class="card-num">T7</div>
+      <div class="card-body">
+        <h3>Day One: New Developer Checklist</h3>
+        <p class="card-desc">The literal step-by-step for a new developer. Clone, setup, browse, learn, build, push, see it live. First change deployed in under 4 hours.</p>
+        <div class="card-tags"><span class="tag">onboarding</span><span class="tag">checklist</span></div>
+      </div>
+      <div class="card-arrow">&rarr;</div>
+    </a>
+  </div>
+</section>
+
+<!-- Who Reads What -->
+<section>
+  <h2>Who Reads What</h2>
+  <div class="themes-grid">
+    <div class="theme-card">
+      <div class="theme-icon">👔</div>
+      <h4>Directors &amp; Managers</h4>
+      <p>Read <strong>T1: Training at a Glance</strong>. One page gives you the full picture of how training, certification, and sign-off work. Five minutes.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">🏗️</div>
+      <h4>Team Leads &amp; Architects</h4>
+      <p>Read <strong>T1&ndash;T5</strong>. Understand the training tracks, the gates, and how to evaluate your team's readiness. Twenty minutes.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">💻</div>
+      <h4>Developers</h4>
+      <p>Read <strong>all seven pages</strong>. Start with T7 (Day One) on your first day, then work through your track (T2, T3, or T4). The rest fills in as you go.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Key Principles -->
+<section>
+  <h2>Training Principles</h2>
+  <div class="themes-grid">
+    <div class="theme-card">
+      <div class="theme-icon">🤖</div>
+      <h4>Automated, Not Manual</h4>
+      <p>Sign-off happens in the pipeline, not in a meeting. Pass the automated checks, earn your certification. No subjective reviews, no scheduling bottlenecks.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">🎯</div>
+      <h4>Hands-On, Not Lectures</h4>
+      <p>Every training module ends with a real exercise. You build something, the pipeline validates it. Reading documentation is not enough&mdash;you prove it by doing it.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">📈</div>
+      <h4>Progressive, Not Overwhelming</h4>
+      <p>Start simple, go deeper. Each module builds on the last. No one is thrown into the deep end. Day one is browsing components. Week four is deploying to production.</p>
+    </div>
+  </div>
+
+  <div class="industry-std">
+    <strong>Industry Standard: Automated Quality Gates</strong>
+    High-velocity enterprise teams replace manual review meetings with automated pipeline gates. Every commit is validated against objective criteria. This scales to any team size, any timezone, any number of domains.
+  </div>
+</section>
+
+</main>
+
+<div style="max-width:900px;margin:0 auto;padding:0 1.5rem;">
+  <div class="page-nav">
+    <a href="index.html"><span class="pn-label">&larr; Back</span><span class="pn-title">Migration Series</span></a>
+    <a href="t01-overview.html" class="next"><span class="pn-label">Next &rarr;</span><span class="pn-title">Training at a Glance</span></a>
+  </div>
+</div>
+
+<footer>Medline Platform Evolution &mdash; Training &amp; Sign-off Plan &mdash; v5 &mdash; 2026-04-05 &mdash; Confidential</footer>
+<div class="toast" id="toast">Copied!</div>
+<script src="shared.js"></script>
+</body>
+</html>

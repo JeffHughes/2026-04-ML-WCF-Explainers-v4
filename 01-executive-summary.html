@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The 90-Second Pitch &mdash; Medline Platform Evolution</title>
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<div class="progress-bar"></div>
+<nav>
+  <a href="index.html" class="logo">ML Evolution</a>
+  <div class="nav-links">
+    <a href="01-executive-summary.html" class="active">Summary</a>
+    <a href="02-current-state.html">Today</a>
+    <a href="03-why-change.html">Why</a>
+    <a href="04-migration-overview.html">Strategy</a>
+    <a href="05-copy-split-strip.html">Copy-Split</a>
+    <a href="06-domain-map.html">Domains</a>
+    <a href="07-catalog-domain.html">Catalog</a>
+    <a href="08-cart-checkout.html">Cart</a>
+    <a href="09-remaining-domains.html">Other</a>
+    <a href="10-shell-architecture.html">Shell</a>
+    <a href="11-shell-swap.html">Swap</a>
+    <a href="12-web-component-wrapping.html">Wrapping</a>
+    <a href="13-hydration-csr.html">CSR</a>
+    <a href="14-component-standards.html">Standards</a>
+    <a href="15-component-transition.html">Transition</a>
+    <a href="16-app-catalog.html">Catalog</a>
+    <a href="17-api-scanning.html">Scanning</a>
+    <a href="18-bff-pattern.html">BFF</a>
+    <a href="19-managing-drift.html">Drift</a>
+    <a href="20-core-cadence.html">Cadence</a>
+    <a href="21-testing-strategy.html">Testing</a>
+    <a href="22-blue-green-rollouts.html">Deploy</a>
+    <a href="23-migration-timeline.html">Timeline</a>
+    <a href="24-team-impact.html">Teams</a>
+    <a href="25-key-principles.html">Principles</a>
+    <a href="dev-environment.html">DevEx</a>
+  </div>
+  <button class="theme-toggle" id="themeToggle" title="Toggle theme">&#9790;</button>
+</nav>
+
+<div class="hero">
+  <div class="page-num">The Big Picture</div>
+  <h1>The 90-Second Pitch</h1>
+  <p class="subtitle">What we're doing, why it works, and why you'll sleep better at night. The entire evolution strategy in the time it takes to get coffee.</p>
+</div>
+
+<main>
+
+<!-- The Core Message -->
+<section>
+  <h2>The Core Message</h2>
+  <p>We are <strong>not</strong> rewriting your platform. We are not throwing away years of battle-tested business logic. We are not asking anyone to learn a new programming language or adopt an experimental framework.</p>
+  <p>We are taking the monolith you have today&mdash;the one that works, the one that processes orders, the one your teams know inside and out&mdash;and we are <strong>splitting it into independent domains</strong> that each team can own, deploy, test, and evolve on their own schedule.</p>
+
+  <div class="callout success">
+    <strong>The One-Sentence Version</strong>
+    Copy the monolith, trim it per domain, swap the shell to industry-standard Web Components, catalog everything, and automate core updates on a 1-year cadence.
+  </div>
+
+  <p>Every step is reversible. Every phase delivers value on its own. If we stop at any point, you're still better off than where you started.</p>
+</section>
+
+<!-- Five Things That Change -->
+<section>
+  <h2>Five Things That Change</h2>
+  <div class="themes-grid">
+    <div class="theme-card">
+      <div class="theme-icon">📋</div>
+      <h4>1. Copy, Don't Rewrite</h4>
+      <p>We copy the entire monolith repository for each domain, then delete what doesn't belong. The code that runs in production tomorrow is the same code running today&mdash;just with less of it.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">🏗️</div>
+      <h4>2. Independent Domains</h4>
+      <p>Each domain becomes its own repository, its own pipeline, its own deployment. Catalog deploys without waiting for Cart. Account ships without blocking Checkout.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">🔌</div>
+      <h4>3. Standards-Based Shell</h4>
+      <p>The orchestration layer moves from a framework-specific SSR monolith to W3C Web Components&mdash;the browser-native standard backed by every major vendor. No framework lock-in. No SSR tax.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">📦</div>
+      <h4>4. App Catalog</h4>
+      <p>A registry tracks every micro frontend: what version it's running, what APIs it calls, what components it uses, and whether it's healthy. Automated scanning catches problems before they reach production.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">🔄</div>
+      <h4>5. 1-Year Core Cadence</h4>
+      <p>Core framework updates happen once a year. Automated scripts handle the migration. Teams validate in staging. Rollouts happen domain-by-domain. No surprises, no scrambles, no emergency upgrades.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Before / After Diagram -->
+<section>
+  <h2>Before &amp; After</h2>
+  <p>The simplest way to understand this transformation: one picture showing where you are today and where you'll be after the migration completes.</p>
+
+  <div class="mermaid-wrap" id="d01-1">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">Fullscreen</button>
+    </div>
+    <div class="mw-view">
+      <div class="mermaid-inner" data-src="graph TB
+  subgraph Before[&quot;TODAY: Monolith&quot;]
+    direction TB
+    M[Next.js 12 SSR Shell]
+    M --> MFE1[Catalog MFE]
+    M --> MFE2[Cart MFE]
+    M --> MFE3[Checkout MFE]
+    M --> MFE4[Account MFE]
+    M --> MFE5[Search MFE]
+    M --> MFE6[... 79 more MFEs]
+    MFE1 -.shared node_modules.-> MFE2
+    MFE2 -.shared build pipeline.-> MFE3
+    MFE3 -.shared SSR runtime.-> MFE4
+  end
+  subgraph After[&quot;FUTURE: Independent Domains&quot;]
+    direction TB
+    S[Web Component Shell]
+    S --> D1[Catalog Domain]
+    S --> D2[Cart Domain]
+    S --> D3[Checkout Domain]
+    S --> D4[Account Domain]
+    S --> D5[Search Domain]
+    S --> D6[Content Domain]
+    CAT[App Catalog] -.governs.-> S
+    CAT -.scans.-> D1
+    CAT -.scans.-> D2
+  end
+  Before -->|Copy-Split-Strip| After
+  style M fill:#f85149,stroke:#f85149,color:#fff
+  style S fill:#3fb950,stroke:#3fb950,color:#fff
+  style CAT fill:#58a6ff,stroke:#58a6ff,color:#fff"></div>
+    </div>
+    <div class="mw-caption">Figure 1-1: Monolith with 84 coupled MFEs transforms into independent domains governed by an App Catalog</div>
+  </div>
+</section>
+
+<!-- Why This Is Safe -->
+<section>
+  <h2>Why This Is Safe</h2>
+  <p>Every migration strategy lives or dies on one question: <strong>what happens when something goes wrong?</strong></p>
+
+  <div class="industry-std">
+    <strong>Industry-Standard Safety Pattern</strong>
+    The Strangler Fig pattern has been the go-to enterprise migration approach for over 20 years. It was named by Martin Fowler and has been validated at scale by organizations from Amazon to the UK Government Digital Service. The core principle: never turn off the old system until the new system is proven.
+  </div>
+
+  <p>Here's why our approach is inherently safe:</p>
+  <ul>
+    <li><strong>Same code:</strong> When we copy-split-strip a domain, we're running the exact same code. It was tested in the monolith. It works in the monolith. It will work as a standalone domain because it <em>is</em> the same code.</li>
+    <li><strong>Original stays running:</strong> The monolith continues to serve traffic until the domain is proven. If anything goes wrong, traffic routes back to the original.</li>
+    <li><strong>Phase independence:</strong> Each phase delivers value on its own. You don't need to complete all four phases to benefit. Even stopping after Phase 1 (domain extraction) gives you independent deployment.</li>
+    <li><strong>Reversibility:</strong> Every step can be rolled back. The copy-split-strip domains can be merged back. The shell swap can be reversed. The component transition is incremental.</li>
+  </ul>
+
+  <details>
+    <summary>Deep Dive: The Four Phases of Safety <span class="detail-summary">How each phase protects you</span></summary>
+    <div class="detail-body">
+      <h4>Phase 1: Domain Extraction (Copy-Split-Strip)</h4>
+      <p>Risk: Near zero. You're literally copying code that already works and removing the parts that don't apply to this domain. The deployment infrastructure is identical&mdash;same K8s pods, same CI/CD pipeline, same monitoring.</p>
+      <p>Rollback: Route traffic back to the monolith. The domain copy can be deleted without any impact.</p>
+
+      <h4>Phase 2: Shell Swap</h4>
+      <p>Risk: Low. The new shell loads the exact same micro frontends. It just uses Web Components as the integration layer instead of the Next.js SSR runtime. Each MFE is wrapped in a Web Component container&mdash;the internal code doesn't change.</p>
+      <p>Rollback: Switch the load balancer back to the Next.js shell. Both shells run in parallel during the transition.</p>
+
+      <h4>Phase 3: App Catalog &amp; Governance</h4>
+      <p>Risk: None. The catalog is a read-only registry that scans and tracks what's running. It doesn't modify any deployed code. It only provides visibility and automated scanning.</p>
+      <p>Rollback: Turn off the catalog. Nothing else changes.</p>
+
+      <h4>Phase 4: Component Evolution</h4>
+      <p>Risk: Low, incremental. Components are migrated one at a time from React to WCFramework. Each migration is a self-contained change within a single domain. Other domains are unaffected.</p>
+      <p>Rollback: Revert the component PR. The wrapped React version continues to work.</p>
+    </div>
+  </details>
+</section>
+
+<!-- What Stays the Same -->
+<section>
+  <h2>What Stays the Same</h2>
+  <p>Change is only valuable when it's targeted. Here's what we deliberately <strong>don't</strong> change:</p>
+
+  <table class="compare-table">
+    <thead>
+      <tr><th>Aspect</th><th>Changes?</th><th>Details</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Business Logic</td><td class="good">No</td><td>All existing business rules, validation, pricing logic stays exactly as-is</td></tr>
+      <tr><td>API Contracts</td><td class="good">No</td><td>Backend APIs continue to serve the same contracts. BFF adds a layer; it doesn't replace.</td></tr>
+      <tr><td>Kubernetes Infrastructure</td><td class="good">No</td><td>Same K8s clusters, same deployment patterns, same monitoring stack</td></tr>
+      <tr><td>Team Structure</td><td class="neutral">Evolves</td><td>Teams become domain owners instead of feature teams. Same people, clearer boundaries.</td></tr>
+      <tr><td>Shell Technology</td><td class="bad">Yes</td><td>Next.js SSR shell replaced with standards-based Web Component shell</td></tr>
+      <tr><td>Component Framework</td><td class="neutral">Gradual</td><td>React components wrapped first, then incrementally migrated to WCFramework</td></tr>
+      <tr><td>Deployment Coupling</td><td class="bad">Yes</td><td>Shared pipeline replaced with independent domain pipelines</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- Who Benefits -->
+<section>
+  <h2>Who Benefits and How</h2>
+
+  <details>
+    <summary>Technical Directors <span class="detail-summary">Strategic benefits</span></summary>
+    <div class="detail-body">
+      <ul>
+        <li><strong>Predictable core updates:</strong> The 1-year cadence means you know exactly when updates happen and can plan resources accordingly.</li>
+        <li><strong>Reduced coordination overhead:</strong> Domain independence means fewer cross-team meetings, fewer merge conflicts, fewer "who broke the build" investigations.</li>
+        <li><strong>Industry-standard stack:</strong> W3C Web Components and standards-based patterns mean your platform is built on technology that won't be abandoned by a single vendor.</li>
+        <li><strong>Incremental risk:</strong> No more big-bang releases. No flag day. Every step is proven before the next step begins. We shift left on quality&mdash;catching issues early in the pipeline instead of in production.</li>
+      </ul>
+    </div>
+  </details>
+
+  <details>
+    <summary>Development Teams <span class="detail-summary">Day-to-day improvements</span></summary>
+    <div class="detail-body">
+      <ul>
+        <li><strong>Ship when you're ready:</strong> Your domain deploys when your tests pass. No waiting for 83 other teams.</li>
+        <li><strong>Own your dependencies:</strong> Your node_modules, your build pipeline, your test suite. When something breaks, it's something you control.</li>
+        <li><strong>Smaller blast radius:</strong> A bug in Catalog doesn't take down Checkout. A regression in Account doesn't block Cart.</li>
+        <li><strong>Clearer ownership:</strong> You know exactly what your team owns, what APIs you consume, and what contracts you expose.</li>
+      </ul>
+    </div>
+  </details>
+
+  <details>
+    <summary>Operations &amp; Platform Teams <span class="detail-summary">Infrastructure improvements</span></summary>
+    <div class="detail-body">
+      <ul>
+        <li><strong>Independent scaling:</strong> Scale the Catalog domain during a flash sale without scaling Account.</li>
+        <li><strong>Targeted rollbacks:</strong> Roll back a single domain without touching others.</li>
+        <li><strong>Better observability:</strong> The App Catalog gives you a single pane of glass showing what's deployed, what version, and whether it's healthy.</li>
+        <li><strong>Simplified SSR elimination:</strong> Moving to CSR+BFF means simpler infrastructure&mdash;static files served from a CDN plus lightweight BFF services.</li>
+      </ul>
+    </div>
+  </details>
+</section>
+
+<!-- The Path Forward -->
+<section>
+  <h2>The Path Forward</h2>
+  <p>The rest of this document series breaks down every detail. Here's your reading map:</p>
+  <ul>
+    <li><strong>Pages 02&ndash;03:</strong> Understand where you are today and why change is necessary</li>
+    <li><strong>Pages 04&ndash;09:</strong> The migration mechanics&mdash;how we extract domains and what the domain map looks like</li>
+    <li><strong>Pages 10&ndash;13:</strong> The new architecture&mdash;shell, wrapping, CSR, and BFF</li>
+    <li><strong>Pages 14&ndash;17:</strong> Component standards, transition strategy, catalog, and API scanning</li>
+    <li><strong>Pages 18&ndash;22:</strong> Operations&mdash;BFF pattern, drift management, cadence, testing, deployment</li>
+    <li><strong>Pages 23&ndash;25:</strong> Timeline, team impact, and guiding principles</li>
+  </ul>
+
+  <div class="callout">
+    <strong>Start Here, Go Anywhere</strong>
+    Each page in this series is designed to stand on its own. You can read them in order for the full narrative, or jump to the topics most relevant to your role. Cross-references and navigation make it easy to explore.
+  </div>
+</section>
+
+</main>
+
+<div style="max-width:900px;margin:0 auto;padding:0 1.5rem;">
+  <div class="page-nav">
+    <a href="index.html"><span class="pn-label">&larr; Previous</span><span class="pn-title">Document Index</span></a>
+    <a href="02-current-state.html" class="next"><span class="pn-label">Next &rarr;</span><span class="pn-title">Where You Are Today</span></a>
+  </div>
+</div>
+
+<footer>Medline Platform Evolution &mdash; v5 &mdash; 2026-04-05 &mdash; Technical Director Series &mdash; Confidential</footer>
+<div class="toast" id="toast">Copied!</div>
+<script src="shared.js"></script>
+</body>
+</html>

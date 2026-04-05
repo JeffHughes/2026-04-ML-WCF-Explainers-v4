@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Next Evolution &mdash; Medline Platform Evolution</title>
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<div class="progress-bar"></div>
+<nav>
+  <a href="index.html" class="logo">ML Evolution</a>
+  <div class="nav-links">
+    <a href="01-executive-summary.html">Summary</a>
+    <a href="02-current-state.html">Today</a>
+    <a href="03-why-change.html" class="active">Next Phase</a>
+    <a href="04-migration-overview.html">Strategy</a>
+    <a href="05-copy-split-strip.html">Copy-Split</a>
+    <a href="06-domain-map.html">Domains</a>
+    <a href="07-catalog-domain.html">Catalog</a>
+    <a href="08-cart-checkout.html">Cart</a>
+    <a href="09-remaining-domains.html">Other</a>
+    <a href="10-shell-architecture.html">Shell</a>
+    <a href="11-shell-swap.html">Swap</a>
+    <a href="12-web-component-wrapping.html">Wrapping</a>
+    <a href="13-hydration-csr.html">CSR</a>
+    <a href="14-component-standards.html">Standards</a>
+    <a href="15-component-transition.html">Transition</a>
+    <a href="16-app-catalog.html">Catalog</a>
+    <a href="17-api-scanning.html">Scanning</a>
+    <a href="18-bff-pattern.html">BFF</a>
+    <a href="19-managing-drift.html">Drift</a>
+    <a href="20-core-cadence.html">Cadence</a>
+    <a href="21-testing-strategy.html">Testing</a>
+    <a href="22-blue-green-rollouts.html">Deploy</a>
+    <a href="23-migration-timeline.html">Timeline</a>
+    <a href="24-team-impact.html">Teams</a>
+    <a href="25-key-principles.html">Principles</a>
+    <a href="dev-environment.html">DevEx</a>
+  </div>
+  <button class="theme-toggle" id="themeToggle" title="Toggle theme">&#9790;</button>
+</nav>
+
+<div class="hero">
+  <div class="page-num">The Big Picture</div>
+  <h1>The Next Evolution</h1>
+  <p class="subtitle">We've taken the canonical architecture as far as it goes. Here's the next iteration that unlocks the release velocity we need.</p>
+</div>
+
+<main>
+
+<!-- What You've Built -->
+<section>
+  <h2>What You've Built &mdash; and Why It Was Right</h2>
+  <p>Let's be clear about something: <strong>the current platform was the right call.</strong> Next.js, React, micro frontends on Kubernetes&mdash;this was the canonical enterprise frontend architecture. Your teams executed it well. The platform works. Orders flow. Teams ship.</p>
+  <p>The architecture delivered exactly what it was designed to deliver:</p>
+  <ul>
+    <li><strong>Component reuse</strong> across 84 micro frontends</li>
+    <li><strong>SSR for performance</strong> on initial page loads</li>
+    <li><strong>Kubernetes orchestration</strong> for scaling</li>
+    <li><strong>React ecosystem</strong> for developer productivity and hiring</li>
+  </ul>
+  <p>None of that was wrong. All of it was the industry standard answer at the time. The question isn't whether the current architecture was a mistake&mdash;it wasn't. The question is: <strong>have we extracted everything we can from this pattern?</strong></p>
+
+  <div class="callout success">
+    <strong>No Change in Communication to Leadership</strong>
+    This is not a "we need to start over" conversation. This is the same team, the same product, the same platform&mdash;taking the next step. The same way you moved from a monolithic backend to microservices, this is the frontend catching up to the same pattern. Just the next iteration, with additional details on how we get more releases per year.
+  </div>
+</section>
+
+<!-- The Ceiling -->
+<section>
+  <h2>The Ceiling We've Hit</h2>
+  <p>The canonical React/Next.js micro frontend architecture has a ceiling, and your platform has reached it. This isn't a failure&mdash;every architecture pattern has limits. The signs are well-documented across the industry:</p>
+
+  <div class="themes-grid">
+    <div class="theme-card">
+      <div class="theme-icon">&#9644;</div>
+      <h4>Release Velocity Plateaued</h4>
+      <p>Despite having capable teams, releases per quarter have flattened. Big-bang releases are the only option&mdash;the shared monolith pipeline forces coordination that caps throughput.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#9645;</div>
+      <h4>Framework Upgrade Backlog</h4>
+      <p>React 17, Next.js 12&mdash;the ecosystem has moved on. Each upgrade requires the entire monolith to move together. So the upgrade keeps getting deferred.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#9646;</div>
+      <h4>Testing Takes Longer Than Building</h4>
+      <p>Full regression runs because nobody can confidently say "this change only affects Catalog." The monolith couples everything, so you have to test everything.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#9647;</div>
+      <h4>Every Team Waits for Every Other Team</h4>
+      <p>Shared build pipeline. Shared deploy schedule. Shared failure domain. The fastest team moves at the speed of the slowest.</p>
+    </div>
+  </div>
+
+  <p>Add to that the day-to-day friction: dependency inconsistencies across 84 MFEs (one team's upgrade breaks another team's build), and weird UI flicker issues from competing hydration and style conflicts in the shared SSR runtime. These aren't bugs in your implementation. They're inherent limits of the pattern. Every organization that's scaled this architecture to 50+ micro frontends hits the same ceiling. The industry's answer is consistent: <strong>decompose into independent domains with a standards-based composition layer.</strong></p>
+</section>
+
+<!-- We've Done Everything We Can -->
+<section>
+  <h2>We've Done Everything We Can with This Setup</h2>
+  <p>Before proposing the next phase, it's worth acknowledging what's already been tried and optimized within the current architecture:</p>
+
+  <table class="compare-table">
+    <thead>
+      <tr><th>Optimization</th><th>Status</th><th>Ceiling</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Faster CI pipelines</td><td class="good">Done</td><td>Still runs full monolith &mdash; can't scope to one domain</td></tr>
+      <tr><td>Better test coverage</td><td class="good">Done</td><td>Full regression still required because of shared runtime</td></tr>
+      <tr><td>Team process improvements</td><td class="good">Done</td><td>Coordination overhead is architectural, not process</td></tr>
+      <tr><td>Code splitting &amp; lazy loading</td><td class="good">Done</td><td>SSR still loads everything server-side per request</td></tr>
+      <tr><td>Kubernetes scaling</td><td class="good">Done</td><td>Can't scale one domain without scaling the whole shell</td></tr>
+      <tr><td>Shared component library</td><td class="good">Done</td><td>Still tightly coupled &mdash; version bump affects everyone</td></tr>
+    </tbody>
+  </table>
+
+  <p>Every process optimization, every pipeline improvement, every team structure adjustment has been explored. <strong>What remains isn't a process problem&mdash;it's an architecture boundary.</strong> The monolith couples things that should be independent. No amount of process improvement can decouple what the architecture couples.</p>
+</section>
+
+<!-- The Upgrade Treadmill -->
+<section>
+  <h2>The Framework Treadmill</h2>
+  <p>There's a second pressure beyond the coupling ceiling: the React/Next.js ecosystem moves on a cycle your platform can't keep pace with.</p>
+
+  <div class="mermaid-wrap" id="d03-1">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">Fullscreen</button>
+    </div>
+    <div class="mw-view">
+      <div class="mermaid-inner" data-src="timeline
+  title Framework Churn vs Web Standards Stability
+  section React Ecosystem
+    2019 : React 16.8 Hooks rewrite
+    2020 : Next.js 10 breaking
+    2021 : React 17 and Next.js 11-12
+    2022 : React 18 Concurrent and Next.js 13 App Router rewrite
+    2023 : Next.js 14 and RSC paradigm shift
+    2024 : React 19 and Next.js 15
+    2025 : React Compiler
+  section W3C Web Components
+    2019 : Custom Elements v1 stable
+    2020 : Shadow DOM stable and all browsers ship
+    2021 : Stable and no breaking changes
+    2022 : Stable and Declarative Shadow DOM
+    2023 : Stable and enhanced adoption
+    2024 : Stable and CSS Parts standard
+    2025 : Stable and growing enterprise use"></div>
+    </div>
+    <div class="mw-caption">Figure 3-1: React ecosystem reinvents itself every 18 months. W3C Web Components have been backwards-compatible since 2018.</div>
+  </div>
+
+  <p>This isn't a criticism of React. React is excellent software. But its upgrade cadence is designed for teams that rebuild frequently. Enterprise platforms that need 5&ndash;15 year lifespans need a foundation that doesn't move under them.</p>
+
+  <div class="industry-std">
+    <strong>W3C Web Components: The Foundation That Doesn't Move</strong>
+    Custom Elements, Shadow DOM, HTML Templates, and ES Modules are W3C standards built into every browser. They don't have breaking version upgrades. Code written to the Web Component spec today will work in browsers a decade from now&mdash;the same way HTML from 2005 still renders correctly in 2026. See the <a href="wc-advantages.html" style="color:#3fb950;">full Web Components deep-dive</a> for evidence and enterprise adoption data.
+  </div>
+</section>
+
+<!-- What the Next Phase Solves -->
+<section>
+  <h2>What the Next Phase Solves</h2>
+  <p>The next evolution directly addresses the ceiling problems&mdash;without throwing away anything that works:</p>
+
+  <table class="compare-table">
+    <thead>
+      <tr><th>Current Ceiling</th><th>Next Phase Solution</th><th>Impact</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Shared monolith pipeline caps release velocity</td>
+        <td class="good">Independent domain apps &mdash; each pod deploys on their own schedule</td>
+        <td class="good">Releases per quarter multiply by number of pods</td>
+      </tr>
+      <tr>
+        <td>Full regression required for every change</td>
+        <td class="good">Domain-scoped testing &mdash; only test what your change touches</td>
+        <td class="good">Test times drop from 45+ min to 5 min per domain</td>
+      </tr>
+      <tr>
+        <td>Framework upgrade is all-or-nothing</td>
+        <td class="good">Each domain app upgrades independently, at pod's pace</td>
+        <td class="good">No more deferred upgrades &mdash; each pod controls their timeline</td>
+      </tr>
+      <tr>
+        <td>SSR monolith can't scale per domain</td>
+        <td class="good">CSR shell + BFF &mdash; static CDN files + independent backend services</td>
+        <td class="good">Scale Catalog for a flash sale without scaling Account</td>
+      </tr>
+      <tr>
+        <td>Coordination overhead on every shared change</td>
+        <td class="good">Domain boundaries + App Catalog &mdash; automated governance replaces meetings</td>
+        <td class="good">Dependency updates go from 6 weeks to 1 day</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- This Is Not a Rewrite -->
+<section>
+  <h2>This Is Not a Rewrite</h2>
+  <p>The most important thing to understand about this next phase: <strong>we are not starting over.</strong></p>
+  <ul>
+    <li>The existing code stays. We copy it per domain and trim what doesn't belong.</li>
+    <li>The existing tests stay. Same tests, same assertions, smaller scope.</li>
+    <li>The existing infrastructure stays. Same K8s clusters, same CI/CD patterns.</li>
+    <li>The existing components stay. React components get wrapped in Web Component shells&mdash;the internals don't change.</li>
+    <li>The existing teams stay. Same people, same pods, clearer ownership boundaries.</li>
+  </ul>
+  <p>What changes is the <strong>architecture boundary</strong>. Instead of 84 micro frontends sharing one monolithic shell, you get 8&ndash;12 domain apps that each pod owns completely. Each app contains its own Web Components, its own pipeline, its own deploy schedule.</p>
+
+  <div class="callout">
+    <strong>Same Story, Next Chapter</strong>
+    If anyone asks "what changed?", the answer is: nothing changed in what we deliver. We're delivering the same product, the same features, the same experience. What changed is that we can now deliver more of it, faster, with less coordination overhead. It's the same platform taking its next step.
+  </div>
+</section>
+
+<!-- Where the Industry Went -->
+<section>
+  <h2>Where the Industry Went</h2>
+  <p>The pattern we're proposing isn't experimental. It's where every enterprise at this scale has ended up:</p>
+
+  <div class="themes-grid">
+    <div class="theme-card">
+      <div class="theme-icon">&#9633;</div>
+      <h4>Web Components Everywhere</h4>
+      <p>GitHub, Salesforce, Adobe, SAP, ING Bank, Microsoft, Red Hat&mdash;all rebuilt their component systems on W3C Web Components. Not because the old approach was wrong. Because the standard matured and the industry converged.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#9635;</div>
+      <h4>Domain-Driven Decomposition</h4>
+      <p>Amazon, Spotify, Zalando&mdash;the pattern is universal at scale. Independent teams need independent deployment. The micro frontend monolith was a stepping stone; domain apps are the destination.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#9641;</div>
+      <h4>Strangler Fig Evolution</h4>
+      <p>The UK Government Digital Service, BBC, and hundreds of enterprise platforms used strangler fig to evolve without rewriting. Copy the working system, split it, trim it. Never turn off what works until the new version is proven.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#8614;</div>
+      <h4>CSR + BFF for Commerce</h4>
+      <p>Netflix, Spotify, and most authenticated commerce platforms moved from SSR to CSR with BFF backends. SSR makes sense for SEO-only content pages. For authenticated commerce, CSR + BFF is faster and simpler.</p>
+    </div>
+  </div>
+
+  <div class="industry-std">
+    <strong>Industry-Proven Patterns</strong>
+    Domain-Driven Design (Evans, 2003), Strangler Fig (Fowler, 2004), W3C Web Components (stable 2018), Backend-for-Frontend (Newman, 2015). These aren't emerging ideas. They are the established playbook for enterprise platforms at this scale, validated across thousands of organizations over two decades.
+  </div>
+</section>
+
+<!-- What Happens If We Stay Put -->
+<section>
+  <h2>What Happens If We Stay Put</h2>
+  <p>Standing still is always an option. But standing still on a treadmill means falling behind. Here's the honest trajectory if the current architecture stays as-is:</p>
+
+  <table class="compare-table">
+    <thead>
+      <tr><th>Timeline</th><th>What Happens</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Year 1</strong></td><td>Next.js 12 loses community support. Security patches slow. New hires expect modern tooling. Release velocity stays flat despite team investment.</td></tr>
+      <tr><td><strong>Year 2</strong></td><td>React 17 ecosystem shrinks. Third-party libraries drop support. Teams spend more time on workarounds than features. The gap between your stack and the industry widens.</td></tr>
+      <tr><td><strong>Year 3</strong></td><td>A forced upgrade becomes unavoidable&mdash;but now it's bigger, because the monolith has accumulated 3 more years of coupling. The jump from React 17 to whatever's current in 2029 is much larger than evolving now.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout warn">
+    <strong>The Best Time to Evolve Is When Things Work</strong>
+    The worst time to make an architectural change is when the platform is in crisis. Right now the platform works. Teams are capable. The business is stable. That's exactly when you make a deliberate, measured, low-risk evolution&mdash;not when you're forced to.
+  </div>
+</section>
+
+<!-- The Path Forward -->
+<section>
+  <h2>The Next Iteration</h2>
+  <p>Given where we are and where the industry has gone, the next iteration is clear:</p>
+  <ol>
+    <li><strong>Decompose into domain apps</strong> using copy-split-strip (zero risk, same code, same tests)</li>
+    <li><strong>Evolve the shell</strong> to W3C Web Components (industry standard, no vendor lock-in)</li>
+    <li><strong>Establish an App Catalog</strong> for visibility, scanning, and automated governance</li>
+    <li><strong>Evolve components</strong> incrementally to WCFramework at each pod's pace</li>
+    <li><strong>Adopt a 1-year core cadence</strong> with automated scripts that handle the upgrade</li>
+  </ol>
+  <p>Each step is safe. Each step is reversible. Each step delivers value independently. And critically&mdash;each step builds on everything you've already built. Nothing gets thrown away.</p>
+  <p>The next page details exactly how this works&mdash;the strategy, the phases, and the safety guarantees.</p>
+</section>
+
+</main>
+
+<div style="max-width:900px;margin:0 auto;padding:0 1.5rem;">
+  <div class="page-nav">
+    <a href="02-current-state.html"><span class="pn-label">&larr; Previous</span><span class="pn-title">Where You Are Today</span></a>
+    <a href="04-migration-overview.html" class="next"><span class="pn-label">Next &rarr;</span><span class="pn-title">The Migration Strategy</span></a>
+  </div>
+</div>
+
+<footer>Medline Platform Evolution &mdash; v5 &mdash; 2026-04-05 &mdash; Technical Director Series &mdash; Confidential</footer>
+<div class="toast" id="toast">Copied!</div>
+<script src="shared.js"></script>
+</body>
+</html>

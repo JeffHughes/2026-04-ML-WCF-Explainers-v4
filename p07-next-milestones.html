@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Next 90 Days: Milestones &amp; Deliverables &mdash; Medline Platform Evolution</title>
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<div class="progress-bar"></div>
+<nav>
+  <a href="p-index.html" class="logo">ML Progress</a>
+  <div class="nav-links">
+    <a href="index.html">&larr; Migration Series</a>
+    <a href="p01-executive-dashboard.html">Dashboard</a>
+    <a href="p02-poc-results.html">POCs</a>
+    <a href="p03-domain-extraction-status.html">Domains</a>
+    <a href="p04-shell-and-components.html">Shell</a>
+    <a href="p05-infrastructure-status.html">Infra</a>
+    <a href="p06-risk-register.html">Risks</a>
+    <a href="p07-next-milestones.html" class="active">Next 90d</a>
+  </div>
+  <button class="theme-toggle" id="themeToggle" title="Toggle theme">&#9790;</button>
+</nav>
+
+<div class="hero">
+  <div class="page-num">Delivery Tracking &middot; P7</div>
+  <h1>Next 90 Days: Milestones &amp; Deliverables</h1>
+  <p class="subtitle">The near-term roadmap from April 6 through July 4, 2026. Six two-week sprints, each with concrete deliverables, success criteria, and decision gates.</p>
+</div>
+
+<main>
+
+<!-- 90-Day Overview -->
+<section>
+  <h2>90-Day Overview</h2>
+  <p>The next 90 days are the most critical execution window in the evolution. Phase 1 wraps up, four domains will be extracted, and the shell swap moves from staging to production readiness. Every milestone is scoped, owned, and measurable.</p>
+
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="stat-num">6</div>
+      <div class="stat-label">Two-Week Sprints</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num orange">4</div>
+      <div class="stat-label">Domain Extractions</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num green">12</div>
+      <div class="stat-label">Key Milestones</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num purple">3</div>
+      <div class="stat-label">Decision Gates</div>
+    </div>
+  </div>
+</section>
+
+<!-- Sprint 1: Week 1-2 -->
+<section>
+  <h2>Sprint 1: April 6 &ndash; 18</h2>
+  <h3>&#128722; Complete Cart Domain Extraction</h3>
+  <table class="compare-table">
+    <thead>
+      <tr><th>Deliverable</th><th>Owner</th><th>Success Criteria</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Payment gateway hooks integrated</td><td>Cart Team</td><td>Stripe + PayPal callbacks functional in extracted Cart</td></tr>
+      <tr><td>Saved cart persistence layer</td><td>Cart Team</td><td>Cart state persists across sessions, tested with 3 browsers</td></tr>
+      <tr><td>K8s deployment validated</td><td>DevOps</td><td>Cart pod stable for 48 hours, load tested at 2x current traffic</td></tr>
+      <tr><td>All Cart tests green</td><td>Cart Team</td><td>182 unit + 14 integration tests passing in isolated pipeline</td></tr>
+    </tbody>
+  </table>
+
+  <h3>&#128218; App Catalog Dashboard v1.0</h3>
+  <table class="compare-table">
+    <thead>
+      <tr><th>Deliverable</th><th>Owner</th><th>Success Criteria</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Health monitoring integration</td><td>Platform Team</td><td>Real-time status indicators for all 58 deployed components</td></tr>
+      <tr><td>Team ownership view</td><td>Platform Team</td><td>Every component and API linked to owning team</td></tr>
+      <tr><td>Dashboard accessible to all teams</td><td>Platform Team</td><td>SSO login, read access for all engineers</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout success">
+    <strong>&#9989; Decision Gate 1: Cart Go/No-Go</strong>
+    At the end of Sprint 1, the architecture team reviews Cart extraction results. If all tests pass and load testing confirms stability, Cart switches to the extracted version in staging. If not, Cart stays on monolith with a 1-sprint remediation plan.
+  </div>
+</section>
+
+<!-- Sprint 2: Week 3-4 -->
+<section>
+  <h2>Sprint 2: April 19 &ndash; May 2</h2>
+  <h3>&#128269; Complete Search Domain Extraction</h3>
+  <table class="compare-table">
+    <thead>
+      <tr><th>Deliverable</th><th>Owner</th><th>Success Criteria</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Faceted search filters complete</td><td>Search Team</td><td>Category, brand, price range filters functional via Search BFF</td></tr>
+      <tr><td>Personalization hooks wired</td><td>Search Team</td><td>Recently viewed + purchase history weighting via Account BFF call</td></tr>
+      <tr><td>Search BFF endpoints 4 &amp; 5</td><td>Search Team</td><td>Autocomplete suggestions + search analytics endpoints operational</td></tr>
+      <tr><td>K8s deployment validated</td><td>DevOps</td><td>Search pod stable, sub-200ms p95 latency under load</td></tr>
+    </tbody>
+  </table>
+
+  <h3>&#128295; Change-Mod Scripts Complete</h3>
+  <table class="compare-table">
+    <thead>
+      <tr><th>Deliverable</th><th>Owner</th><th>Success Criteria</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Domain-specific scripts for all 9 domains</td><td>Platform Team</td><td>Codemods for each domain&rsquo;s unique patterns validated</td></tr>
+      <tr><td>Rollback scripts tested</td><td>Platform Team</td><td>Automated revert if upgrade tests fail, tested on Catalog</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- Sprint 3: Week 5-6 -->
+<section>
+  <h2>Sprint 3: May 3 &ndash; 16</h2>
+  <h3>&#127968; Shell Swap to Staging</h3>
+  <table class="compare-table">
+    <thead>
+      <tr><th>Deliverable</th><th>Owner</th><th>Success Criteria</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>All extracted domains on new shell</td><td>Platform Team</td><td>Catalog, Shared/Core, Cart, Search all loading via WCFramework shell</td></tr>
+      <tr><td>Full staging environment operational</td><td>DevOps</td><td>New shell serving 100% of staging traffic</td></tr>
+      <tr><td>Performance baseline established</td><td>Architecture</td><td>Core Web Vitals within 10% of monolith baseline on staging</td></tr>
+      <tr><td>Cross-domain integration tested</td><td>QA</td><td>Cart &harr; Mini-Cart, Search &rarr; Catalog navigation, auth flow all verified</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout success">
+    <strong>&#9989; Decision Gate 2: Shell Swap Go/No-Go</strong>
+    Critical milestone. Architecture + Engineering Management review staging shell performance. If Core Web Vitals are within 10% of monolith baseline and all cross-domain flows work, the shell swap is approved for production canary.
+  </div>
+</section>
+
+<!-- Sprint 4: Week 7-8 -->
+<section>
+  <h2>Sprint 4: May 17 &ndash; 30</h2>
+  <h3>&#128218; App Catalog Dashboard v1.1</h3>
+  <table class="compare-table">
+    <thead>
+      <tr><th>Deliverable</th><th>Owner</th><th>Success Criteria</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Breaking change timeline view</td><td>Platform Team</td><td>Visual history of all contract changes with impact analysis</td></tr>
+      <tr><td>Deployment dashboard</td><td>Platform Team</td><td>Real-time view of what&rsquo;s deployed where (staging vs prod)</td></tr>
+      <tr><td>Risk register integration</td><td>Platform Team</td><td>Risks visible in App Catalog, linked to affected components</td></tr>
+    </tbody>
+  </table>
+
+  <h3>&#128722; Mini-Cart Extraction Begins</h3>
+  <table class="compare-table">
+    <thead>
+      <tr><th>Deliverable</th><th>Owner</th><th>Success Criteria</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Mini-Cart repo created from copy-split-strip</td><td>Cart Team</td><td>Mini-Cart code isolated, non-Mini-Cart code stripped</td></tr>
+      <tr><td>Message bus integration validated</td><td>Cart Team</td><td>Mini-Cart receives CartUpdated events from extracted Cart</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- Sprint 5: Week 9-10 -->
+<section>
+  <h2>Sprint 5: May 31 &ndash; June 13</h2>
+  <h3>&#128179; Checkout Extraction Begins</h3>
+  <table class="compare-table">
+    <thead>
+      <tr><th>Deliverable</th><th>Owner</th><th>Success Criteria</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Checkout repo created from copy-split-strip</td><td>Checkout Team</td><td>Multi-step flow isolated: shipping, payment, review, confirmation</td></tr>
+      <tr><td>Payment integration preserved</td><td>Checkout Team</td><td>Stripe + PayPal flows work in extracted Checkout</td></tr>
+      <tr><td>Mini-Cart extraction complete</td><td>Cart Team</td><td>Mini-Cart running independently, synced with Cart via message bus</td></tr>
+    </tbody>
+  </table>
+
+  <h3>&#128247; Visual Regression Tooling Deployed</h3>
+  <table class="compare-table">
+    <thead>
+      <tr><th>Deliverable</th><th>Owner</th><th>Success Criteria</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Chromatic integration in CI</td><td>DevOps</td><td>Screenshot comparison runs on every PR for wrapped components</td></tr>
+      <tr><td>Baseline screenshots captured</td><td>Component Team</td><td>All 58 deployed components have baseline snapshots</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- Sprint 6: Week 11-12 -->
+<section>
+  <h2>Sprint 6: June 14 &ndash; July 4</h2>
+  <h3>&#127919; First Core Component Set Published</h3>
+  <table class="compare-table">
+    <thead>
+      <tr><th>Deliverable</th><th>Owner</th><th>Success Criteria</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>20 native WCFramework components published</td><td>Component Team</td><td>Core set: buttons, forms, modals, cards, navigation &mdash; all on CDN</td></tr>
+      <tr><td>Component documentation portal</td><td>Component Team</td><td>Each component has live examples, API docs, and usage guidelines</td></tr>
+      <tr><td>Checkout extraction at 50%+</td><td>Checkout Team</td><td>Core checkout flow isolated, payment hooks in progress</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout success">
+    <strong>&#9989; Decision Gate 3: Phase 1 Completion Review</strong>
+    Final Phase 1 review. All core infrastructure operational, 4+ domains extracted, shell in staging, component catalog live. Decision: approve Phase 2 (remaining domain extractions + production shell swap) with updated timeline.
+  </div>
+</section>
+
+<!-- 90-Day Gantt -->
+<section>
+  <h2>90-Day Gantt Chart</h2>
+  <div class="mermaid-wrap" id="dp07-1">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">&#9974;</button>
+    </div>
+    <div class="mw-view">
+      <div class="mermaid-inner" data-src="gantt
+  title Next 90 Days — April 6 to July 4, 2026
+  dateFormat YYYY-MM-DD
+  axisFormat %b %d
+
+  section Domain Extraction
+  Cart completion           :active, cart, 2026-04-06, 2026-04-11
+  Search completion         :active, srch, 2026-04-06, 2026-04-25
+  Mini-Cart extraction      :mc, 2026-05-17, 2026-05-30
+  Checkout extraction start :co, 2026-05-31, 2026-07-04
+
+  section Shell
+  Shell swap to staging     :crit, swap, 2026-05-03, 2026-05-16
+
+  section Infrastructure
+  App Catalog v1.0          :active, ac1, 2026-04-06, 2026-04-18
+  Change-mod scripts        :cms, 2026-04-19, 2026-05-02
+  Visual regression deploy  :vr, 2026-05-31, 2026-06-13
+  App Catalog v1.1          :ac2, 2026-05-17, 2026-05-30
+
+  section Components
+  Remaining Cart wrapping   :cw, 2026-04-06, 2026-04-18
+  Search component wrapping :sw, 2026-04-19, 2026-05-02
+  Core WCF component set    :wcs, 2026-06-14, 2026-07-04
+
+  section Gates
+  Gate 1 Cart Go-No-Go      :milestone, g1, 2026-04-18, 0d
+  Gate 2 Shell Swap          :milestone, g2, 2026-05-16, 0d
+  Gate 3 Phase 1 Review      :milestone, g3, 2026-07-04, 0d"></div>
+    </div>
+    <div class="mw-caption">90-day execution plan with three decision gates &mdash; updated 2026-04-05</div>
+  </div>
+</section>
+
+<!-- Decision Points -->
+<section>
+  <h2>Decision Points &amp; Gates</h2>
+  <div class="mermaid-wrap" id="dp07-2">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">&#9974;</button>
+    </div>
+    <div class="mw-view">
+      <div class="mermaid-inner" data-src="graph TD
+  S1[Sprint 1-2: Extract Cart + Search] --> G1{Gate 1: Cart Go/No-Go}
+  G1 -->|Pass| S2[Sprint 3: Shell Swap to Staging]
+  G1 -->|Fail| R1[1-Sprint Remediation]
+  R1 --> G1
+
+  S2 --> G2{Gate 2: Shell Swap Go/No-Go}
+  G2 -->|Pass| S3[Sprint 4-5: Mini-Cart + Checkout]
+  G2 -->|Fail| R2[Performance Optimization Sprint]
+  R2 --> G2
+
+  S3 --> S4[Sprint 6: Core Components + Phase 1 Wrap]
+  S4 --> G3{Gate 3: Phase 1 Complete}
+  G3 -->|Approved| PH2[Begin Phase 2]
+  G3 -->|Deferred| EXT[Extended Phase 1 Sprint]
+  EXT --> G3
+
+  style G1 fill:#f0883e,stroke:#f0883e,color:#fff
+  style G2 fill:#f0883e,stroke:#f0883e,color:#fff
+  style G3 fill:#3fb950,stroke:#3fb950,color:#fff
+  style PH2 fill:#58a6ff,stroke:#58a6ff,color:#fff
+  style R1 fill:#f85149,stroke:#f85149,color:#fff
+  style R2 fill:#f85149,stroke:#f85149,color:#fff"></div>
+    </div>
+    <div class="mw-caption">Decision gate flow &mdash; every gate has a pass path and a remediation path</div>
+  </div>
+
+  <div class="industry-std">
+    <strong>Industry Standard: Stage-Gate Delivery Model</strong>
+    Stage-gate reviews at each major milestone ensure quality and alignment before committing to the next phase. This is the same delivery governance used by DORA-compliant organizations, ensuring decisions are evidence-based, not deadline-driven.
+  </div>
+</section>
+
+<!-- Dependencies & Assumptions -->
+<section>
+  <h2>Dependencies &amp; Assumptions</h2>
+  <details>
+    <summary>Key Dependencies <span class="detail-summary">What must be true for this plan to work</span></summary>
+    <div class="detail-body">
+      <ul>
+        <li><strong>Cart extraction:</strong> No dependency &mdash; on track for April 11</li>
+        <li><strong>Search extraction:</strong> Depends on Account BFF availability for personalization (workaround in place)</li>
+        <li><strong>Shell swap:</strong> Depends on Cart and Search being fully extracted and stable in staging</li>
+        <li><strong>Mini-Cart:</strong> Depends on Cart extraction completion &mdash; cannot start until Cart is stable</li>
+        <li><strong>Checkout:</strong> Depends on Cart + Account BFF availability &mdash; Account workaround via service mesh</li>
+        <li><strong>Visual regression:</strong> Depends on Chromatic license approval (requested, expected by May 15)</li>
+      </ul>
+    </div>
+  </details>
+  <details>
+    <summary>Key Assumptions <span class="detail-summary">What we&rsquo;re assuming stays true</span></summary>
+    <div class="detail-body">
+      <ul>
+        <li>Team capacity remains stable (no major departures or reassignments)</li>
+        <li>CDN provider maintains &gt; 99.9% availability</li>
+        <li>No major Medline business events require code freezes during this window</li>
+        <li>Offshore team ramp-up delivers productive capacity by Sprint 3</li>
+        <li>No breaking changes in React 17.x or WCFramework that require unplanned work</li>
+      </ul>
+    </div>
+  </details>
+</section>
+
+<!-- Confidence Level -->
+<section>
+  <h2>90-Day Delivery Confidence</h2>
+  <p>Based on Phase 1 velocity (8/8 milestones on time or early), POC data, and current sprint progress:</p>
+  <div class="themes-grid">
+    <div class="theme-card">
+      <div class="theme-icon">&#128994;</div>
+      <h4>HIGH Confidence</h4>
+      <p>Cart extraction, Search extraction, App Catalog v1.0, Change-mod scripts. These are on track or ahead of schedule with no blockers.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#128994;</div>
+      <h4>HIGH Confidence</h4>
+      <p>Shell swap to staging. All prerequisites are on track. Shell v0.9 is stable. Cross-domain integration tested.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#128993;</div>
+      <h4>MEDIUM Confidence</h4>
+      <p>Checkout extraction start and 20 native WCF components. Both depend on team velocity in Sprints 5&ndash;6, which includes offshore team contributions.</p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<div style="max-width:900px;margin:0 auto;padding:0 1.5rem;">
+  <div class="page-nav">
+    <a href="p06-risk-register.html"><span class="pn-label">&larr; Previous</span><span class="pn-title">Risk Register</span></a>
+    <a href="p-index.html" class="next"><span class="pn-label">Back to &rarr;</span><span class="pn-title">Progress Dashboard</span></a>
+  </div>
+</div>
+
+<footer>Medline Platform Evolution &mdash; Progress Dashboard &mdash; v5 &mdash; 2026-04-05 &mdash; Confidential</footer>
+<div class="toast" id="toast">Copied!</div>
+<script src="shared.js"></script>
+</body>
+</html>

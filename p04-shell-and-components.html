@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shell Swap &amp; Component Catalog Progress &mdash; Medline Platform Evolution</title>
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<div class="progress-bar"></div>
+<nav>
+  <a href="p-index.html" class="logo">ML Progress</a>
+  <div class="nav-links">
+    <a href="index.html">&larr; Migration Series</a>
+    <a href="p01-executive-dashboard.html">Dashboard</a>
+    <a href="p02-poc-results.html">POCs</a>
+    <a href="p03-domain-extraction-status.html">Domains</a>
+    <a href="p04-shell-and-components.html" class="active">Shell</a>
+    <a href="p05-infrastructure-status.html">Infra</a>
+    <a href="p06-risk-register.html">Risks</a>
+    <a href="p07-next-milestones.html">Next 90d</a>
+  </div>
+  <button class="theme-toggle" id="themeToggle" title="Toggle theme">&#9790;</button>
+</nav>
+
+<div class="hero">
+  <div class="page-num">Delivery Tracking &middot; P4</div>
+  <h1>Shell Swap &amp; Component Catalog Progress</h1>
+  <p class="subtitle">The WCFramework shell is in staging. 147 components are cataloged. Here&rsquo;s the detailed status of the new runtime and every component in the system.</p>
+</div>
+
+<main>
+
+<!-- Shell Status -->
+<section>
+  <h2>WCFramework Shell Status</h2>
+  <p>The standards-based CSR shell &mdash; built on WCFramework &mdash; is the thin orchestration layer that replaces the Next.js monolith shell. It loads domain micro frontends dynamically via import maps and W3C Web Components.</p>
+
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="stat-num green">v0.9</div>
+      <div class="stat-label">Shell Version in Staging</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">3</div>
+      <div class="stat-label">Domains Connected</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num orange">42</div>
+      <div class="stat-label">Wrapped Components Loaded</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num purple">16</div>
+      <div class="stat-label">Native WCFramework Components</div>
+    </div>
+  </div>
+
+  <table class="compare-table">
+    <thead>
+      <tr><th>Shell Capability</th><th>Status</th><th>Notes</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Client-side routing</td><td class="good">&#9989; Operational</td><td>Hash-based routing with history API fallback</td></tr>
+      <tr><td>Import map module loading</td><td class="good">&#9989; Operational</td><td>3 domain modules + core bundle registered</td></tr>
+      <tr><td>Dynamic component registration</td><td class="good">&#9989; Operational</td><td>Custom elements registered on-demand from CDN</td></tr>
+      <tr><td>Authentication context</td><td class="good">&#9989; Operational</td><td>JWT token propagation via shared auth provider</td></tr>
+      <tr><td>Cross-domain message bus</td><td class="good">&#9989; Operational</td><td>Typed event bus for Cart &harr; Mini-Cart, etc.</td></tr>
+      <tr><td>Error boundary handling</td><td class="good">&#9989; Operational</td><td>Per-component error isolation, graceful fallbacks</td></tr>
+      <tr><td>Performance monitoring</td><td class="neutral">&#128309; In Progress</td><td>Core vitals collection done, dashboard pending</td></tr>
+      <tr><td>A/B testing integration</td><td>&#9898; Planned</td><td>Slot-based experiment framework, Q2</td></tr>
+    </tbody>
+  </table>
+
+  <details>
+    <summary>Shell Architecture Details <span class="detail-summary">How the shell works</span></summary>
+    <div class="detail-body">
+      <h4>Import Map Configuration</h4>
+      <p>The shell loads a single <code>import-map.json</code> from the CDN that maps module specifiers to versioned URLs. When a domain releases a new version, only the import map entry is updated &mdash; no shell rebuild required.</p>
+      <pre><code>{
+  "imports": {
+    "@ml/catalog": "https://cdn.medline.com/mfe/catalog@2.4.1/index.js",
+    "@ml/cart": "https://cdn.medline.com/mfe/cart@1.8.3/index.js",
+    "@ml/core": "https://cdn.medline.com/mfe/core@3.1.0/index.js"
+  }
+}</code></pre>
+      <h4>Domain Loading Flow</h4>
+      <p>When a user navigates to a route owned by a domain: (1) shell resolves the route to a domain module, (2) dynamically imports the module via import map, (3) module registers its Web Component custom elements, (4) shell renders the domain&rsquo;s root component into the page slot.</p>
+    </div>
+  </details>
+
+  <div class="industry-std">
+    <strong>Industry Standard: Import Map Module Federation</strong>
+    Import maps are a W3C standard (natively supported in all modern browsers) for controlling module resolution at runtime. This is the same pattern Spotify and IKEA use for their micro frontend shells &mdash; zero bundler coupling, instant rollback via version change.
+  </div>
+</section>
+
+<!-- Component Catalog Status -->
+<section>
+  <h2>Component Catalog: 147 Components</h2>
+  <p>Every component in the Medline platform has been cataloged, categorized, and assigned a migration path. Here&rsquo;s the breakdown by status:</p>
+
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="stat-num">89</div>
+      <div class="stat-label">React-Only (Not Yet Wrapped)</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num orange">42</div>
+      <div class="stat-label">React + Web Component Wrapper</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num green">16</div>
+      <div class="stat-label">Native WCFramework (New Builds)</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num purple">147</div>
+      <div class="stat-label">Total Cataloged</div>
+    </div>
+  </div>
+
+  <table class="compare-table">
+    <thead>
+      <tr><th>Domain</th><th>Total</th><th>React-Only</th><th>Wrapped</th><th>Native WCF</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Catalog</td><td>28</td><td>12</td><td class="good">14</td><td class="good">2</td></tr>
+      <tr><td>Cart</td><td>19</td><td>11</td><td class="good">6</td><td class="good">2</td></tr>
+      <tr><td>Search</td><td>14</td><td>8</td><td class="good">4</td><td class="good">2</td></tr>
+      <tr><td>Shared/Core</td><td>22</td><td>6</td><td class="good">12</td><td class="good">4</td></tr>
+      <tr><td>Account</td><td>18</td><td>16</td><td>2</td><td>0</td></tr>
+      <tr><td>Checkout</td><td>16</td><td>14</td><td>2</td><td>0</td></tr>
+      <tr><td>Mini-Cart</td><td>6</td><td>4</td><td class="good">2</td><td>0</td></tr>
+      <tr><td>Content/CMS</td><td>12</td><td>10</td><td>0</td><td class="good">2</td></tr>
+      <tr><td>Admin</td><td>12</td><td>8</td><td>0</td><td class="good">4</td></tr>
+    </tbody>
+  </table>
+
+  <details>
+    <summary>Wrapping Progress Details <span class="detail-summary">Which components are wrapped</span></summary>
+    <div class="detail-body">
+      <h4>High-Priority Components (Wrapped First)</h4>
+      <p>The 42 wrapped components were prioritized by: (1) presence on high-traffic pages (PLP, PDP, header), (2) cross-domain usage, and (3) visual prominence. These 42 components cover <strong>78% of user-visible surface area</strong> across Catalog, Cart, Search, and Shared/Core.</p>
+      <h4>Native WCFramework Components</h4>
+      <p>16 components were built natively in WCFramework from scratch. These are primarily new UI elements that didn&rsquo;t exist in the React monolith: the new breadcrumb system, enhanced product quick-view, accessible modal system, and responsive navigation drawer.</p>
+      <h4>React-Only (89 Components)</h4>
+      <p>These components remain in their original React form within their domain bundles. They&rsquo;ll be wrapped as their domains are extracted, following the same template used for the first 42.</p>
+    </div>
+  </details>
+</section>
+
+<!-- Component Status Diagram -->
+<section>
+  <h2>Component Status Breakdown</h2>
+  <div class="mermaid-wrap" id="dp04-1">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">&#9974;</button>
+    </div>
+    <div class="mw-view">
+      <div class="mermaid-inner" data-src="pie title Component Status (147 Total)
+  &quot;React-Only (Not Wrapped)&quot; : 89
+  &quot;React + WC Wrapper (Deployed)&quot; : 42
+  &quot;Native WCFramework (New)&quot; : 16"></div>
+    </div>
+    <div class="mw-caption">147 cataloged components by current migration status</div>
+  </div>
+</section>
+
+<!-- Shell Integration Diagram -->
+<section>
+  <h2>Shell Integration Status</h2>
+  <div class="mermaid-wrap" id="dp04-2">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">&#9974;</button>
+    </div>
+    <div class="mw-view">
+      <div class="mermaid-inner" data-src="graph TD
+  SHELL[WCFramework Shell v0.9] --> IM[Import Map]
+  IM --> CAT_M[@ml/catalog]
+  IM --> CART_M[@ml/cart - partial]
+  IM --> CORE_M[@ml/core]
+
+  CAT_M --> CAT_C[14 Wrapped + 2 Native]
+  CART_M --> CART_C[6 Wrapped + 2 Native]
+  CORE_M --> CORE_C[12 Wrapped + 4 Native]
+
+  SHELL --> CDN[CDN Edge]
+  CDN --> CAT_M
+  CDN --> CART_M
+  CDN --> CORE_M
+
+  SHELL -.->|Planned| SEARCH_M[@ml/search]
+  SHELL -.->|Planned| ACC_M[@ml/account]
+  SHELL -.->|Planned| CO_M[@ml/checkout]
+
+  style SHELL fill:#58a6ff,stroke:#58a6ff,color:#fff
+  style IM fill:#d2a8ff,stroke:#d2a8ff,color:#000
+  style CDN fill:#3fb950,stroke:#3fb950,color:#fff
+  style CAT_M fill:#3fb950,stroke:#3fb950,color:#fff
+  style CORE_M fill:#3fb950,stroke:#3fb950,color:#fff
+  style CART_M fill:#f0883e,stroke:#f0883e,color:#fff
+  style SEARCH_M fill:#8b949e,stroke:#8b949e,color:#fff
+  style ACC_M fill:#8b949e,stroke:#8b949e,color:#fff
+  style CO_M fill:#8b949e,stroke:#8b949e,color:#fff"></div>
+    </div>
+    <div class="mw-caption">Shell integration map &mdash; green = connected, orange = partial, gray = planned</div>
+  </div>
+</section>
+
+<!-- CDN & Import Map Status -->
+<section>
+  <h2>CDN &amp; Import Map Status</h2>
+  <table class="compare-table">
+    <thead>
+      <tr><th>Capability</th><th>Status</th><th>Details</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>CDN serving wrapped components</td><td class="good">&#9989; Live</td><td>42 wrapped + 16 native = 58 components on CDN</td></tr>
+      <tr><td>Import map versioning</td><td class="good">&#9989; Automated</td><td>Version bumps on merge, rollback via previous version</td></tr>
+      <tr><td>Multi-region distribution</td><td class="good">&#9989; Active</td><td>US-East, US-West, EU-West &mdash; sub-50ms latency</td></tr>
+      <tr><td>Service worker cache</td><td class="good">&#9989; Deployed</td><td>Offline fallback for core shell + Shared/Core</td></tr>
+      <tr><td>Bundle analysis</td><td class="neutral">&#128309; In Progress</td><td>Automated size tracking per component per release</td></tr>
+    </tbody>
+  </table>
+
+  <div class="industry-std">
+    <strong>Industry Standard: CDN-First Component Delivery</strong>
+    Loading components from CDN edge nodes with import map resolution is the same architecture used by Cloudflare Workers, Shopify Hydrogen, and Deno Deploy. Sub-50ms component loads worldwide, with instant rollback by updating a single JSON file.
+  </div>
+</section>
+
+<!-- What's Next for Shell & Components -->
+<section>
+  <h2>What&rsquo;s Next</h2>
+  <ul>
+    <li><strong>April 18:</strong> Complete wrapping of remaining Cart components (6 &rarr; 11)</li>
+    <li><strong>April 25:</strong> Search domain components wrapped and integrated</li>
+    <li><strong>May 15:</strong> Shell swap to staging &mdash; all extracted domains running through new shell</li>
+    <li><strong>Ongoing:</strong> Wrapper code generator to automate the remaining 89 React component wrappers</li>
+    <li><strong>Q2:</strong> A/B testing integration in shell for experiment-driven component loading</li>
+  </ul>
+</section>
+
+</main>
+
+<div style="max-width:900px;margin:0 auto;padding:0 1.5rem;">
+  <div class="page-nav">
+    <a href="p03-domain-extraction-status.html"><span class="pn-label">&larr; Previous</span><span class="pn-title">Domain Extraction</span></a>
+    <a href="p05-infrastructure-status.html" class="next"><span class="pn-label">Next &rarr;</span><span class="pn-title">Infrastructure Status</span></a>
+  </div>
+</div>
+
+<footer>Medline Platform Evolution &mdash; Progress Dashboard &mdash; v5 &mdash; 2026-04-05 &mdash; Confidential</footer>
+<div class="toast" id="toast">Copied!</div>
+<script src="shared.js"></script>
+</body>
+</html>

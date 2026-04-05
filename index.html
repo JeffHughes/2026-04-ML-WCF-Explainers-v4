@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Platform Evolution &mdash; Medline Platform Evolution</title>
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<div class="progress-bar"></div>
+<nav>
+  <a href="index.html" class="logo">ML Evolution</a>
+  <div class="nav-links">
+    <a href="01-executive-summary.html">Summary</a>
+    <a href="02-current-state.html">Today</a>
+    <a href="03-why-change.html">Why</a>
+    <a href="04-migration-overview.html">Strategy</a>
+    <a href="05-copy-split-strip.html">Copy-Split</a>
+    <a href="06-domain-map.html">Domains</a>
+    <a href="07-catalog-domain.html">Catalog</a>
+    <a href="08-cart-checkout.html">Cart</a>
+    <a href="09-remaining-domains.html">Other</a>
+    <a href="10-shell-architecture.html">Shell</a>
+    <a href="11-shell-swap.html">Swap</a>
+    <a href="12-web-component-wrapping.html">Wrapping</a>
+    <a href="13-hydration-csr.html">CSR</a>
+    <a href="14-component-standards.html">Standards</a>
+    <a href="15-component-transition.html">Transition</a>
+    <a href="16-app-catalog.html">Catalog</a>
+    <a href="17-api-scanning.html">Scanning</a>
+    <a href="18-bff-pattern.html">BFF</a>
+    <a href="19-managing-drift.html">Drift</a>
+    <a href="20-core-cadence.html">Cadence</a>
+    <a href="21-testing-strategy.html">Testing</a>
+    <a href="22-blue-green-rollouts.html">Deploy</a>
+    <a href="23-migration-timeline.html">Timeline</a>
+    <a href="24-team-impact.html">Teams</a>
+    <a href="25-key-principles.html">Principles</a>
+    <a href="dev-environment.html">DevEx</a>
+  </div>
+  <button class="theme-toggle" id="themeToggle" title="Toggle theme">&#9790;</button>
+</nav>
+
+<div class="hero">
+  <h1>Platform Evolution: From Monolith to Domain-Driven Micro Frontends</h1>
+  <p class="subtitle">A practical migration path for enterprise e-commerce at scale</p>
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="stat-num">Zero Downtime</div>
+      <div class="stat-label">Copy-split-strip, never rewrite</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num orange">A Dozen Apps</div>
+      <div class="stat-label">Monolithic shell to a dozen independent apps</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num green">Zero Coordination</div>
+      <div class="stat-label">Pods deploy without waiting for anyone</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num purple">SSR &rarr; CSR+BFF</div>
+      <div class="stat-label">Backend isolation from day one</div>
+    </div>
+  </div>
+</div>
+
+<main>
+
+<!-- Architecture Overview Mermaid Diagram -->
+<section>
+  <h2>The Journey at a Glance</h2>
+  <p>These documents walk you through the next evolution of the platform&mdash;from where we are today, through the mechanics of migration, to the operational model that keeps everything running smoothly. No more big-bang releases. No more dependency inconsistencies. No more weird UI flicker issues. Every domain deploys independently with canary/blue-green rollouts, shift-left quality gates, and automated CVE scanning.</p>
+
+  <div class="mermaid-wrap" id="d00-1">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">Fullscreen</button>
+    </div>
+    <div class="mw-view">
+      <div class="mermaid-inner" data-src="graph LR
+  A[Monolith\nNext.js 12 + 84 MFEs] -->|Copy-Split-Strip| B[Domain Extraction\nIndependent Repos]
+  B -->|Shell Swap| C[Standards-Based Shell\nWeb Components]
+  C -->|Component Standards| D[Component Evolution\nWCFramework + Design System]
+  D -->|Catalog &amp; Ops| E[App Catalog\nAutomated Governance]
+  style A fill:#f85149,stroke:#f85149,color:#fff
+  style B fill:#f0883e,stroke:#f0883e,color:#fff
+  style C fill:#58a6ff,stroke:#58a6ff,color:#fff
+  style D fill:#d2a8ff,stroke:#d2a8ff,color:#000
+  style E fill:#3fb950,stroke:#3fb950,color:#fff"></div>
+    </div>
+    <div class="mw-caption">Full evolution journey: five stages from monolith to governed micro frontends</div>
+  </div>
+
+  <div class="industry-std">
+    <strong>Industry-Standard Pattern</strong>
+    Every phase in this migration uses battle-tested patterns: Strangler Fig decomposition, Domain-Driven Design bounded contexts, W3C Web Components, and Backend-for-Frontend isolation. No experimental technology. No vendor lock-in.
+  </div>
+</section>
+
+<!-- Document Grid: The Big Picture -->
+<section>
+  <h2>The Big Picture</h2>
+  <p>Understanding where we are, why we need to change, and the executive summary of the entire strategy.</p>
+  <div class="doc-grid">
+    <a href="01-executive-summary.html" class="doc-card">
+      <div class="card-num">01</div>
+      <div class="card-body">
+        <h3>The 90-Second Pitch</h3>
+        <p class="card-desc">What we're doing, why, and what changes. The TL;DR for decision-makers who need the full picture in under two minutes.</p>
+        <div class="card-tags"><span class="tag">strategy</span><span class="tag">executive</span></div>
+      </div>
+      <div class="card-arrow">&rarr;</div>
+    </a>
+    <a href="02-current-state.html" class="doc-card">
+      <div class="card-num">02</div>
+      <div class="card-body">
+        <h3>Where You Are Today</h3>
+        <p class="card-desc">A detailed breakdown of the current monolithic architecture, its coupling patterns, and the pain points your teams experience daily.</p>
+        <div class="card-tags"><span class="tag">architecture</span><span class="tag">analysis</span></div>
+      </div>
+      <div class="card-arrow">&rarr;</div>
+    </a>
+    <a href="03-why-change.html" class="doc-card">
+      <div class="card-num">03</div>
+      <div class="card-body">
+        <h3>The Next Evolution</h3>
+        <p class="card-desc">We've taken the canonical architecture as far as it goes. Here's the next iteration that unlocks the release velocity we need.</p>
+        <div class="card-tags"><span class="tag">next-phase</span><span class="tag">evolution</span></div>
+      </div>
+      <div class="card-arrow">&rarr;</div>
+    </a>
+    <a href="wc-advantages.html" class="doc-card">
+      <div class="card-num">&#9733;</div>
+      <div class="card-body">
+        <h3>Web Components: Why the Platform Wins</h3>
+        <p class="card-desc">Head-to-head comparison of browser-native Web Components vs the React ecosystem churn cycle. Enterprise adoption evidence, honest objection handling, and the 5-year trajectory.</p>
+        <div class="card-tags"><span class="tag">web-components</span><span class="tag">reference</span><span class="tag">deep-dive</span></div>
+      </div>
+      <div class="card-arrow">&rarr;</div>
+    </a>
+  </div>
+</section>
+
+<!-- Migration Mechanics -->
+<section>
+  <h2>Migration Mechanics</h2>
+  <p>The step-by-step mechanics of how we decompose the monolith, extract domains, and establish independent deployment pipelines.</p>
+  <div class="doc-grid">
+    <a href="04-migration-overview.html" class="doc-card">
+      <div class="card-num">04</div>
+      <div class="card-body">
+        <h3>The Migration Strategy</h3>
+        <p class="card-desc">Strangler fig pattern, four phases, zero downtime. Each phase delivers value independently&mdash;you can stop at any point and still be better off.</p>
+        <div class="card-tags"><span class="tag">strangler-fig</span><span class="tag">strategy</span></div>
+      </div>
+      <div class="card-arrow">&rarr;</div>
+    </a>
+    <a href="05-copy-split-strip.html" class="doc-card">
+      <div class="card-num">05</div>
+      <div class="card-body">
+        <h3>Copy, Split, Strip</h3>
+        <p class="card-desc">The safest migration in the world. Copy the monolith, delete what you don't need, deploy the same code with less of it. Zero risk.</p>
+        <div class="card-tags"><span class="tag">migration</span><span class="tag">safety</span></div>
+      </div>
+      <div class="card-arrow">&rarr;</div>
+    </a>
+    <a href="05b-component-communication.html" class="doc-card">
+      <div class="card-num">5b</div>
+      <div class="card-body">
+        <h3>How Components Talk: Communication &amp; State</h3>
+        <p class="card-desc">Inter-component communication, cross-domain messaging via event bus, domain-scoped state, BFF data flow, and state boundaries. Lots of diagrams.</p>
+        <div class="card-tags"><span class="tag">communication</span><span class="tag">state</span><span class="tag">events</span></div>
+      </div>
+      <div class="card-arrow">&rarr;</div>
+    </a>
+    <a href="06-domain-map.html" class="doc-card">
+      <div class="card-num">06</div>
+      <div class="card-body">
+        <h3>The Domain Map</h3>
+        <p class="card-desc">Your e-commerce verticals defined: Catalog, Cart, Checkout, Account, Search, Content, Admin, and Shared/Core. Boundaries and API surfaces.</p>
+        <div class="card-tags"><span class="tag">DDD</span><span class="tag">domains</span></div>
+      </div>
+      <div class="card-arrow">&rarr;</div>
+    </a>
+    <a href="07-catalog-domain.html" class="doc-card">
+      <div class="card-num">07</div>
+      <div class="card-body">
+        <h3>Catalog Domain Deep Dive</h3>
+        <p class="card-desc">PLP, PDP, search, browse&mdash;the first domain extraction walkthrough with real file trees, route maps, and deployment configs.</p>
+        <div class="card-tags"><span class="tag">catalog</span><span class="tag">deep-dive</span></div>
+      </div>
+      <div class="card-arrow">&rarr;</div>
+    </a>
+    <a href="08-cart-checkout.html" class="doc-card">
+      <div class="card-num">08</div>
+      <div class="card-body">
+        <h3>Cart &amp; Checkout Domain</h3>
+        <p class="card-desc">State management, promotions, payment integration&mdash;how the most stateful domain gets extracted safely.</p>
+        <div class="card-tags"><span class="tag">cart</span><span class="tag">checkout</span></div>
+      </div>
+      <div class="card-arrow">&rarr;</div>
+    </a>
+    <a href="09-remaining-domains.html" class="doc-card">
+      <div class="card-num">09</div>
+      <div class="card-body">
+        <h3>Remaining Domains</h3>
+        <p class="card-desc">Account, Search, Content, Admin&mdash;patterns for extracting the remaining verticals using the same proven copy-split-strip approach.</p>
+        <div class="card-tags"><span class="tag">account</span><span class="tag">search</span><span class="tag">content</span></div>
+      </div>
+      <div class="card-arrow">&rarr;</div>
+    </a>
+  </div>
+</section>
+
+<!-- The New Architecture -->
+<section>
+  <h2>The New Architecture</h2>
+  <p>What the evolved platform looks like: build once, deploy many&mdash;the shell, component wrapping, client-side rendering, and the transition from SSR monolith to independent micro frontends.</p>
+  <div class="doc-grid">
+    <a href="10-shell-architecture.html" class="doc-card">
+      <div class="card-num">10</div>
+      <div class="card-body">
+        <h3>Shell Architecture</h3>
+        <p class="card-desc">The thin orchestration layer that loads domain micro frontends using W3C Web Components. Standards-based, framework-agnostic, future-proof.</p>
+        <div class="card-tags"><span class="tag">shell</span><span class="tag">web-components</span></div>
+      </div>
+      <div class="card-arrow">&rarr;</div>
+    </a>
+    <a href="11-shell-swap.html" class="doc-card">
+      <div class="card-num">11</div>
+      <div class="card-body">
+        <h3>The Shell Swap</h3>
+        <p class="card-desc">How we replace the Next.js shell with a standards-based Web Component shell&mdash;without any downtime or big-bang migration.</p>
+        <div class="card-tags"><span class="tag">swap</span><span class="tag">migration</span></div>
+      </div>
+      <div class="card-arrow">&rarr;</div>
+    </a>
+    <a href="12-web-component-wrapping.html" class="doc-card">
+      <div class="card-num">12</div>
+      <div class="card-body">
+        <h3>Web Component Wrapping</h3>
+        <p class="card-desc">Wrapping existing React micro frontends in Web Component containers so they work with the new shell immediately&mdash;no rewrite required.</p>
+        <div class="card-tags"><span class="tag">wrapping</span><span class="tag">web-components</span></div>
+      </div>
+      <div class="card-arrow">&rarr;</div>
+    </a>
+    <a href="13-hydration-csr.html" class="doc-card">
+      <div class="card-num">13</div>
+      <div class="card-body">
+        <h3>SSR to CSR + BFF</h3>
+        <p class="card-desc">Eliminating the SSR monolith by moving to client-side rendering with Backend-for-Frontend pattern. Simpler, faster, independently deployable.</p>
+        <div class="card-tags"><span class="tag">CSR</span><span class="tag">BFF</span></div>
+      </div>
+      <div class="card-arrow">&rarr;</div>
+    </a>
+  </div>
+</section>
+
+<!-- Component Strategy -->
+<section>
+  <h2>Component Strategy</h2>
+  <p>Standards for building, cataloging, scanning, and transitioning components across the entire platform.</p>
+  <div class="doc-grid">
+    <a href="14-component-standards.html" class="doc-card">
+      <div class="card-num">14</div>
+      <div class="card-body">
+        <h3>Component Standards</h3>
+        <p class="card-desc">The interface contract every component must follow: inputs, outputs, lifecycle hooks, accessibility, and performance budgets.</p>
+        <div class="card-tags"><span class="tag">standards</span><span class="tag">contracts</span></div>
+      </div>
+      <div class="card-arrow">&rarr;</div>
+    </a>
+    <a href="15-component-transition.html" class="doc-card">
+      <div class="card-num">15</div>
+      <div class="card-body">
+        <h3>Component Transition</h3>
+        <p class="card-desc">Moving from React components to WCFramework components using the standards-based component model. Incremental, safe, reversible.</p>
+        <div class="card-tags"><span class="tag">transition</span><span class="tag">WCFramework</span></div>
+      </div>
+      <div class="card-arrow">&rarr;</div>
+    </a>
+    <a href="16-app-catalog.html" class="doc-card">
+      <div class="card-num">16</div>
+      <div class="card-body">
+        <h3>App Catalog</h3>
+        <p class="card-desc">The registry that tracks every micro frontend, its version, dependencies, health status, and deployment configuration.</p>
+        <div class="card-tags"><span class="tag">catalog</span><span class="tag">governance</span></div>
+      </div>
+      <div class="card-arrow">&rarr;</div>
+    </a>
+    <a href="17-api-scanning.html" class="doc-card">
+      <div class="card-num">17</div>
+      <div class="card-body">
+        <h3>API Scanning</h3>
+        <p class="card-desc">Automated detection of API surface changes, breaking contract violations, CVE vulnerabilities, and dependency drift across all domains.</p>
+        <div class="card-tags"><span class="tag">scanning</span><span class="tag">CVE</span><span class="tag">automation</span></div>
+      </div>
+      <div class="card-arrow">&rarr;</div>
+    </a>
+  </div>
+</section>
+
+<!-- Operations -->
+<section>
+  <h2>Operations</h2>
+  <p>How we keep the evolved platform healthy: managing drift, update cadence, shift-left testing, and canary/blue-green deployment strategies.</p>
+  <div class="doc-grid">
+    <a href="17b-data-contracts.html" class="doc-card">
+      <div class="card-num">17b</div>
+      <div class="card-body">
+        <h3>Standardized Data Contracts</h3>
+        <p class="card-desc">How every API, event, and component interface is defined, versioned, and enforced automatically. Contract-first development for distributed domains.</p>
+        <div class="card-tags"><span class="tag">contracts</span><span class="tag">versioning</span><span class="tag">governance</span></div>
+      </div>
+      <div class="card-arrow">&rarr;</div>
+    </a>
+    <a href="18-bff-pattern.html" class="doc-card">
+      <div class="card-num">18</div>
+      <div class="card-body">
+        <h3>BFF Pattern</h3>
+        <p class="card-desc">Backend-for-Frontend isolates each domain's API surface. No shared backend monolith. Each team owns their data contract.</p>
+        <div class="card-tags"><span class="tag">BFF</span><span class="tag">backend</span></div>
+      </div>
+      <div class="card-arrow">&rarr;</div>
+    </a>
+    <a href="19-managing-drift.html" class="doc-card">
+      <div class="card-num">19</div>
+      <div class="card-body">
+        <h3>Managing Drift</h3>
+        <p class="card-desc">How domains stay aligned without coupling: shared contracts, automated scanning, and the 1-year update cadence.</p>
+        <div class="card-tags"><span class="tag">drift</span><span class="tag">governance</span></div>
+      </div>
+      <div class="card-arrow">&rarr;</div>
+    </a>
+    <a href="20-core-cadence.html" class="doc-card">
+      <div class="card-num">20</div>
+      <div class="card-body">
+        <h3>Core Cadence</h3>
+        <p class="card-desc">The 1-year update cycle: automated scripts prepare the upgrade, teams validate in staging, and rollouts happen domain-by-domain.</p>
+        <div class="card-tags"><span class="tag">cadence</span><span class="tag">updates</span></div>
+      </div>
+      <div class="card-arrow">&rarr;</div>
+    </a>
+    <a href="21-testing-strategy.html" class="doc-card">
+      <div class="card-num">21</div>
+      <div class="card-body">
+        <h3>Testing Strategy</h3>
+        <p class="card-desc">Shift-left testing: lint, unit, contract, and CVE scans run before code leaves the editor. E2E integration doesn't slow anyone down.</p>
+        <div class="card-tags"><span class="tag">shift-left</span><span class="tag">testing</span><span class="tag">CVE</span></div>
+      </div>
+      <div class="card-arrow">&rarr;</div>
+    </a>
+    <a href="22-blue-green-rollouts.html" class="doc-card">
+      <div class="card-num">22</div>
+      <div class="card-body">
+        <h3>Blue-Green Rollouts</h3>
+        <p class="card-desc">No more big-bang releases. Canary and blue-green deployments per domain. Instant rollback if anything goes wrong.</p>
+        <div class="card-tags"><span class="tag">canary</span><span class="tag">blue-green</span><span class="tag">no-downtime</span></div>
+      </div>
+      <div class="card-arrow">&rarr;</div>
+    </a>
+  </div>
+</section>
+
+<!-- Putting It All Together -->
+<section>
+  <h2>Putting It All Together</h2>
+  <p>The timeline, team impact, developer experience, and guiding principles that tie everything together.</p>
+  <div class="doc-grid">
+    <a href="23-migration-timeline.html" class="doc-card">
+      <div class="card-num">23</div>
+      <div class="card-body">
+        <h3>Migration Timeline</h3>
+        <p class="card-desc">Phase-by-phase timeline showing when each domain gets extracted, when the shell swap happens, and when the catalog goes live.</p>
+        <div class="card-tags"><span class="tag">timeline</span><span class="tag">planning</span></div>
+      </div>
+      <div class="card-arrow">&rarr;</div>
+    </a>
+    <a href="24-team-impact.html" class="doc-card">
+      <div class="card-num">24</div>
+      <div class="card-body">
+        <h3>Team Impact</h3>
+        <p class="card-desc">What changes for each team: new responsibilities, new workflows, new freedom. How domain ownership transforms daily work.</p>
+        <div class="card-tags"><span class="tag">teams</span><span class="tag">organization</span></div>
+      </div>
+      <div class="card-arrow">&rarr;</div>
+    </a>
+    <a href="dev-environment.html" class="doc-card">
+      <div class="card-num">&#9733;</div>
+      <div class="card-body">
+        <h3>Day in the Life: Developer Experience</h3>
+        <p class="card-desc">Web-based IDE, shift-left plugin, auto-semver, CVE scanning on save, canary deploys. Morning to merge in under 30 minutes.</p>
+        <div class="card-tags"><span class="tag">shift-left</span><span class="tag">devex</span><span class="tag">CVE</span></div>
+      </div>
+      <div class="card-arrow">&rarr;</div>
+    </a>
+    <a href="25-key-principles.html" class="doc-card">
+      <div class="card-num">25</div>
+      <div class="card-body">
+        <h3>Key Principles</h3>
+        <p class="card-desc">The non-negotiable principles guiding every decision: independence, safety, standards, automation, and incremental value delivery.</p>
+        <div class="card-tags"><span class="tag">principles</span><span class="tag">values</span></div>
+      </div>
+      <div class="card-arrow">&rarr;</div>
+    </a>
+  </div>
+</section>
+
+
+
+</main>
+
+<div style="max-width:900px;margin:0 auto;padding:0 1.5rem;">
+  <div class="page-nav">
+    <span></span>
+    <a href="01-executive-summary.html" class="next"><span class="pn-label">Next &rarr;</span><span class="pn-title">The 90-Second Pitch</span></a>
+  </div>
+</div>
+
+<footer>Medline Platform Evolution &mdash; v5 &mdash; 2026-04-05 &mdash; Technical Director Series &mdash; Confidential</footer>
+<div class="toast" id="toast">Copied!</div>
+<script src="shared.js"></script>
+</body>
+</html>

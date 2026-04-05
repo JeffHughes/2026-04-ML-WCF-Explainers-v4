@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The App Catalog: Your Single Source of Truth &mdash; Medline Platform Evolution</title>
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<div class="progress-bar"></div>
+<nav>
+  <a href="index.html" class="logo">ML Evolution</a>
+  <div class="nav-links">
+    <a href="01-executive-summary.html">Summary</a>
+    <a href="02-current-state.html">Today</a>
+    <a href="03-why-change.html">Why</a>
+    <a href="04-migration-overview.html">Strategy</a>
+    <a href="05-copy-split-strip.html">Copy-Split</a>
+    <a href="06-domain-map.html">Domains</a>
+    <a href="07-catalog-domain.html">Catalog</a>
+    <a href="08-cart-checkout.html">Cart</a>
+    <a href="09-remaining-domains.html">Other</a>
+    <a href="10-shell-architecture.html">Shell</a>
+    <a href="11-shell-swap.html">Swap</a>
+    <a href="12-web-component-wrapping.html">Wrapping</a>
+    <a href="13-hydration-csr.html">CSR</a>
+    <a href="14-component-standards.html">Standards</a>
+    <a href="15-component-transition.html">Transition</a>
+    <a href="16-app-catalog.html" class="active">Catalog</a>
+    <a href="17-api-scanning.html">Scanning</a>
+    <a href="18-bff-pattern.html">BFF</a>
+    <a href="19-managing-drift.html">Drift</a>
+    <a href="20-core-cadence.html">Cadence</a>
+    <a href="21-testing-strategy.html">Testing</a>
+    <a href="22-blue-green-rollouts.html">Deploy</a>
+    <a href="23-migration-timeline.html">Timeline</a>
+    <a href="24-team-impact.html">Teams</a>
+    <a href="25-key-principles.html">Principles</a>
+    <a href="dev-environment.html">DevEx</a>
+  </div>
+  <button class="theme-toggle" id="themeToggle" title="Toggle theme">&#9790;</button>
+</nav>
+<div class="hero">
+  <div class="page-num">Component Strategy</div>
+  <h1>The App Catalog: Your Single Source of Truth</h1>
+  <p class="subtitle">A central registry that knows every component, every version, every dependency, and every breaking change &mdash; before it reaches production</p>
+</div>
+<main>
+
+<!-- ────────────────────────────────────────── -->
+<section>
+  <h2>Why You Need a Catalog</h2>
+  <p>With 84+ micro frontends, each independently deployed, each consuming shared components at their own pinned versions, <strong>visibility</strong> becomes your most critical capability. Without a catalog, you are flying blind.</p>
+  <p>The App Catalog is the central registry that answers every question about your component ecosystem in real time:</p>
+  <ul>
+    <li><strong>What components exist?</strong> &mdash; Every <code>ml-</code> component, every version, every published artifact</li>
+    <li><strong>Who uses what?</strong> &mdash; Which domains consume which components at which version</li>
+    <li><strong>What changed?</strong> &mdash; Version history, attribute changes, event contract modifications</li>
+    <li><strong>What will break?</strong> &mdash; Breaking change detection before deployment, not after</li>
+    <li><strong>What needs attention?</strong> &mdash; Domains running outdated versions, components with known issues</li>
+  </ul>
+
+  <div class="callout warn">
+    <strong>&ldquo;Without a catalog, you&rsquo;re flying blind with 84 micro frontends.&rdquo;</strong>
+    Every enterprise that operates micro frontends at scale &mdash; Zalando, IKEA, Spotify &mdash; runs a component registry. The catalog is not optional infrastructure. It is the nervous system of the platform.
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="stat-num">84+</div>
+      <div class="stat-label">Micro Frontends Tracked</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num green">Auto</div>
+      <div class="stat-label">Discovery &amp; Registration</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num purple">1-Click</div>
+      <div class="stat-label">Version Rollback</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num orange">Real-time</div>
+      <div class="stat-label">Health Dashboard</div>
+    </div>
+  </div>
+</section>
+
+<!-- ────────────────────────────────────────── -->
+<section>
+  <h2>Catalog Architecture</h2>
+  <p>The App Catalog is composed of three primary subsystems: the <strong>Registry</strong> that stores component metadata, the <strong>Scanner</strong> that discovers and validates components automatically, and the <strong>Dashboard</strong> that provides real-time visibility to every team.</p>
+
+  <div class="mermaid-wrap" id="d16-1">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">&#x26F6;</button>
+    </div>
+    <div class="mw-view"><div class="mermaid-inner" data-src="graph TB
+    subgraph CATALOG[&quot;App Catalog&quot;]
+      REG[&quot;Component Registry&lt;br/&gt;Versions, Contracts, Metadata&quot;]
+      SCAN[&quot;Automated Scanner&lt;br/&gt;CDN + API Discovery&quot;]
+      DASH[&quot;Health Dashboard&lt;br/&gt;Real-time Status&quot;]
+      DIFF[&quot;Breaking Change Detector&lt;br/&gt;Contract Diff Engine&quot;]
+    end
+    subgraph SOURCES[&quot;Discovery Sources&quot;]
+      CDN[&quot;CDN Artifacts&quot;]
+      PIPE[&quot;CI/CD Pipelines&quot;]
+      PROD[&quot;Production Pages&quot;]
+      API[&quot;Running API Services&quot;]
+    end
+    subgraph CONSUMERS[&quot;Catalog Consumers&quot;]
+      TEAMS[&quot;Domain Teams&quot;]
+      CI[&quot;CI Pipeline Gates&quot;]
+      DEPLOY[&quot;Deployment Validators&quot;]
+      UPGRADE[&quot;Upgrade Automation&quot;]
+    end
+    CDN -->|&quot;artifact scan&quot;| SCAN
+    PIPE -->|&quot;publish events&quot;| SCAN
+    PROD -->|&quot;runtime scan&quot;| SCAN
+    API -->|&quot;contract extract&quot;| SCAN
+    SCAN --> REG
+    REG --> DIFF
+    REG --> DASH
+    DIFF --> CI
+    DASH --> TEAMS
+    REG --> DEPLOY
+    REG --> UPGRADE
+    style CATALOG fill:#0d2818,stroke:#3fb950,color:#e6edf3
+    style SOURCES fill:#1c2333,stroke:#58a6ff,color:#e6edf3
+    style CONSUMERS fill:#1c2333,stroke:#d2a8ff,color:#e6edf3
+    style REG fill:#122a1a,stroke:#3fb950,color:#3fb950
+    style SCAN fill:#122a1a,stroke:#3fb950,color:#3fb950
+    style DASH fill:#122a1a,stroke:#3fb950,color:#3fb950
+    style DIFF fill:#122a1a,stroke:#3fb950,color:#3fb950"></div></div>
+    <div class="mw-caption">App Catalog Architecture &mdash; Scanner discovers components from multiple sources; Registry stores contracts; Dashboard provides visibility; Diff engine prevents breaking changes</div>
+  </div>
+</section>
+
+<!-- ────────────────────────────────────────── -->
+<section>
+  <h2>Component Dependency Graph</h2>
+  <p>The catalog maintains a live dependency graph showing which domains share which components and at which versions. This graph is the foundation for breaking change detection and upgrade planning.</p>
+
+  <div class="mermaid-wrap" id="d16-2">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">&#x26F6;</button>
+    </div>
+    <div class="mw-view"><div class="mermaid-inner" data-src="graph LR
+    subgraph SHARED[&quot;Shared Components&quot;]
+      HDR[&quot;ml-header v2.3&quot;]
+      FTR[&quot;ml-footer v2.1&quot;]
+      SRCH[&quot;ml-search-bar v3.0&quot;]
+      MODAL[&quot;ml-modal v1.8&quot;]
+    end
+    subgraph DOMAINS[&quot;Domain Consumers&quot;]
+      CAT[&quot;Catalog Domain&quot;]
+      CART[&quot;Cart Domain&quot;]
+      ACCT[&quot;Account Domain&quot;]
+      CHKOUT[&quot;Checkout Domain&quot;]
+    end
+    CAT -->|&quot;v2.3&quot;| HDR
+    CAT -->|&quot;v2.1&quot;| FTR
+    CAT -->|&quot;v3.0&quot;| SRCH
+    CART -->|&quot;v2.1&quot;| HDR
+    CART -->|&quot;v2.1&quot;| FTR
+    CART -->|&quot;v1.8&quot;| MODAL
+    ACCT -->|&quot;v2.3&quot;| HDR
+    ACCT -->|&quot;v2.1&quot;| FTR
+    ACCT -->|&quot;v1.8&quot;| MODAL
+    CHKOUT -->|&quot;v2.3&quot;| HDR
+    CHKOUT -->|&quot;v2.1&quot;| FTR
+    CHKOUT -->|&quot;v3.0&quot;| SRCH
+    CHKOUT -->|&quot;v1.8&quot;| MODAL
+    style SHARED fill:#0d2818,stroke:#3fb950,color:#e6edf3
+    style DOMAINS fill:#1c2333,stroke:#58a6ff,color:#e6edf3
+    style HDR fill:#122a1a,stroke:#3fb950,color:#3fb950
+    style FTR fill:#122a1a,stroke:#3fb950,color:#3fb950
+    style SRCH fill:#122a1a,stroke:#3fb950,color:#3fb950
+    style MODAL fill:#122a1a,stroke:#3fb950,color:#3fb950"></div></div>
+    <div class="mw-caption">Component Dependency Graph &mdash; Catalog sees on v2.1 of ml-header while others are on v2.3; Cart has not yet adopted ml-search-bar v3.0</div>
+  </div>
+
+  <div class="industry-std">
+    <strong>Industry Standard: Component Registries</strong>
+    Backstage (Spotify&rsquo;s open-source developer portal), Bit.dev, and Chromatic all provide component catalog functionality. The pattern of a central registry with automated scanning and dependency tracking is well-established across the industry. Medline&rsquo;s App Catalog applies this pattern specifically to CDN-distributed Web Components.
+  </div>
+</section>
+
+<!-- ────────────────────────────────────────── -->
+<section>
+  <h2>What Gets Tracked</h2>
+
+  <details>
+    <summary>Component Metadata <span class="detail-summary">Identity, ownership, classification</span></summary>
+    <div class="detail-body">
+      <p>Every component in the registry carries a complete metadata profile:</p>
+      <ul>
+        <li><strong>Tag name:</strong> <code>ml-product-card</code></li>
+        <li><strong>Owning domain:</strong> Catalog</li>
+        <li><strong>Owning team:</strong> Catalog Frontend</li>
+        <li><strong>Classification:</strong> Shared / Domain-specific / Internal</li>
+        <li><strong>Technology:</strong> WCFramework / React (wrapped) / Hybrid</li>
+        <li><strong>Published versions:</strong> Complete version history with dates and changelogs</li>
+        <li><strong>CDN paths:</strong> All version URLs for each published artifact</li>
+        <li><strong>Bundle size:</strong> Raw and gzipped sizes per version</li>
+        <li><strong>Dependencies:</strong> Other <code>ml-</code> components this component depends on</li>
+      </ul>
+    </div>
+  </details>
+
+  <details>
+    <summary>Contract Definitions <span class="detail-summary">Attributes, events, slots, properties</span></summary>
+    <div class="detail-body">
+      <p>Every component&rsquo;s public interface is documented and versioned:</p>
+      <ul>
+        <li><strong>Attributes:</strong> Name, type, default value, required/optional, description</li>
+        <li><strong>Properties:</strong> Name, type, description (for complex data that can&rsquo;t be stringified as attributes)</li>
+        <li><strong>Events:</strong> Event name, detail payload schema, when it fires</li>
+        <li><strong>Slots:</strong> Slot name, expected content type, fallback behavior</li>
+        <li><strong>CSS Custom Properties:</strong> Theme tokens the component exposes for consumer customization</li>
+      </ul>
+      <p>Contract changes between versions are automatically diffed. Any change to a public attribute, event, or slot is classified as additive (safe), modified (review), or removed (breaking).</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>Consumer Map <span class="detail-summary">Who uses what, at which version</span></summary>
+    <div class="detail-body">
+      <p>For every component, the catalog knows exactly who consumes it:</p>
+      <ul>
+        <li><strong>Domain name:</strong> Which deployed domain includes this component</li>
+        <li><strong>Pinned version:</strong> The exact version the domain&rsquo;s import map points to</li>
+        <li><strong>Usage count:</strong> How many pages within the domain render this component</li>
+        <li><strong>Last scan date:</strong> When the scanner last verified this mapping</li>
+        <li><strong>Upgrade availability:</strong> Whether a newer version exists and what changed</li>
+      </ul>
+      <p>This map is what powers breaking change detection. When a component author modifies an attribute, the catalog instantly knows which domains depend on that attribute.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>Breaking Change Detection <span class="detail-summary">Know before you deploy</span></summary>
+    <div class="detail-body">
+      <p>The catalog&rsquo;s contract diff engine compares every new version against its predecessor:</p>
+      <ul>
+        <li><strong>Removed attributes:</strong> Any consumer using this attribute will break &mdash; blocked by default</li>
+        <li><strong>Changed attribute types:</strong> A string becoming a number can break consumers &mdash; flagged for review</li>
+        <li><strong>Removed events:</strong> Any consumer listening for this event will break &mdash; blocked by default</li>
+        <li><strong>Modified event payloads:</strong> Changed detail shape can break consumers &mdash; flagged for review</li>
+        <li><strong>Removed slots:</strong> Any consumer projecting into this slot loses content &mdash; blocked by default</li>
+      </ul>
+      <p>Breaking changes are not forbidden &mdash; they&rsquo;re surfaced with full impact analysis. The author sees which domains are affected, which teams to notify, and what version the consumers can stay on while they adapt.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>Version Dashboard <span class="detail-summary">Health at a glance</span></summary>
+    <div class="detail-body">
+      <p>The health dashboard provides a real-time view across all domains:</p>
+      <table class="compare-table">
+        <thead>
+          <tr><th>Domain</th><th>ml-header</th><th>ml-footer</th><th>ml-search-bar</th><th>Health</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Catalog</td><td class="good">v2.3 &#x2713;</td><td class="good">v2.1 &#x2713;</td><td class="good">v3.0 &#x2713;</td><td class="good">Current</td></tr>
+          <tr><td>Cart</td><td class="neutral">v2.1 &#x2191;</td><td class="good">v2.1 &#x2713;</td><td class="bad">not used</td><td class="neutral">1 update available</td></tr>
+          <tr><td>Account</td><td class="good">v2.3 &#x2713;</td><td class="good">v2.1 &#x2713;</td><td class="bad">not used</td><td class="good">Current</td></tr>
+          <tr><td>Checkout</td><td class="good">v2.3 &#x2713;</td><td class="good">v2.1 &#x2713;</td><td class="good">v3.0 &#x2713;</td><td class="good">Current</td></tr>
+        </tbody>
+      </table>
+      <p>Green means current. Orange means update available. Red means critical update needed (security patches, breaking upstream changes). Each cell links to the specific upgrade path documentation.</p>
+    </div>
+  </details>
+</section>
+
+<!-- ────────────────────────────────────────── -->
+<section>
+  <h2>Automated Discovery</h2>
+  <p>Components and API contracts are discovered automatically &mdash; not manually registered. The scanner runs continuously, ensuring the catalog is always accurate.</p>
+
+  <div class="themes-grid">
+    <div class="theme-card">
+      <div class="theme-icon">&#x1F4E6;</div>
+      <h4>CDN Artifact Scanning</h4>
+      <p>When a component is published to CDN, the scanner extracts its metadata from the module: tag name, observed attributes, event dispatches, slot definitions.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#x1F6A7;</div>
+      <h4>CI Pipeline Events</h4>
+      <p>Every component build pipeline emits a publish event. The scanner captures the event and updates the registry before the component is even available on CDN.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#x1F310;</div>
+      <h4>Production Page Scanning</h4>
+      <p>A headless browser visits production pages periodically, inspecting the DOM for <code>ml-</code> custom elements, their versions (from import maps), and their usage patterns.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#x1F50C;</div>
+      <h4>API Contract Extraction</h4>
+      <p>Running API services are scanned for their data contracts. The catalog links frontend component data dependencies to the backend services that serve them.</p>
+    </div>
+  </div>
+
+  <div class="callout success">
+    <strong>Zero Manual Registration</strong>
+    The catalog is populated entirely by automation. Teams don&rsquo;t fill out forms. They don&rsquo;t update spreadsheets. They build components, publish them, and the scanner takes care of the rest. If a component exists on CDN, it&rsquo;s in the catalog.
+  </div>
+</section>
+
+<!-- ────────────────────────────────────────── -->
+<section>
+  <h2>Rollback &amp; Version History</h2>
+  <p>Every version of every component ever published remains on CDN and in the catalog. Rolling back to a previous version is a one-operation change:</p>
+  <ol>
+    <li>Open the domain&rsquo;s import map configuration</li>
+    <li>Change the version pointer: <code>ml-product-card: "2.1.0"</code> &rarr; <code>ml-product-card: "2.0.4"</code></li>
+    <li>Deploy the import map change (no rebuild, no retest of the component itself)</li>
+    <li>The previous version is served immediately from CDN cache</li>
+  </ol>
+  <p>The catalog&rsquo;s version history shows every change between versions, so teams can understand exactly what they&rsquo;re rolling back to and what they&rsquo;re giving up.</p>
+
+  <div class="callout">
+    <strong>Immutable Artifacts, Mutable Pointers</strong>
+    The artifacts on CDN never change. Only the import map pointers change. This means rollback is instant, risk-free, and doesn&rsquo;t require coordination with the component author. The old version is already deployed and cached.
+  </div>
+</section>
+
+</main>
+<div style="max-width:900px;margin:0 auto;padding:0 1.5rem;">
+  <div class="page-nav">
+    <a href="15-component-transition.html"><span class="pn-label">&larr; Previous</span><span class="pn-title">Component Transition</span></a>
+    <a href="17-api-scanning.html" class="next"><span class="pn-label">Next &rarr;</span><span class="pn-title">API Contract Scanning</span></a>
+  </div>
+</div>
+<footer>Medline Platform Evolution &mdash; v5 &mdash; 2026-04-05 &mdash; Technical Director Series &mdash; Confidential</footer>
+<div class="toast" id="toast">Copied!</div>
+<script src="shared.js"></script>
+</body>
+</html>

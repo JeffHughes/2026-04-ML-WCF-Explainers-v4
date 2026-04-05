@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day One: New Developer Checklist &mdash; Medline Platform Evolution</title>
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<div class="progress-bar"></div>
+<nav>
+  <a href="t-index.html" class="logo">ML Training</a>
+  <div class="nav-links">
+    <a href="index.html">&larr; Migration Series</a>
+    <a href="t01-overview.html">Overview</a>
+    <a href="t02-domain-developer.html">Domain Dev</a>
+    <a href="t03-component-author.html">Component Author</a>
+    <a href="t04-platform-engineer.html">Platform Eng</a>
+    <a href="t05-sign-off-gates.html">Gates</a>
+    <a href="t06-certification.html">Certification</a>
+    <a href="t07-onboarding-checklist.html" class="active">Day One</a>
+  </div>
+  <button class="theme-toggle" id="themeToggle" title="Toggle theme">&#9790;</button>
+</nav>
+
+<div class="hero">
+  <div class="page-num">Training &mdash; Page 7 of 7</div>
+  <h1>Day One: New Developer Checklist</h1>
+  <p class="subtitle">The literal step-by-step for your first day. Follow these instructions in order. A new developer should see their first change live within 4 hours of cloning the repo.</p>
+</div>
+
+<main>
+
+<!-- The Promise -->
+<section>
+  <h2>The Promise</h2>
+  <p>A new developer&mdash;whether they sit next to you or are offshore in a different timezone&mdash;should be able to follow this page and see their first change deployed to staging <strong>within 4 hours</strong>. No tribal knowledge required. No Slack messages asking &ldquo;how do I set up my environment?&rdquo; Everything is here.</p>
+
+  <div class="callout success">
+    <strong>4-Hour Target</strong>
+    Clone the repo at 9:00 AM. See your change live in staging by 1:00 PM. This is the standard we hold ourselves to.
+  </div>
+</section>
+
+<!-- Onboarding Timeline Diagram -->
+<section>
+  <h2>Day One Timeline</h2>
+
+  <div class="mermaid-wrap" id="dt07-1">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">&#9974;</button>
+    </div>
+    <div class="mw-view">
+      <div class="mermaid-inner" data-src="graph LR
+  H0[Hour 0\nClone Repo] -->|15 min| H1[Hour 0.25\nRun Setup Script]
+  H1 -->|15 min| H2[Hour 0.5\nBrowse Component Catalog]
+  H2 -->|2 hours| H3[Hour 2.5\nComplete Module 1]
+  H3 -->|30 min| H4[Hour 3\nMake First Change]
+  H4 -->|30 min| H5[Hour 3.5\nPush to Staging]
+  H5 -->|30 min| H6[Hour 4\nSee It Live]
+  style H0 fill:#58a6ff,stroke:#58a6ff,color:#fff
+  style H1 fill:#58a6ff,stroke:#58a6ff,color:#fff
+  style H2 fill:#d2a8ff,stroke:#d2a8ff,color:#000
+  style H3 fill:#d2a8ff,stroke:#d2a8ff,color:#000
+  style H4 fill:#f0883e,stroke:#f0883e,color:#fff
+  style H5 fill:#f0883e,stroke:#f0883e,color:#fff
+  style H6 fill:#3fb950,stroke:#3fb950,color:#fff"></div>
+    </div>
+    <div class="mw-caption">Day one timeline: from clone to live change in 4 hours</div>
+  </div>
+</section>
+
+<!-- Step 1 -->
+<section>
+  <h2>Step 1: Clone Your Domain Repository</h2>
+  <p>You will be assigned to a domain (Catalog, Cart, Account, Checkout, Search, Content, or Admin). Clone that domain's repository.</p>
+
+  <details>
+    <summary>How to clone <span class="detail-summary">~5 minutes</span></summary>
+    <div class="detail-body">
+      <ol>
+        <li>Open your terminal</li>
+        <li>Navigate to your projects directory</li>
+        <li>Run: <code>git clone [your-domain-repo-url]</code></li>
+        <li>Enter the cloned directory: <code>cd [domain-name]</code></li>
+      </ol>
+      <p>Your team lead will provide the repository URL. If you don't have it, check the App Catalog&mdash;every domain's repository URL is listed there.</p>
+    </div>
+  </details>
+</section>
+
+<!-- Step 2 -->
+<section>
+  <h2>Step 2: Run the Local Dev Setup Script</h2>
+  <p>One command installs everything you need: dependencies, mock BFF, local dev server, and component catalog.</p>
+
+  <details>
+    <summary>How to set up <span class="detail-summary">~10 minutes</span></summary>
+    <div class="detail-body">
+      <ol>
+        <li>Make sure you have Node.js installed (version specified in <code>.nvmrc</code>)</li>
+        <li>Run: <code>npm run setup</code></li>
+        <li>Wait for it to complete. You will see: <code>&#10003; Setup complete. Run 'npm run dev' to start.</code></li>
+        <li>Run: <code>npm run dev</code></li>
+        <li>Open your browser to <code>http://localhost:3000</code></li>
+      </ol>
+      <p>If setup fails, check the error message. The most common issues are: wrong Node.js version (check <code>.nvmrc</code>), missing git credentials (check with your team lead), or a firewall blocking npm registry access.</p>
+    </div>
+  </details>
+
+  <div class="industry-std">
+    <strong>Industry Standard: One-Command Setup</strong>
+    A single-command local development setup is the industry standard for developer experience. Every major platform team (Shopify, Stripe, Airbnb) provides a setup script that gets a new developer running in minutes, not hours. If setup takes more than 15 minutes, something is wrong.
+  </div>
+</section>
+
+<!-- Step 3 -->
+<section>
+  <h2>Step 3: Browse the Component Catalog</h2>
+  <p>Before you write any code, spend 20 minutes browsing the Component Catalog. See what ML- components already exist. This prevents you from building something that already exists.</p>
+
+  <details>
+    <summary>How to browse <span class="detail-summary">~20 minutes</span></summary>
+    <div class="detail-body">
+      <ol>
+        <li>With your local dev server running, open: <code>http://localhost:3000/__catalog</code></li>
+        <li>Browse the component list. Each component has a name, description, and interactive demo.</li>
+        <li>Click on 3&ndash;5 components that seem relevant to your domain</li>
+        <li>For each, look at: the attributes it accepts, the events it emits, the slots it provides, and the CSS custom properties for theming</li>
+        <li>Try changing attribute values in the interactive playground to see how the component responds</li>
+      </ol>
+      <p>The catalog is your primary reference for what components are available. Bookmark it. You'll come back here constantly.</p>
+    </div>
+  </details>
+</section>
+
+<!-- Step 4 -->
+<section>
+  <h2>Step 4: Complete Module 1 of Your Training Track</h2>
+  <p>Open the training materials for your track and complete Module 1. For most developers, this is the <a href="t02-domain-developer.html">Domain Developer track</a>, Module 1: Domain Anatomy.</p>
+
+  <details>
+    <summary>What you'll do <span class="detail-summary">~2 hours</span></summary>
+    <div class="detail-body">
+      <ol>
+        <li>Read the Module 1 documentation (30&ndash;60 minutes)</li>
+        <li>Complete the hands-on exercise in the sandbox environment (60&ndash;90 minutes)</li>
+        <li>Push your exercise code to trigger the automated validation</li>
+        <li>If validation passes: Module 1 complete. Move on.</li>
+        <li>If validation fails: read the feedback, fix the issues, re-push</li>
+      </ol>
+      <p>Module 1 covers the basics: domain file structure, route configuration, component slots. By the end, you understand how your domain is organized and how it fits into the platform.</p>
+    </div>
+  </details>
+</section>
+
+<!-- Step 5 -->
+<section>
+  <h2>Step 5: Make Your First Change</h2>
+  <p>This is a guided exercise. You will make a small, visible change to your domain. Something you can see in the browser.</p>
+
+  <details>
+    <summary>What to change <span class="detail-summary">~30 minutes</span></summary>
+    <div class="detail-body">
+      <ol>
+        <li>Pick a page in your domain that uses an ML- component</li>
+        <li>Add a new ML- component to that page (pick one from the catalog you browsed in Step 3)</li>
+        <li>Wire it up: pass in the required attributes, handle any events</li>
+        <li>Verify it renders correctly in your local dev server</li>
+        <li>Write a simple test that verifies the component is rendered on the page</li>
+      </ol>
+      <p>Keep it simple. This is not about building a feature. This is about proving you can make a change, see it locally, and push it through the pipeline.</p>
+    </div>
+  </details>
+</section>
+
+<!-- Step 6 -->
+<section>
+  <h2>Step 6: Push to Your Domain's Staging Environment</h2>
+  <p>Push your change to the staging branch. The pipeline runs automatically.</p>
+
+  <details>
+    <summary>How to push <span class="detail-summary">~15 minutes</span></summary>
+    <div class="detail-body">
+      <ol>
+        <li>Stage your changes: <code>git add .</code></li>
+        <li>Commit with a descriptive message: <code>git commit -m "Add ml-info-card to product page"</code></li>
+        <li>Push to the staging branch: <code>git push origin staging</code></li>
+        <li>Open the pipeline dashboard (URL provided by your team lead)</li>
+        <li>Watch the seven gates run. Green checkmarks mean pass. Red X means fail.</li>
+        <li>If all gates pass, your change deploys to staging automatically</li>
+      </ol>
+      <p>If a gate fails, read the failure report. It will tell you exactly which gate failed, what the specific error is, and how to fix it. Fix, commit, push again. There's no limit on retries.</p>
+    </div>
+  </details>
+
+  <div class="industry-std">
+    <strong>Industry Standard: Continuous Deployment to Staging</strong>
+    Automatic deployment to staging on every push is the industry standard for modern development teams. It gives developers immediate feedback on whether their code works in a production-like environment. Fast feedback loops are the foundation of developer productivity.
+  </div>
+</section>
+
+<!-- Step 7 -->
+<section>
+  <h2>Step 7: See Your Change Live in Staging</h2>
+  <p>Open the staging URL for your domain. See the change you just made, running in a production-like environment, composed with all other domains in the shell.</p>
+
+  <details>
+    <summary>How to verify <span class="detail-summary">~10 minutes</span></summary>
+    <div class="detail-body">
+      <ol>
+        <li>Open the staging URL: <code>https://staging.[your-domain].medline.com</code></li>
+        <li>Navigate to the page where you added the component</li>
+        <li>Verify the component renders correctly</li>
+        <li>Verify the component responds to interactions (click, hover, etc.)</li>
+        <li>Check the browser console for any errors</li>
+      </ol>
+      <p><strong>Congratulations.</strong> You just went from cloning a repo to seeing your change live in staging. That's the developer experience we've built. Every subsequent change follows the same path, and it only gets faster from here.</p>
+    </div>
+  </details>
+</section>
+
+<!-- First Week Milestone Map -->
+<section>
+  <h2>First Week Milestones</h2>
+  <p>Day one is about getting set up and seeing a change live. The rest of the first week builds on that foundation.</p>
+
+  <div class="mermaid-wrap" id="dt07-2">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">&#9974;</button>
+    </div>
+    <div class="mw-view">
+      <div class="mermaid-inner" data-src="graph TD
+  D1[Day 1\nSetup + First Change Live] --> D2[Day 2\nModule 2: Component Contract]
+  D2 --> D3[Day 3\nModule 3: BFF Integration]
+  D3 --> D4[Day 4\nModule 4: Local Dev Workflow]
+  D4 --> D5[Day 5\nModule 5: First Real Deployment]
+  D5 --> W2[Week 2\nModules 5-6 + First Feature]
+  W2 --> W3[Week 3\nCertification Complete]
+  style D1 fill:#3fb950,stroke:#3fb950,color:#fff
+  style D2 fill:#58a6ff,stroke:#58a6ff,color:#fff
+  style D3 fill:#58a6ff,stroke:#58a6ff,color:#fff
+  style D4 fill:#d2a8ff,stroke:#d2a8ff,color:#000
+  style D5 fill:#d2a8ff,stroke:#d2a8ff,color:#000
+  style W2 fill:#f0883e,stroke:#f0883e,color:#fff
+  style W3 fill:#3fb950,stroke:#3fb950,color:#fff"></div>
+    </div>
+    <div class="mw-caption">First-week milestones: one module per day, certification by end of week 3</div>
+  </div>
+
+  <table class="compare-table">
+    <thead>
+      <tr><th>Day</th><th>Milestone</th><th>Time</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Day 1</strong></td><td class="good">Environment setup + first change deployed to staging</td><td>4 hours</td></tr>
+      <tr><td><strong>Day 2</strong></td><td>Module 2 complete: understand the ML- component contract</td><td>Full day</td></tr>
+      <tr><td><strong>Day 3</strong></td><td>Module 3 complete: integrate with the BFF</td><td>Full day</td></tr>
+      <tr><td><strong>Day 4</strong></td><td>Module 4 complete: local dev workflow mastered</td><td>Full day</td></tr>
+      <tr><td><strong>Day 5</strong></td><td>Module 5 started: first real deployment exercise</td><td>Full day</td></tr>
+      <tr><td><strong>Week 2</strong></td><td>Modules 5&ndash;6 complete + first real feature assignment</td><td>5 days</td></tr>
+      <tr><td><strong>Week 3</strong></td><td class="good">Certification complete. Production access earned.</td><td>5 days</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- Tips for Success -->
+<section>
+  <h2>Tips for Success</h2>
+  <div class="themes-grid">
+    <div class="theme-card">
+      <div class="theme-icon">📖</div>
+      <h4>Read the Error Messages</h4>
+      <p>Every error message in the pipeline includes what failed and how to fix it. Read the full message before asking for help. The answer is almost always in the output.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">🔍</div>
+      <h4>Use the Component Catalog</h4>
+      <p>Before building anything, search the catalog. The component you need probably already exists. The catalog shows live demos, API docs, and usage examples.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">🚀</div>
+      <h4>Push Early, Push Often</h4>
+      <p>Don't wait until your code is &ldquo;perfect&rdquo; to push. Push early, get pipeline feedback, iterate. The pipeline catches issues faster than you can spot them manually.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">🎯</div>
+      <h4>Stay in Your Domain</h4>
+      <p>Your domain is your sandbox. You don't need to understand every other domain. Focus on yours. Use components from the catalog. Talk to your BFF. That's it.</p>
+    </div>
+  </div>
+
+  <div class="industry-std">
+    <strong>Industry Standard: Developer-First Onboarding</strong>
+    Developer-first onboarding&mdash;where new team members can self-serve through a documented, automated process without depending on another person's availability&mdash;is the defining characteristic of world-class developer experience. It's what separates productive platforms from platforms that waste developer time.
+  </div>
+</section>
+
+</main>
+
+<div style="max-width:900px;margin:0 auto;padding:0 1.5rem;">
+  <div class="page-nav">
+    <a href="t06-certification.html"><span class="pn-label">&larr; Previous</span><span class="pn-title">Certification &amp; Badges</span></a>
+    <a href="t-index.html" class="next"><span class="pn-label">Back to &rarr;</span><span class="pn-title">Training Hub</span></a>
+  </div>
+</div>
+
+<footer>Medline Platform Evolution &mdash; Training &amp; Sign-off Plan &mdash; v5 &mdash; 2026-04-05 &mdash; Confidential</footer>
+<div class="toast" id="toast">Copied!</div>
+<script src="shared.js"></script>
+</body>
+</html>

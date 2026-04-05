@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Managing Drift: Automation Over Coordination &mdash; Medline Platform Evolution</title>
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<div class="progress-bar"></div>
+<nav>
+  <a href="index.html" class="logo">ML Evolution</a>
+  <div class="nav-links">
+    <a href="01-executive-summary.html">Summary</a>
+    <a href="02-current-state.html">Today</a>
+    <a href="03-why-change.html">Why</a>
+    <a href="04-migration-overview.html">Strategy</a>
+    <a href="05-copy-split-strip.html">Copy-Split</a>
+    <a href="06-domain-map.html">Domains</a>
+    <a href="07-catalog-domain.html">Catalog</a>
+    <a href="08-cart-checkout.html">Cart</a>
+    <a href="09-remaining-domains.html">Other</a>
+    <a href="10-shell-architecture.html">Shell</a>
+    <a href="11-shell-swap.html">Swap</a>
+    <a href="12-web-component-wrapping.html">Wrapping</a>
+    <a href="13-hydration-csr.html">CSR</a>
+    <a href="14-component-standards.html">Standards</a>
+    <a href="15-component-transition.html">Transition</a>
+    <a href="16-app-catalog.html">Catalog</a>
+    <a href="17-api-scanning.html">Scanning</a>
+    <a href="18-bff-pattern.html">BFF</a>
+    <a href="19-managing-drift.html" class="active">Drift</a>
+    <a href="20-core-cadence.html">Cadence</a>
+    <a href="21-testing-strategy.html">Testing</a>
+    <a href="22-blue-green-rollouts.html">Deploy</a>
+    <a href="23-migration-timeline.html">Timeline</a>
+    <a href="24-team-impact.html">Teams</a>
+    <a href="25-key-principles.html">Principles</a>
+    <a href="dev-environment.html">DevEx</a>
+  </div>
+  <button class="theme-toggle" id="themeToggle" title="Toggle theme">&#9790;</button>
+</nav>
+<div class="hero">
+  <div class="page-num">Operations</div>
+  <h1>Managing Drift: Automation Over Coordination</h1>
+  <p class="subtitle">Version divergence across domains is expected, desired, and managed &mdash; not a problem to solve, but a feature to operate</p>
+</div>
+<main>
+
+<!-- ────────────────────────────────────────── -->
+<section>
+  <h2>Drift Is Not the Enemy</h2>
+  <p>Once domains split and run independently, they <strong>will</strong> run different versions of shared components. The Catalog domain will be on <code>ml-header@2.3</code>. The Cart domain will still be on <code>ml-header@2.1</code>. Account might be on <code>ml-header@2.0</code>.</p>
+  <p>This is not a bug. This is the design. Independent deployment <em>requires</em> independent versioning. The alternative &mdash; forcing every domain to upgrade every shared component in lockstep &mdash; is what creates the coordination bottlenecks that slow enterprises down. The goal: no more dependency inconsistencies that silently break other teams' builds.</p>
+
+  <div class="callout danger">
+    <strong>&ldquo;Forced lockstep upgrades across 84 micro frontends is what got you into this situation.&rdquo;</strong>
+    The monolith&rsquo;s single version for everything means one team&rsquo;s upgrade blocks 83 other teams. The solution is not to replicate that problem at the component level. The solution is to manage version divergence with automation.
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="stat-num">84+</div>
+      <div class="stat-label">Domains Running Independently</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num green">Expected</div>
+      <div class="stat-label">Version Divergence</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num purple">Auto</div>
+      <div class="stat-label">Upgrade Proposals</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num orange">Instant</div>
+      <div class="stat-label">Rollback on Any Upgrade</div>
+    </div>
+  </div>
+</section>
+
+<!-- ────────────────────────────────────────── -->
+<section>
+  <h2>The Version Landscape</h2>
+  <p>The App Catalog provides a real-time view of the version landscape &mdash; every domain, every component, every version. This visibility turns &ldquo;unknown divergence&rdquo; into &ldquo;known, measured, manageable variance.&rdquo;</p>
+
+  <div class="mermaid-wrap" id="d19-1">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">&#x26F6;</button>
+    </div>
+    <div class="mw-view"><div class="mermaid-inner" data-src="graph LR
+    subgraph LATEST[&quot;Latest Versions&quot;]
+      HDR_L[&quot;ml-header v2.3&quot;]
+      FTR_L[&quot;ml-footer v2.1&quot;]
+      SRCH_L[&quot;ml-search-bar v3.0&quot;]
+      MODAL_L[&quot;ml-modal v1.8&quot;]
+    end
+    subgraph CAT_D[&quot;Catalog Domain&quot;]
+      CAT_H[&quot;ml-header v2.3 ✅&quot;]
+      CAT_F[&quot;ml-footer v2.1 ✅&quot;]
+      CAT_S[&quot;ml-search-bar v3.0 ✅&quot;]
+    end
+    subgraph CART_D[&quot;Cart Domain&quot;]
+      CART_H[&quot;ml-header v2.1 ⬆️&quot;]
+      CART_F[&quot;ml-footer v2.1 ✅&quot;]
+      CART_M[&quot;ml-modal v1.8 ✅&quot;]
+    end
+    subgraph ACCT_D[&quot;Account Domain&quot;]
+      ACCT_H[&quot;ml-header v2.0 ⬆️&quot;]
+      ACCT_F[&quot;ml-footer v1.9 ⬆️&quot;]
+      ACCT_M[&quot;ml-modal v1.6 ⚠️&quot;]
+    end
+    HDR_L -.-> CAT_H
+    HDR_L -.->|&quot;upgrade available&quot;| CART_H
+    HDR_L -.->|&quot;upgrade available&quot;| ACCT_H
+    FTR_L -.-> CAT_F
+    FTR_L -.-> CART_F
+    FTR_L -.->|&quot;upgrade available&quot;| ACCT_F
+    MODAL_L -.-> CART_M
+    MODAL_L -.->|&quot;critical update&quot;| ACCT_M
+    style LATEST fill:#0d2818,stroke:#3fb950,color:#e6edf3
+    style CAT_D fill:#1c2333,stroke:#58a6ff,color:#e6edf3
+    style CART_D fill:#1c2333,stroke:#f0883e,color:#e6edf3
+    style ACCT_D fill:#1c2333,stroke:#f85149,color:#e6edf3
+    style CAT_H fill:#122a1a,stroke:#3fb950,color:#3fb950
+    style CAT_F fill:#122a1a,stroke:#3fb950,color:#3fb950
+    style CAT_S fill:#122a1a,stroke:#3fb950,color:#3fb950
+    style CART_H fill:#3d1f00,stroke:#f0883e,color:#f0883e
+    style ACCT_H fill:#3d1f00,stroke:#f0883e,color:#f0883e
+    style ACCT_F fill:#3d1f00,stroke:#f0883e,color:#f0883e
+    style ACCT_M fill:#3d1212,stroke:#f85149,color:#f85149"></div></div>
+    <div class="mw-caption">Version Landscape &mdash; Catalog is fully current; Cart has one available upgrade; Account has three upgrades including one critical</div>
+  </div>
+
+  <div class="industry-std">
+    <strong>Industry Standard: Managed Version Divergence</strong>
+    Every package manager in the world (npm, Maven, NuGet, pip) allows consumers to pin different versions of the same dependency. Micro frontend architecture applies this same principle at the deployment level. Kubernetes, Terraform, and every infrastructure-as-code tool is designed around the assumption that different environments will run different versions simultaneously.
+  </div>
+</section>
+
+<!-- ────────────────────────────────────────── -->
+<section>
+  <h2>Automated Upgrade Proposals</h2>
+  <p>The system doesn&rsquo;t just show version differences &mdash; it actively proposes upgrades with full context, impact analysis, and automated scripts to execute them.</p>
+
+  <h3>How Proposals Work</h3>
+  <ol>
+    <li><strong>Detection:</strong> The App Catalog identifies domains running older versions of shared components</li>
+    <li><strong>Analysis:</strong> The diff engine computes exactly what changed between the domain&rsquo;s current version and the latest version</li>
+    <li><strong>Classification:</strong> Changes are classified as additive (safe), modified (review), or breaking (requires code changes)</li>
+    <li><strong>Script generation:</strong> For safe and review-level changes, a change-mod script is generated automatically</li>
+    <li><strong>Notification:</strong> The owning team receives a proposal with the diff, the impact, and the script</li>
+    <li><strong>Execution:</strong> The team reviews, runs the script, tests, and deploys at their own pace</li>
+  </ol>
+
+  <div class="callout">
+    <strong>Example Upgrade Proposal</strong>
+    &ldquo;Cart domain is on <code>ml-header@2.1</code>. Catalog and Checkout are on <code>ml-header@2.3</code>. Changes between v2.1 and v2.3: 2 additive attributes, 1 new event, 0 breaking changes. Change-mod script ready. Estimated effort: import map update only (no code changes).&rdquo;
+  </div>
+</section>
+
+<!-- ────────────────────────────────────────── -->
+<section>
+  <h2>Change-Mod Scripts</h2>
+  <p>Change-mod scripts are the engine that removes friction from version upgrades. They are automatically generated, context-specific scripts that apply known-good transformations to update a domain&rsquo;s component versions.</p>
+
+  <div class="mermaid-wrap" id="d19-2">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">&#x26F6;</button>
+    </div>
+    <div class="mw-view"><div class="mermaid-inner" data-src="flowchart LR
+    subgraph PROPOSAL[&quot;Upgrade Proposal&quot;]
+      DETECT[&quot;Detect version gap&quot;]
+      DIFF[&quot;Compute contract diff&quot;]
+      GEN[&quot;Generate change-mod script&quot;]
+    end
+    subgraph REVIEW[&quot;Team Review&quot;]
+      READ[&quot;Review diff &amp; script&quot;]
+      APPROVE[&quot;Approve or defer&quot;]
+    end
+    subgraph APPLY[&quot;Apply &amp; Verify&quot;]
+      RUN[&quot;Run change-mod script&quot;]
+      TEST[&quot;Automated test suite&quot;]
+      DEPLOY[&quot;Deploy to production&quot;]
+      ROLLBACK[&quot;Rollback if needed&quot;]
+    end
+    DETECT --> DIFF --> GEN --> READ --> APPROVE
+    APPROVE -->|&quot;approved&quot;| RUN --> TEST
+    TEST -->|&quot;pass&quot;| DEPLOY
+    TEST -->|&quot;fail&quot;| ROLLBACK
+    APPROVE -->|&quot;deferred&quot;| LATER[&quot;Re-propose next cycle&quot;]
+    style PROPOSAL fill:#0d2818,stroke:#3fb950,color:#e6edf3
+    style REVIEW fill:#1c2333,stroke:#58a6ff,color:#e6edf3
+    style APPLY fill:#1c2333,stroke:#d2a8ff,color:#e6edf3
+    style DETECT fill:#122a1a,stroke:#3fb950,color:#3fb950
+    style DIFF fill:#122a1a,stroke:#3fb950,color:#3fb950
+    style GEN fill:#122a1a,stroke:#3fb950,color:#3fb950
+    style RUN fill:#161b22,stroke:#d2a8ff,color:#d2a8ff
+    style TEST fill:#161b22,stroke:#d2a8ff,color:#d2a8ff
+    style DEPLOY fill:#161b22,stroke:#d2a8ff,color:#d2a8ff
+    style ROLLBACK fill:#3d1212,stroke:#f85149,color:#f85149
+    style LATER fill:#3d1f00,stroke:#f0883e,color:#f0883e"></div></div>
+    <div class="mw-caption">Change-Mod Script Flow &mdash; Proposals are generated automatically; teams review and approve at their own pace; scripts apply transformations; tests verify; rollback is instant</div>
+  </div>
+
+  <h3>What Change-Mod Scripts Do</h3>
+  <table class="compare-table">
+    <thead>
+      <tr><th>Upgrade Type</th><th>Script Action</th><th>Human Action</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Import map version bump</strong></td>
+        <td>Update version pointer in import map: <code>ml-header: "2.1.0"</code> &rarr; <code>"2.3.0"</code></td>
+        <td class="good">None &mdash; review and deploy</td>
+      </tr>
+      <tr>
+        <td><strong>New optional attribute</strong></td>
+        <td>Update import map; optionally add the new attribute to usage sites</td>
+        <td class="good">Review if you want the new feature</td>
+      </tr>
+      <tr>
+        <td><strong>Renamed attribute</strong></td>
+        <td>Find-and-replace old attribute name with new name across domain codebase</td>
+        <td class="neutral">Review replacements; run tests</td>
+      </tr>
+      <tr>
+        <td><strong>Removed attribute</strong></td>
+        <td>Flag usage sites; suggest alternative if documented in changelog</td>
+        <td class="bad">Manual refactor needed at each usage site</td>
+      </tr>
+      <tr>
+        <td><strong>Event payload change</strong></td>
+        <td>Find event listeners; generate adapter code for new payload shape</td>
+        <td class="neutral">Review adapter code; update custom logic</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ────────────────────────────────────────── -->
+<section>
+  <h2>The Safety Net</h2>
+  <p>Every upgrade is a new deployment. Every deployment is reversible. This is the fundamental safety guarantee that makes drift management stress-free.</p>
+
+  <details>
+    <summary>Immutable CDN Artifacts <span class="detail-summary">Old versions never disappear</span></summary>
+    <div class="detail-body">
+      <p>When a team upgrades from <code>ml-header@2.1</code> to <code>ml-header@2.3</code>, version 2.1 is still on CDN. It hasn&rsquo;t been deleted. It hasn&rsquo;t been overwritten. It&rsquo;s still cached at the edge. If the upgrade causes any issue, reverting the import map pointer to <code>2.1</code> restores the previous behavior instantly.</p>
+      <ul>
+        <li>Zero rebuild required for rollback</li>
+        <li>Zero coordination with the component author</li>
+        <li>CDN cache ensures the old version loads instantly</li>
+        <li>Version history in the catalog shows exactly what was rolled back</li>
+      </ul>
+    </div>
+  </details>
+
+  <details>
+    <summary>Independent Deployment <span class="detail-summary">Your upgrade, your timeline, your risk</span></summary>
+    <div class="detail-body">
+      <p>Each domain&rsquo;s upgrade is an independent deployment. The Cart team upgrading <code>ml-header</code> does not affect the Catalog team, the Account team, or any other domain. If the Cart team&rsquo;s upgrade goes wrong, they roll back. Nobody else notices.</p>
+      <ul>
+        <li>Upgrade and rollback happen within the domain&rsquo;s deployment pipeline</li>
+        <li>No cross-team coordination needed for upgrade or rollback</li>
+        <li>Each domain can canary-test upgrades with a percentage of traffic</li>
+        <li>Blue-green deployment ensures zero-downtime upgrades</li>
+      </ul>
+    </div>
+  </details>
+
+  <details>
+    <summary>Automated Testing <span class="detail-summary">Every upgrade runs through the full test suite</span></summary>
+    <div class="detail-body">
+      <p>Change-mod scripts don&rsquo;t just apply changes &mdash; they trigger the domain&rsquo;s full test suite:</p>
+      <ul>
+        <li>Unit tests verify component behavior hasn&rsquo;t changed</li>
+        <li>Visual regression tests catch pixel-level differences</li>
+        <li>Integration tests verify the component works within the domain&rsquo;s pages</li>
+        <li>Contract tests verify the component&rsquo;s interface matches what the domain expects</li>
+        <li>If any test fails, the upgrade is paused and the team is notified with the failure details</li>
+      </ul>
+    </div>
+  </details>
+</section>
+
+<!-- ────────────────────────────────────────── -->
+<section>
+  <h2>Drift Categories</h2>
+  <p>Not all drift is equal. The catalog classifies drift into four categories, each with a different urgency and response:</p>
+
+  <div class="themes-grid">
+    <div class="theme-card">
+      <div class="theme-icon">&#x2705;</div>
+      <h4>Healthy Drift</h4>
+      <p>Domain is one minor version behind. No breaking changes. Upgrade is a simple import map change. No urgency. This is the normal operating state for most domains most of the time.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#x1F7E1;</div>
+      <h4>Attention Drift</h4>
+      <p>Domain is two or more minor versions behind. New features available. Change-mod script ready. Team notified with proposal. Upgrade recommended within the current quarter.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#x1F7E0;</div>
+      <h4>Stale Drift</h4>
+      <p>Domain is a major version behind. Some breaking changes in the upgrade path. Change-mod script available but requires review. Team should plan the upgrade in the next sprint cycle.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#x1F534;</div>
+      <h4>Critical Drift</h4>
+      <p>Domain is running a version with a known security vulnerability or critical bug. Change-mod script generated as priority. Team notified immediately. Upgrade should happen within the current sprint.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ────────────────────────────────────────── -->
+<section>
+  <h2>Automation vs. Coordination</h2>
+  <p>The traditional approach to version management is coordination: meetings, spreadsheets, upgrade deadlines, cross-team alignment sessions. The automation approach replaces every one of those activities with tooling.</p>
+
+  <table class="compare-table">
+    <thead>
+      <tr><th>Activity</th><th class="bad">Coordination Approach</th><th class="good">Automation Approach</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Detecting drift</strong></td>
+        <td class="bad">Manual audit of package.json across repos</td>
+        <td class="good">App Catalog shows version landscape in real-time</td>
+      </tr>
+      <tr>
+        <td><strong>Planning upgrades</strong></td>
+        <td class="bad">Cross-team meeting to agree on upgrade timeline</td>
+        <td class="good">Automated proposals sent to each team independently</td>
+      </tr>
+      <tr>
+        <td><strong>Executing upgrades</strong></td>
+        <td class="bad">Each team manually updates dependencies and fixes breaking changes</td>
+        <td class="good">Change-mod scripts apply known-good transformations automatically</td>
+      </tr>
+      <tr>
+        <td><strong>Validating upgrades</strong></td>
+        <td class="bad">Manual testing and cross-team integration verification</td>
+        <td class="good">Automated test suite runs as part of change-mod script execution</td>
+      </tr>
+      <tr>
+        <td><strong>Communicating status</strong></td>
+        <td class="bad">Status updates in Slack, email threads, spreadsheet updates</td>
+        <td class="good">Health dashboard visible to all teams in real-time</td>
+      </tr>
+      <tr>
+        <td><strong>Handling failures</strong></td>
+        <td class="bad">Incident response, cross-team debugging, coordinated rollback</td>
+        <td class="good">Domain rolls back independently; old version still on CDN</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout success">
+    <strong>The Goal: Zero Coordination Meetings About Versions</strong>
+    If a version upgrade requires a meeting, the tooling has failed. Every upgrade should be proposable, reviewable, executable, and reversible without any human in any other team needing to be involved.
+  </div>
+</section>
+
+<!-- ────────────────────────────────────────── -->
+<section>
+  <h2>The Drift Management Lifecycle</h2>
+  <p>Drift management is not a one-time activity. It&rsquo;s a continuous lifecycle that runs automatically alongside normal development:</p>
+  <ol>
+    <li><strong>Publish:</strong> Component author publishes a new version to CDN</li>
+    <li><strong>Catalog:</strong> App Catalog detects the new version and computes diffs against all consumer versions</li>
+    <li><strong>Classify:</strong> Each consumer&rsquo;s upgrade path is classified (healthy, attention, stale, critical)</li>
+    <li><strong>Propose:</strong> Change-mod scripts are generated for each consumer with context-specific instructions</li>
+    <li><strong>Notify:</strong> Teams receive proposals at their preferred cadence (immediately for critical, weekly for routine)</li>
+    <li><strong>Review:</strong> Teams review proposals and decide when to upgrade</li>
+    <li><strong>Apply:</strong> Change-mod scripts execute the upgrade and run the test suite</li>
+    <li><strong>Deploy:</strong> Upgraded domain deploys through its normal pipeline</li>
+    <li><strong>Monitor:</strong> Health dashboard updates to reflect the new version landscape</li>
+    <li><strong>Repeat:</strong> The cycle continues with every new component publish</li>
+  </ol>
+
+  <div class="industry-std">
+    <strong>Industry Standard: Automated Dependency Management</strong>
+    Dependabot (GitHub), Renovate (Mend), and Snyk all implement this same lifecycle for npm/Maven/NuGet packages: detect drift, propose upgrades, generate pull requests, run tests. The App Catalog applies this proven pattern to CDN-distributed Web Components with import map version management.
+  </div>
+</section>
+
+</main>
+<div style="max-width:900px;margin:0 auto;padding:0 1.5rem;">
+  <div class="page-nav">
+    <a href="18-bff-pattern.html"><span class="pn-label">&larr; Previous</span><span class="pn-title">Backend-for-Frontend</span></a>
+    <a href="20-core-cadence.html" class="next"><span class="pn-label">Next &rarr;</span><span class="pn-title">Core Cadence</span></a>
+  </div>
+</div>
+<footer>Medline Platform Evolution &mdash; v5 &mdash; 2026-04-05 &mdash; Technical Director Series &mdash; Confidential</footer>
+<div class="toast" id="toast">Copied!</div>
+<script src="shared.js"></script>
+</body>
+</html>

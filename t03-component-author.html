@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Track: Component Author &mdash; Medline Platform Evolution</title>
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<div class="progress-bar"></div>
+<nav>
+  <a href="t-index.html" class="logo">ML Training</a>
+  <div class="nav-links">
+    <a href="index.html">&larr; Migration Series</a>
+    <a href="t01-overview.html">Overview</a>
+    <a href="t02-domain-developer.html">Domain Dev</a>
+    <a href="t03-component-author.html" class="active">Component Author</a>
+    <a href="t04-platform-engineer.html">Platform Eng</a>
+    <a href="t05-sign-off-gates.html">Gates</a>
+    <a href="t06-certification.html">Certification</a>
+    <a href="t07-onboarding-checklist.html">Day One</a>
+  </div>
+  <button class="theme-toggle" id="themeToggle" title="Toggle theme">&#9790;</button>
+</nav>
+
+<div class="hero">
+  <div class="page-num">Training &mdash; Page 3 of 7</div>
+  <h1>Track: Component Author</h1>
+  <p class="subtitle">Seven modules that take you from understanding Web Components to publishing production-ready ML- components used across every domain. You build the building blocks.</p>
+</div>
+
+<main>
+
+<!-- Track Overview -->
+<section>
+  <h2>Track Overview</h2>
+  <p>Component Authors build the shared ML- components that every domain team consumes. You own the component contract: attributes, events, slots, and CSS custom properties. Your components run inside Shadow DOM, encapsulated and isolated. When you publish, every domain that uses your component gets the update via the CDN.</p>
+  <p>This track has <strong>7 modules</strong>. Expected completion: <strong>~4 weeks</strong>.</p>
+
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="stat-num">7</div>
+      <div class="stat-label">Modules</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num green">~4 Weeks</div>
+      <div class="stat-label">Completion time</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num purple">7 Exercises</div>
+      <div class="stat-label">Hands-on validations</div>
+    </div>
+  </div>
+</section>
+
+<!-- Component Lifecycle Diagram -->
+<section>
+  <h2>Component Lifecycle</h2>
+  <p>From authoring to consumption&mdash;this is the path every ML- component takes.</p>
+
+  <div class="mermaid-wrap" id="dt03-1">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">&#9974;</button>
+    </div>
+    <div class="mw-view">
+      <div class="mermaid-inner" data-src="graph LR
+  A[Author\nBuild ML- Component] -->|Test locally| B[Validate\nPipeline Gates]
+  B -->|Pass| C[Publish\nCDN + Version Tag]
+  C -->|Register| D[App Catalog\nDocumented API]
+  D -->|Discover| E[Domain Teams\nConsume via Import Map]
+  E -->|Feedback| A
+  style A fill:#58a6ff,stroke:#58a6ff,color:#fff
+  style B fill:#f0883e,stroke:#f0883e,color:#fff
+  style C fill:#d2a8ff,stroke:#d2a8ff,color:#000
+  style D fill:#3fb950,stroke:#3fb950,color:#fff
+  style E fill:#3fb950,stroke:#3fb950,color:#fff"></div>
+    </div>
+    <div class="mw-caption">Component lifecycle: author &rarr; validate &rarr; publish &rarr; catalog &rarr; consume</div>
+  </div>
+</section>
+
+<!-- Module 1 -->
+<section>
+  <h2>Module 1: Component Anatomy</h2>
+  <p><strong>What you'll learn:</strong> The structure of a Custom Element&mdash;Shadow DOM, attributes, events, slots, and lifecycle callbacks.</p>
+
+  <details>
+    <summary>Module content <span class="detail-summary">Custom Elements, Shadow DOM, lifecycle</span></summary>
+    <div class="detail-body">
+      <h4>Key Concepts</h4>
+      <ul>
+        <li><strong>Custom Element registration</strong> &mdash; <code>customElements.define('ml-my-component', MyComponent)</code></li>
+        <li><strong>Shadow DOM</strong> &mdash; encapsulated DOM tree attached via <code>this.attachShadow({mode: 'open'})</code></li>
+        <li><strong>Lifecycle callbacks</strong> &mdash; <code>connectedCallback</code>, <code>disconnectedCallback</code>, <code>attributeChangedCallback</code></li>
+        <li><strong>Observed attributes</strong> &mdash; declare which attributes trigger change callbacks</li>
+        <li><strong>Slots</strong> &mdash; named and default slots for content projection from the consumer</li>
+      </ul>
+      <h4>Hands-on Exercise</h4>
+      <p>Create a new <code>ml-info-card</code> component from scratch. It should accept <code>title</code> and <code>variant</code> attributes, emit a <code>card-click</code> Custom Event, and expose a default slot for body content. Register it as a Custom Element.</p>
+      <h4>Sign-off Criteria</h4>
+      <ul>
+        <li>Component registered with <code>ml-</code> prefix</li>
+        <li>Shadow DOM properly attached</li>
+        <li>Attributes observed and reflected</li>
+        <li>Custom Event dispatched with correct detail payload</li>
+        <li>Slot renders projected content</li>
+      </ul>
+    </div>
+  </details>
+</section>
+
+<!-- Module 2 -->
+<section>
+  <h2>Module 2: Styling</h2>
+  <p><strong>What you'll learn:</strong> CSS custom properties, Shadow DOM style encapsulation, and how to ensure zero global CSS leakage.</p>
+
+  <details>
+    <summary>Module content <span class="detail-summary">CSS custom properties, encapsulation, theming</span></summary>
+    <div class="detail-body">
+      <h4>Key Concepts</h4>
+      <ul>
+        <li><strong>Shadow DOM encapsulation</strong> &mdash; styles inside Shadow DOM don't leak out; external styles don't leak in</li>
+        <li><strong>CSS custom properties</strong> &mdash; the only styling hook: <code>--ml-card-bg</code>, <code>--ml-card-radius</code>, etc.</li>
+        <li><strong>:host selector</strong> &mdash; style the component's outer element from within Shadow DOM</li>
+        <li><strong>::part() pseudo-element</strong> &mdash; expose named parts for limited external styling</li>
+        <li><strong>Theme support</strong> &mdash; components respond to platform-level CSS custom properties for light/dark mode</li>
+        <li><strong>No global styles</strong> &mdash; components must never import global stylesheets or modify document-level CSS</li>
+      </ul>
+      <h4>Hands-on Exercise</h4>
+      <p>Extend your <code>ml-info-card</code> with full styling: define 5+ CSS custom properties for consumer theming, support light/dark mode via platform CSS variables, and verify zero style leakage using the style isolation test suite.</p>
+      <h4>Sign-off Criteria</h4>
+      <ul>
+        <li>All styling uses CSS custom properties (no hardcoded colors)</li>
+        <li>Style isolation test passes (no leakage in or out)</li>
+        <li>Light/dark mode both render correctly</li>
+        <li>All CSS custom properties are documented in a comment block</li>
+      </ul>
+    </div>
+  </details>
+
+  <div class="industry-std">
+    <strong>Industry Standard: Shadow DOM Style Encapsulation</strong>
+    Shadow DOM provides browser-native style encapsulation&mdash;no build tools, no CSS-in-JS runtime, no naming conventions to enforce. It's the W3C standard adopted by every major browser vendor. CSS custom properties as the theming API is the recommended pattern from the Web Components community.
+  </div>
+</section>
+
+<!-- Module 3 -->
+<section>
+  <h2>Module 3: The Component Contract</h2>
+  <p><strong>What you'll learn:</strong> How to define and document the complete API surface of an ML- component: attributes, events, slots, and CSS custom properties.</p>
+
+  <details>
+    <summary>Module content <span class="detail-summary">API surface, documentation, contract enforcement</span></summary>
+    <div class="detail-body">
+      <h4>Key Concepts</h4>
+      <ul>
+        <li><strong>Attribute documentation</strong> &mdash; every attribute has a name, type, default value, and description</li>
+        <li><strong>Event documentation</strong> &mdash; every Custom Event has a name, detail type, and when it fires</li>
+        <li><strong>Slot documentation</strong> &mdash; every slot has a name and description of expected content</li>
+        <li><strong>CSS custom property documentation</strong> &mdash; every styling hook has a name, default value, and description</li>
+        <li><strong>Contract file</strong> &mdash; <code>component.contract.json</code> declares the full API surface; the pipeline validates it</li>
+      </ul>
+      <h4>Hands-on Exercise</h4>
+      <p>Write the <code>component.contract.json</code> for your <code>ml-info-card</code>. Ensure every attribute, event, slot, and CSS custom property is documented. Run the contract validation tool to verify completeness.</p>
+      <h4>Sign-off Criteria</h4>
+      <ul>
+        <li>Contract file is complete (all attributes, events, slots, CSS properties)</li>
+        <li>Contract validation tool passes with no warnings</li>
+        <li>Contract matches actual component implementation</li>
+      </ul>
+    </div>
+  </details>
+</section>
+
+<!-- Component API Surface Diagram -->
+<section>
+  <h2>Component API Surface</h2>
+
+  <div class="mermaid-wrap" id="dt03-2">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">&#9974;</button>
+    </div>
+    <div class="mw-view">
+      <div class="mermaid-inner" data-src="graph TD
+  COMP[ML- Component]
+  COMP -->|Inputs| ATTR[Attributes\nHTML attributes &amp; properties]
+  COMP -->|Outputs| EVT[Events\nCustom Events with typed detail]
+  COMP -->|Content| SLOT[Slots\nNamed projection points]
+  COMP -->|Theming| CSS[CSS Custom Properties\nStyling hooks for consumers]
+  ATTR -.->|Documented in| CONTRACT[component.contract.json]
+  EVT -.->|Documented in| CONTRACT
+  SLOT -.->|Documented in| CONTRACT
+  CSS -.->|Documented in| CONTRACT
+  style COMP fill:#58a6ff,stroke:#58a6ff,color:#fff
+  style ATTR fill:#d2a8ff,stroke:#d2a8ff,color:#000
+  style EVT fill:#f0883e,stroke:#f0883e,color:#fff
+  style SLOT fill:#3fb950,stroke:#3fb950,color:#fff
+  style CSS fill:#3fb950,stroke:#3fb950,color:#fff
+  style CONTRACT fill:#f85149,stroke:#f85149,color:#fff"></div>
+    </div>
+    <div class="mw-caption">The four surfaces of an ML- component: attributes, events, slots, and CSS custom properties&mdash;all documented in the contract file</div>
+  </div>
+</section>
+
+<!-- Module 4 -->
+<section>
+  <h2>Module 4: Publishing</h2>
+  <p><strong>What you'll learn:</strong> How to build, version, publish to CDN, and register your component in the App Catalog.</p>
+
+  <details>
+    <summary>Module content <span class="detail-summary">Build, CDN, catalog registration, versioning</span></summary>
+    <div class="detail-body">
+      <h4>Key Concepts</h4>
+      <ul>
+        <li><strong>Build process</strong> &mdash; single-file ES module output, tree-shaken, minified</li>
+        <li><strong>CDN publish</strong> &mdash; built artifact is pushed to CDN with a semver-tagged URL</li>
+        <li><strong>Catalog registration</strong> &mdash; the App Catalog records the new version, its contract, and its dependencies</li>
+        <li><strong>Semver</strong> &mdash; breaking changes = major, new features = minor, fixes = patch</li>
+        <li><strong>Consumer notification</strong> &mdash; domains using your component are automatically notified of new versions</li>
+      </ul>
+      <h4>Hands-on Exercise</h4>
+      <p>Build your <code>ml-info-card</code>, publish it to the sandbox CDN, register it in the App Catalog, and verify it appears in the component browser with full documentation.</p>
+      <h4>Sign-off Criteria</h4>
+      <ul>
+        <li>Component builds to a single ES module file</li>
+        <li>Published to CDN with correct semver tag</li>
+        <li>Registered in App Catalog with complete contract</li>
+        <li>Visible in the component browser with documentation</li>
+      </ul>
+    </div>
+  </details>
+</section>
+
+<!-- Module 5 -->
+<section>
+  <h2>Module 5: WCFramework Internals</h2>
+  <p><strong>What you'll learn:</strong> The HTML-first MV* pattern that powers ML- components. Data binding, change detection, template rendering.</p>
+
+  <details>
+    <summary>Module content <span class="detail-summary">HTML-first pattern, data binding, change detection</span></summary>
+    <div class="detail-body">
+      <h4>Key Concepts</h4>
+      <ul>
+        <li><strong>HTML-first MV* pattern</strong> &mdash; templates are HTML with declarative bindings, not JSX or string interpolation</li>
+        <li><strong>Data binding</strong> &mdash; one-way binding from data model to template; updates flow down, events flow up</li>
+        <li><strong>Change detection</strong> &mdash; attribute changes trigger targeted re-renders of bound sections only</li>
+        <li><strong>Template syntax</strong> &mdash; conditional rendering, list rendering, and slot composition using standard HTML patterns</li>
+        <li><strong>Performance</strong> &mdash; fine-grained updates minimize DOM operations; no virtual DOM diffing overhead</li>
+      </ul>
+      <h4>Hands-on Exercise</h4>
+      <p>Build an <code>ml-data-table</code> component using WCFramework internals: data binding for rows, conditional rendering for empty states, list rendering with keyed updates, and a sort event that triggers targeted re-render.</p>
+      <h4>Sign-off Criteria</h4>
+      <ul>
+        <li>Component uses WCFramework template binding (no manual DOM manipulation)</li>
+        <li>Re-renders are targeted (verified via render count instrumentation)</li>
+        <li>Empty state and populated state both render correctly</li>
+        <li>Sort triggers efficient update (not full re-render)</li>
+      </ul>
+    </div>
+  </details>
+
+  <div class="industry-std">
+    <strong>Industry Standard: Standards-Based Component Framework</strong>
+    Building on W3C Custom Elements and Shadow DOM means components work in any browser without a framework runtime. The HTML-first MV* pattern extends this with minimal, targeted data binding&mdash;no virtual DOM, no framework lock-in, no runtime dependency on React, Vue, or any other library.
+  </div>
+</section>
+
+<!-- Module 6 -->
+<section>
+  <h2>Module 6: React Compatibility Wrapper</h2>
+  <p><strong>What you'll learn:</strong> How to publish a React-compatible version of your ML- component so existing React domains can consume it natively.</p>
+
+  <details>
+    <summary>Module content <span class="detail-summary">React wrapper, prop mapping, event bridging</span></summary>
+    <div class="detail-body">
+      <h4>Key Concepts</h4>
+      <ul>
+        <li><strong>React wrapper generator</strong> &mdash; an automated tool that creates a React wrapper from your component contract</li>
+        <li><strong>Prop mapping</strong> &mdash; HTML attributes map to React props automatically</li>
+        <li><strong>Event bridging</strong> &mdash; Custom Events map to React <code>on*</code> callback props</li>
+        <li><strong>Ref forwarding</strong> &mdash; React refs forward to the underlying Custom Element</li>
+        <li><strong>TypeScript types</strong> &mdash; the wrapper exports full TypeScript definitions generated from the contract</li>
+      </ul>
+      <h4>Hands-on Exercise</h4>
+      <p>Generate a React wrapper for your <code>ml-info-card</code>. Use it in a sandbox React application. Verify props, events, and refs all work correctly. Publish the wrapper alongside the Web Component.</p>
+      <h4>Sign-off Criteria</h4>
+      <ul>
+        <li>React wrapper generated from component contract</li>
+        <li>All props map correctly to attributes</li>
+        <li>All events map correctly to callback props</li>
+        <li>TypeScript types are complete and accurate</li>
+        <li>Wrapper published to CDN alongside the Web Component</li>
+      </ul>
+    </div>
+  </details>
+</section>
+
+<!-- Module 7 -->
+<section>
+  <h2>Module 7: Documentation</h2>
+  <p><strong>What you'll learn:</strong> How to create a component playground, write usage examples, and publish API documentation to the catalog.</p>
+
+  <details>
+    <summary>Module content <span class="detail-summary">Playground, examples, API docs</span></summary>
+    <div class="detail-body">
+      <h4>Key Concepts</h4>
+      <ul>
+        <li><strong>Component playground</strong> &mdash; interactive demo page where consumers can try your component with different attributes and slot content</li>
+        <li><strong>Usage examples</strong> &mdash; copy-paste code snippets for common use cases (basic, themed, with slots, event handling)</li>
+        <li><strong>API documentation</strong> &mdash; auto-generated from <code>component.contract.json</code> plus hand-written descriptions</li>
+        <li><strong>Changelog</strong> &mdash; version history showing what changed, what broke, and what was added</li>
+        <li><strong>Search integration</strong> &mdash; component documentation is indexed in the catalog's search</li>
+      </ul>
+      <h4>Hands-on Exercise</h4>
+      <p>Create a complete documentation page for <code>ml-info-card</code>: interactive playground, 4 usage examples, full API reference, and a changelog entry. Publish to the catalog and verify it appears in search results.</p>
+      <h4>Sign-off Criteria</h4>
+      <ul>
+        <li>Playground renders with interactive attribute controls</li>
+        <li>At least 4 usage examples (basic, themed, slots, events)</li>
+        <li>API docs match the component contract exactly</li>
+        <li>Component is findable via catalog search</li>
+      </ul>
+    </div>
+  </details>
+
+  <div class="industry-std">
+    <strong>Industry Standard: Living Documentation</strong>
+    Component documentation generated from contracts and published alongside the component is the industry standard for design systems at scale. Living docs stay in sync with the code because they're generated from the same source of truth. Teams like Google (Material), Microsoft (Fluent), and Salesforce (Lightning) all follow this pattern.
+  </div>
+</section>
+
+</main>
+
+<div style="max-width:900px;margin:0 auto;padding:0 1.5rem;">
+  <div class="page-nav">
+    <a href="t02-domain-developer.html"><span class="pn-label">&larr; Previous</span><span class="pn-title">Track: Domain Developer</span></a>
+    <a href="t04-platform-engineer.html" class="next"><span class="pn-label">Next &rarr;</span><span class="pn-title">Track: Platform Engineer</span></a>
+  </div>
+</div>
+
+<footer>Medline Platform Evolution &mdash; Training &amp; Sign-off Plan &mdash; v5 &mdash; 2026-04-05 &mdash; Confidential</footer>
+<div class="toast" id="toast">Copied!</div>
+<script src="shared.js"></script>
+</body>
+</html>

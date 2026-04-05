@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Proof of Concept Results &mdash; Medline Platform Evolution</title>
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<div class="progress-bar"></div>
+<nav>
+  <a href="p-index.html" class="logo">ML Progress</a>
+  <div class="nav-links">
+    <a href="index.html">&larr; Migration Series</a>
+    <a href="p01-executive-dashboard.html">Dashboard</a>
+    <a href="p02-poc-results.html" class="active">POCs</a>
+    <a href="p03-domain-extraction-status.html">Domains</a>
+    <a href="p04-shell-and-components.html">Shell</a>
+    <a href="p05-infrastructure-status.html">Infra</a>
+    <a href="p06-risk-register.html">Risks</a>
+    <a href="p07-next-milestones.html">Next 90d</a>
+  </div>
+  <button class="theme-toggle" id="themeToggle" title="Toggle theme">&#9790;</button>
+</nav>
+
+<div class="hero">
+  <div class="page-num">Delivery Tracking &middot; P2</div>
+  <h1>Proof of Concept Results</h1>
+  <p class="subtitle">Three POCs validated the evolution approach before a single production change was made. All three passed. Here are the results.</p>
+</div>
+
+<main>
+
+<!-- POC Summary -->
+<section>
+  <h2>POC Summary</h2>
+  <p>Before committing to the full migration, we ran three targeted proof-of-concepts in January 2026. Each tested a critical assumption. All three passed, and the results shaped our execution plan.</p>
+
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="stat-num green">3/3</div>
+      <div class="stat-label">POCs Passed</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">15 Days</div>
+      <div class="stat-label">Total POC Duration</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num green">0</div>
+      <div class="stat-label">Failures or Showstoppers</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num purple">3</div>
+      <div class="stat-label">Hidden Dependencies Found</div>
+    </div>
+  </div>
+
+  <div class="mermaid-wrap" id="dp02-1">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">&#9974;</button>
+    </div>
+    <div class="mw-view">
+      <div class="mermaid-inner" data-src="gantt
+  title POC Execution Timeline
+  dateFormat YYYY-MM-DD
+  axisFormat %b %d
+
+  section POC 1 — Domain Extraction
+  Setup &amp; copy monolith     :done, p1a, 2026-01-06, 1d
+  Strip non-Catalog code     :done, p1b, after p1a, 1d
+  K8s deployment &amp; testing   :done, p1c, after p1b, 2d
+  Results &amp; documentation    :done, p1d, after p1c, 1d
+
+  section POC 2 — Web Component Wrapping
+  Select 5 target MFEs       :done, p2a, 2026-01-13, 1d
+  Build wrapper shells       :done, p2b, after p2a, 2d
+  Shadow DOM integration     :done, p2c, after p2b, 1d
+  Performance validation     :done, p2d, after p2c, 1d
+
+  section POC 3 — App Catalog Scanner
+  API endpoint discovery     :done, p3a, 2026-01-20, 1d
+  Contract extraction        :done, p3b, after p3a, 1d
+  Dependency graph build     :done, p3c, after p3b, 1d
+  Breaking change detection  :done, p3d, after p3c, 2d"></div>
+    </div>
+    <div class="mw-caption">POC execution timeline &mdash; three sequential POCs across 15 business days in January 2026</div>
+  </div>
+</section>
+
+<!-- POC 1: Domain Extraction -->
+<section>
+  <h2>&#9989; POC 1: Domain Extraction (Catalog)</h2>
+  <p><strong>Goal:</strong> Validate that the copy-split-strip approach works &mdash; can we copy the monolith, remove non-Catalog code, and deploy the Catalog domain independently to K8s with all existing tests passing?</p>
+
+  <div class="callout success">
+    <strong>Result: &#9989; Successful</strong>
+    Catalog runs independently in K8s. All 347 existing unit tests pass. All 28 integration tests pass. Response times within 5% of monolith baseline.
+  </div>
+
+  <table class="compare-table">
+    <thead>
+      <tr><th>Metric</th><th>Expected</th><th>Actual</th><th>Verdict</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Extraction time</td><td>3 weeks</td><td class="good">3 days</td><td class="good">&#10003; 7x faster</td></tr>
+      <tr><td>Unit tests passing</td><td>95%+</td><td class="good">100% (347/347)</td><td class="good">&#10003; Exceeded</td></tr>
+      <tr><td>Integration tests passing</td><td>90%+</td><td class="good">100% (28/28)</td><td class="good">&#10003; Exceeded</td></tr>
+      <tr><td>Response time (PLP)</td><td>&le; 120ms</td><td class="good">108ms</td><td class="good">&#10003; Within target</td></tr>
+      <tr><td>Response time (PDP)</td><td>&le; 95ms</td><td class="good">91ms</td><td class="good">&#10003; Within target</td></tr>
+      <tr><td>Bundle size delta</td><td>&le; +5%</td><td class="good">-12%</td><td class="good">&#10003; Smaller bundle</td></tr>
+    </tbody>
+  </table>
+
+  <details>
+    <summary>Methodology &amp; Findings <span class="detail-summary">Full POC 1 details</span></summary>
+    <div class="detail-body">
+      <h4>What We Did</h4>
+      <ol>
+        <li>Forked the full monolith repository (next-monolith, 2.4GB)</li>
+        <li>Deleted all non-Catalog page routes, components, and API handlers</li>
+        <li>Removed unused node_modules dependencies (saved 340MB)</li>
+        <li>Deployed to isolated K8s namespace with existing Helm charts</li>
+        <li>Ran full test suite against the extracted domain</li>
+      </ol>
+      <h4>Key Finding</h4>
+      <p>The extraction took <strong>3 days, not the 3 weeks</strong> originally estimated. The monolith&rsquo;s route-based structure made it straightforward to identify Catalog-owned files. The biggest risk &mdash; hidden imports from other domains &mdash; was resolved by the TypeScript compiler flagging 14 missing references, all of which were utility functions that were moved to Shared/Core.</p>
+      <h4>Evidence</h4>
+      <ul>
+        <li>Test results: <code>347 passed, 0 failed, 0 skipped</code> (Jest output)</li>
+        <li>K8s deployment: Catalog pod running in <code>ml-catalog-poc</code> namespace, healthy for 72 hours</li>
+        <li>Performance: p50 latency 91ms (PDP), 108ms (PLP) vs monolith baseline 87ms / 112ms</li>
+      </ul>
+    </div>
+  </details>
+
+  <div class="industry-std">
+    <strong>Industry Standard: Copy-Split-Strip Validation</strong>
+    The Strangler Fig pattern, validated here, is the industry-standard approach to monolith decomposition. Netflix, Amazon, and Shopify all used variations of this exact pattern. The key: your existing code IS the migration &mdash; no rewrite.
+  </div>
+</section>
+
+<!-- POC 2: Web Component Wrapping -->
+<section>
+  <h2>&#9989; POC 2: Web Component Wrapping</h2>
+  <p><strong>Goal:</strong> Validate that existing React MFEs can be wrapped in Web Component shells with Shadow DOM isolation &mdash; rendering correctly in the WCFramework CSR shell without modifying any React code.</p>
+
+  <div class="callout success">
+    <strong>Result: &#9989; Successful</strong>
+    All 5 target MFEs render correctly in the WCFramework shell. Shadow DOM isolation prevents CSS leakage. No React code modifications required.
+  </div>
+
+  <table class="compare-table">
+    <thead>
+      <tr><th>Metric</th><th>Expected</th><th>Actual</th><th>Verdict</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>MFEs wrapped successfully</td><td>5/5</td><td class="good">5/5</td><td class="good">&#10003; All passed</td></tr>
+      <tr><td>Wrapper code per component</td><td>&le;100 lines</td><td class="good">~40 lines</td><td class="good">&#10003; Minimal</td></tr>
+      <tr><td>React code changes needed</td><td>Minimal</td><td class="good">Zero</td><td class="good">&#10003; No changes</td></tr>
+      <tr><td>CSS isolation (Shadow DOM)</td><td>No leaks</td><td class="good">No leaks</td><td class="good">&#10003; Verified</td></tr>
+      <tr><td>First paint delta</td><td>&le; +50ms</td><td class="good">+12ms avg</td><td class="good">&#10003; Negligible</td></tr>
+      <tr><td>React 17 compatibility</td><td>Works</td><td class="good">Works</td><td class="good">&#10003; Confirmed</td></tr>
+    </tbody>
+  </table>
+
+  <details>
+    <summary>Methodology &amp; Findings <span class="detail-summary">Full POC 2 details</span></summary>
+    <div class="detail-body">
+      <h4>Components Wrapped</h4>
+      <ol>
+        <li><code>ml-product-card</code> &mdash; PLP product tile (Catalog domain)</li>
+        <li><code>ml-search-bar</code> &mdash; Header search with typeahead (Search domain)</li>
+        <li><code>ml-mini-cart</code> &mdash; Cart flyout with item count (Cart domain)</li>
+        <li><code>ml-breadcrumb</code> &mdash; Navigation breadcrumbs (Shared/Core)</li>
+        <li><code>ml-promo-banner</code> &mdash; Promotional banner with countdown (Content domain)</li>
+      </ol>
+      <h4>Wrapper Pattern</h4>
+      <p>Each wrapper is a W3C Custom Element that: (1) creates a Shadow DOM root, (2) injects the component&rsquo;s stylesheet into the shadow root, (3) renders the React component into a mount point inside the shadow, and (4) forwards attributes as React props. Average wrapper: ~40 lines of code.</p>
+      <h4>Key Finding</h4>
+      <p>The wrapper is <strong>~40 lines of boilerplate code per component</strong>, and it&rsquo;s identical across all wrappers except for the React component import and prop mapping. This means wrapping can be automated with a code generator. No React source code modifications were needed &mdash; the wrapper sits completely outside the React component tree.</p>
+      <h4>Evidence</h4>
+      <ul>
+        <li>Render comparison: Pixel-identical output between monolith and wrapped versions (Chromatic visual diff)</li>
+        <li>Performance: First Contentful Paint within +12ms of unwrapped baseline across all 5 components</li>
+        <li>Shadow DOM audit: Zero CSS declarations leaked between components (DevTools audit)</li>
+      </ul>
+    </div>
+  </details>
+
+  <div class="industry-std">
+    <strong>Industry Standard: W3C Web Components</strong>
+    Shadow DOM isolation via W3C Web Components is the browser-native solution to micro frontend CSS conflicts. It&rsquo;s the same pattern used by GitHub (github-elements), Salesforce (Lightning Web Components), and Google (Material Web). No polyfills needed in modern browsers.
+  </div>
+</section>
+
+<!-- POC 3: App Catalog + API Scanning -->
+<section>
+  <h2>&#9989; POC 3: App Catalog + API Scanning</h2>
+  <p><strong>Goal:</strong> Validate that we can scan running BFF APIs, build a complete dependency graph, extract contracts automatically, and detect breaking changes before they reach production.</p>
+
+  <div class="callout success">
+    <strong>Result: &#9989; Successful</strong>
+    All 23 BFF endpoints discovered. Contracts extracted as OpenAPI specs. 2 breaking changes caught. 3 previously undocumented API dependencies found.
+  </div>
+
+  <table class="compare-table">
+    <thead>
+      <tr><th>Metric</th><th>Expected</th><th>Actual</th><th>Verdict</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>API endpoints discovered</td><td>20+</td><td class="good">23 endpoints</td><td class="good">&#10003; All found</td></tr>
+      <tr><td>Contracts extracted</td><td>Auto-generated</td><td class="good">23 OpenAPI specs</td><td class="good">&#10003; Complete</td></tr>
+      <tr><td>Breaking changes detected</td><td>Known: 1</td><td class="good">Found: 2</td><td class="good">&#10003; +1 unknown caught</td></tr>
+      <tr><td>Hidden dependencies found</td><td>Unknown</td><td class="neutral">3 cross-domain</td><td class="good">&#10003; Critical insight</td></tr>
+      <tr><td>Scan time (full)</td><td>&le; 5 min</td><td class="good">2 min 18 sec</td><td class="good">&#10003; Fast enough for CI</td></tr>
+      <tr><td>False positive rate</td><td>&le; 10%</td><td class="good">4.3% (1/23)</td><td class="good">&#10003; Low noise</td></tr>
+    </tbody>
+  </table>
+
+  <details>
+    <summary>Methodology &amp; Findings <span class="detail-summary">Full POC 3 details</span></summary>
+    <div class="detail-body">
+      <h4>What We Scanned</h4>
+      <p>All running BFF instances in the staging environment: Catalog BFF (8 endpoints), Cart BFF (6 endpoints), Search BFF (5 endpoints), and Account BFF (4 endpoints).</p>
+      <h4>Breaking Changes Detected</h4>
+      <ol>
+        <li><strong>Cart BFF <code>/api/cart/items</code></strong>: Response field <code>unitPrice</code> renamed to <code>itemPrice</code> in a pending PR. Scanner caught it via contract diff.</li>
+        <li><strong>Account BFF <code>/api/account/addresses</code></strong>: New required field <code>countryCode</code> added to request body. Would have broken Checkout&rsquo;s address lookup.</li>
+      </ol>
+      <h4>Hidden Dependencies Found</h4>
+      <ol>
+        <li>Mini-Cart was calling Catalog BFF directly for product names instead of going through Cart BFF</li>
+        <li>Search was calling Account BFF for personalized results &mdash; undocumented requirement</li>
+        <li>Checkout was calling Cart BFF&rsquo;s internal health endpoint for availability checks</li>
+      </ol>
+      <h4>Evidence</h4>
+      <ul>
+        <li>Full dependency graph generated as interactive visualization (deployed to internal tools)</li>
+        <li>23 OpenAPI specs committed to <code>ml-api-contracts</code> repository</li>
+        <li>Breaking change report integrated into PR review workflow</li>
+      </ul>
+    </div>
+  </details>
+
+  <div class="industry-std">
+    <strong>Industry Standard: Contract Testing &amp; API Governance</strong>
+    Automated contract discovery and breaking change detection is what separates enterprise micro frontend architectures from prototypes. Pact, Spring Cloud Contract, and Backstage all implement variations of this pattern. We catch breaking changes in CI, not in production.
+  </div>
+</section>
+
+<!-- Results Summary Diagram -->
+<section>
+  <h2>Results Summary</h2>
+  <div class="mermaid-wrap" id="dp02-2">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">&#9974;</button>
+    </div>
+    <div class="mw-view">
+      <div class="mermaid-inner" data-src="graph TD
+  subgraph POC1[POC 1: Domain Extraction]
+    P1Q[Can we copy-split-strip?] -->|YES| P1R[Catalog runs in K8s independently]
+    P1R --> P1F[3 days not 3 weeks]
+    P1R --> P1T[100% tests passing]
+  end
+
+  subgraph POC2[POC 2: Web Component Wrapping]
+    P2Q[Can we wrap React MFEs?] -->|YES| P2R[5/5 MFEs render in new shell]
+    P2R --> P2F[~40 lines per wrapper]
+    P2R --> P2T[Zero React changes needed]
+  end
+
+  subgraph POC3[POC 3: App Catalog Scanner]
+    P3Q[Can we scan &amp; detect?] -->|YES| P3R[23 endpoints discovered]
+    P3R --> P3F[2 breaking changes caught]
+    P3R --> P3T[3 hidden dependencies found]
+  end
+
+  POC1 --> V{All 3 Validated}
+  POC2 --> V
+  POC3 --> V
+  V -->|Green light| EX[Begin Full Extraction]
+
+  style V fill:#3fb950,stroke:#3fb950,color:#fff
+  style EX fill:#58a6ff,stroke:#58a6ff,color:#fff
+  style P1Q fill:#d2a8ff,stroke:#d2a8ff,color:#000
+  style P2Q fill:#d2a8ff,stroke:#d2a8ff,color:#000
+  style P3Q fill:#d2a8ff,stroke:#d2a8ff,color:#000"></div>
+    </div>
+    <div class="mw-caption">All three POCs validated &mdash; green light for full migration execution</div>
+  </div>
+</section>
+
+<!-- What the POCs Changed -->
+<section>
+  <h2>What the POCs Changed in Our Plan</h2>
+  <p>The POC results didn&rsquo;t just validate the plan &mdash; they improved it:</p>
+  <ul>
+    <li><strong>Extraction timeline compressed:</strong> Original 3-week estimate per domain reduced to 5&ndash;8 business days based on POC 1 velocity</li>
+    <li><strong>Wrapper automation prioritized:</strong> POC 2 showed wrappers are boilerplate &mdash; code generator moved up in backlog</li>
+    <li><strong>Hidden dependencies addressed:</strong> POC 3 found 3 undocumented cross-domain calls that are now explicit in the extraction order</li>
+    <li><strong>Scanner integrated into CI/CD:</strong> Based on POC 3&rsquo;s 2-minute scan time, we made the scanner a mandatory CI gate</li>
+  </ul>
+</section>
+
+</main>
+
+<div style="max-width:900px;margin:0 auto;padding:0 1.5rem;">
+  <div class="page-nav">
+    <a href="p01-executive-dashboard.html"><span class="pn-label">&larr; Previous</span><span class="pn-title">Executive Dashboard</span></a>
+    <a href="p03-domain-extraction-status.html" class="next"><span class="pn-label">Next &rarr;</span><span class="pn-title">Domain Extraction Status</span></a>
+  </div>
+</div>
+
+<footer>Medline Platform Evolution &mdash; Progress Dashboard &mdash; v5 &mdash; 2026-04-05 &mdash; Confidential</footer>
+<div class="toast" id="toast">Copied!</div>
+<script src="shared.js"></script>
+</body>
+</html>

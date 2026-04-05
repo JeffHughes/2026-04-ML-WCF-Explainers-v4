@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The CSR Shell: How It Works &mdash; Medline Platform Evolution</title>
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<div class="progress-bar"></div>
+<nav>
+  <a href="index.html" class="logo">ML Evolution</a>
+  <div class="nav-links">
+    <a href="01-executive-summary.html">Summary</a>
+    <a href="02-current-state.html">Today</a>
+    <a href="03-why-change.html">Why</a>
+    <a href="04-migration-overview.html">Strategy</a>
+    <a href="05-copy-split-strip.html">Copy-Split</a>
+    <a href="06-domain-map.html">Domains</a>
+    <a href="07-catalog-domain.html">Catalog</a>
+    <a href="08-cart-checkout.html">Cart</a>
+    <a href="09-remaining-domains.html">Other</a>
+    <a href="10-shell-architecture.html" class="active">Shell</a>
+    <a href="11-shell-swap.html">Swap</a>
+    <a href="12-web-component-wrapping.html">Wrapping</a>
+    <a href="13-hydration-csr.html">CSR</a>
+    <a href="14-component-standards.html">Standards</a>
+    <a href="15-component-transition.html">Transition</a>
+    <a href="16-app-catalog.html">Catalog</a>
+    <a href="17-api-scanning.html">Scanning</a>
+    <a href="18-bff-pattern.html">BFF</a>
+    <a href="19-managing-drift.html">Drift</a>
+    <a href="20-core-cadence.html">Cadence</a>
+    <a href="21-testing-strategy.html">Testing</a>
+    <a href="22-blue-green-rollouts.html">Deploy</a>
+    <a href="23-migration-timeline.html">Timeline</a>
+    <a href="24-team-impact.html">Teams</a>
+    <a href="25-key-principles.html">Principles</a>
+    <a href="dev-environment.html">DevEx</a>
+  </div>
+  <button class="theme-toggle" id="themeToggle" title="Toggle theme">&#9790;</button>
+</nav>
+<div class="hero">
+  <div class="page-num">New Architecture</div>
+  <h1>The CSR Shell: How It Works</h1>
+  <p class="subtitle">A lightweight client-side rendered application that composes domains through browser-native Web Components and import maps</p>
+</div>
+<main>
+
+  <!-- ════════════════════════════════════════════ -->
+  <section>
+    <h2>What the Shell Is (and What It Isn&rsquo;t)</h2>
+    <p>The shell is the <strong>thinnest possible application</strong> that ties everything together. It handles routing, authentication, shared navigation, and domain composition. It does not contain any business logic, product data, cart state, or checkout flows. Think of it as a picture frame &mdash; it holds the artwork (domains) but it isn&rsquo;t the artwork.</p>
+
+    <div class="themes-grid">
+      <div class="theme-card">
+        <div class="theme-icon">&#9989;</div>
+        <h4>Shell Owns</h4>
+        <p>Routing, authentication, environment config, shared navigation (header/footer), event bus, import map resolution, error boundaries, feature flags.</p>
+      </div>
+      <div class="theme-card">
+        <div class="theme-icon">&#10060;</div>
+        <h4>Shell Does NOT Own</h4>
+        <p>Business logic, domain data, domain components, product APIs, cart state, checkout flow, user account management, search logic, CMS content.</p>
+      </div>
+    </div>
+
+    <div class="callout">
+      <strong>&#128161; The 50-Line Rule</strong>
+      If you can&rsquo;t explain what the shell does in 50 lines of pseudocode, it&rsquo;s too complex. The shell&rsquo;s route handler is essentially: <em>look up the URL in the import map &rarr; load the domain module &rarr; render the custom element &rarr; done</em>. Everything else is authentication and shared chrome (header, footer).
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════ -->
+  <section>
+    <h2>Shell Architecture Diagram</h2>
+    <p>The shell sits between the browser and the domain modules. It uses the import map to resolve which domain module handles each route, loads that module from CDN, and renders its custom element into the page.</p>
+
+    <div class="mermaid-wrap" id="d10-1">
+      <div class="mw-toolbar">
+        <button onclick="mzoom(this,1.2)">+</button>
+        <button onclick="mzoom(this,0.8)">&minus;</button>
+        <button onclick="mreset(this)">Reset</button>
+        <button onclick="mfull(this)">&#x26F6;</button>
+      </div>
+      <div class="mw-view"><div class="mermaid-inner" data-src="graph TB
+    subgraph BROWSER[&quot;Browser&quot;]
+      URL[URL: /products/gloves]
+    end
+    subgraph SHELL[&quot;CSR Shell Application&quot;]
+      ROUTER[Route Matcher]
+      AUTH[Auth Guard]
+      HEADER[ml-header Web Component]
+      FOOTER[ml-footer Web Component]
+      OUTLET[Domain Outlet - render target]
+      BUS[Event Bus]
+      FLAGS[Feature Flags]
+    end
+    subgraph IMPORT_MAP[&quot;Import Map&quot;]
+      MAP[Route-to-Module Mapping]
+    end
+    subgraph CDN[&quot;CDN — Domain Modules&quot;]
+      CAT_MOD[catalog-plp@3.1.0.js]
+      CART_MOD[cart-page@2.0.0.js]
+      ACCT_MOD[account-dash@1.5.0.js]
+    end
+    subgraph RENDER[&quot;Rendered Page&quot;]
+      RENDERED_HEADER[Header]
+      RENDERED_DOMAIN[ml-catalog-plp Custom Element]
+      RENDERED_FOOTER[Footer]
+    end
+
+    URL --> ROUTER
+    ROUTER --> AUTH
+    AUTH --> MAP
+    MAP --> CAT_MOD
+    CAT_MOD --> OUTLET
+    OUTLET --> RENDERED_DOMAIN
+    HEADER --> RENDERED_HEADER
+    FOOTER --> RENDERED_FOOTER
+    BUS -.-> RENDERED_DOMAIN
+
+    style BROWSER fill:#1a2744,stroke:#58a6ff,color:#e6edf3
+    style SHELL fill:#0d2818,stroke:#3fb950,color:#e6edf3
+    style IMPORT_MAP fill:#2a1a3a,stroke:#d2a8ff,color:#e6edf3
+    style CDN fill:#3d2a14,stroke:#f0883e,color:#e6edf3
+    style RENDER fill:#1a3a5c,stroke:#58a6ff,color:#e6edf3"></div></div>
+      <div class="mw-caption">Shell architecture &mdash; the shell resolves routes via import map, loads domain modules from CDN, and renders them as custom elements</div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════ -->
+  <section>
+    <h2>How Routing Works</h2>
+    <p>The shell uses a simple route table that maps URL patterns to domain modules. When the URL changes (navigation, browser back/forward, direct entry), the shell:</p>
+
+    <ol>
+      <li><strong>Matches the URL</strong> against the route table</li>
+      <li><strong>Checks authentication</strong> &mdash; if the route requires auth and the user isn&rsquo;t logged in, redirect to login</li>
+      <li><strong>Resolves the module</strong> via the import map &mdash; <code>/products/*</code> maps to <code>@ml/catalog-plp</code></li>
+      <li><strong>Dynamically imports</strong> the module &mdash; <code>import('@ml/catalog-plp')</code> loads from CDN</li>
+      <li><strong>Renders the custom element</strong> &mdash; creates <code>&lt;ml-catalog-plp&gt;</code> and inserts it into the DOM outlet</li>
+      <li><strong>Passes route parameters</strong> as attributes &mdash; <code>&lt;ml-catalog-plp category=&quot;gloves&quot;&gt;</code></li>
+    </ol>
+
+    <h3>Route Table Example</h3>
+    <pre><code>// Shell route configuration — maps URL patterns to domain modules
+const routes = [
+  { path: '/products/*',      module: '@ml/catalog-plp',       element: 'ml-catalog-plp',       auth: false },
+  { path: '/product/:sku',    module: '@ml/catalog-pdp',       element: 'ml-catalog-pdp',       auth: false },
+  { path: '/category/:slug',  module: '@ml/catalog-category',  element: 'ml-catalog-category',  auth: false },
+  { path: '/search',          module: '@ml/search-results',    element: 'ml-search-results',    auth: false },
+  { path: '/cart',            module: '@ml/cart-page',         element: 'ml-cart-page',         auth: true  },
+  { path: '/checkout/*',      module: '@ml/checkout-flow',     element: 'ml-checkout-flow',     auth: true  },
+  { path: '/account/*',       module: '@ml/account-dashboard', element: 'ml-account-dashboard', auth: true  },
+  { path: '/',                module: '@ml/cms-homepage',      element: 'ml-homepage',          auth: false },
+  { path: '/*',               module: '@ml/cms-page',          element: 'ml-cms-page',          auth: false },
+];</code></pre>
+
+    <div class="industry-std">
+      <strong>Industry Standard: W3C Custom Elements + Shadow DOM + HTML Templates</strong>
+      The composition boundary between the shell and domain modules is entirely based on W3C standards. Custom Elements provide the registration API, Shadow DOM provides style/DOM encapsulation, and HTML Templates provide the declarative rendering model. Every modern browser supports these natively &mdash; no polyfills needed.
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════ -->
+  <section>
+    <h2>The Import Map</h2>
+    <p>The import map is a JSON configuration that tells the browser where to find each module. It&rsquo;s a <strong>W3C standard</strong> supported natively in all modern browsers. The shell loads the import map at startup, and every <code>import()</code> call resolves through it.</p>
+
+    <pre><code>&lt;script type=&quot;importmap&quot;&gt;
+{
+  &quot;imports&quot;: {
+    &quot;@ml/catalog-plp&quot;:       &quot;https://cdn.medline.com/domains/catalog-plp@3.1.0/index.js&quot;,
+    &quot;@ml/catalog-pdp&quot;:       &quot;https://cdn.medline.com/domains/catalog-pdp@3.1.0/index.js&quot;,
+    &quot;@ml/cart-page&quot;:         &quot;https://cdn.medline.com/domains/cart-page@2.0.0/index.js&quot;,
+    &quot;@ml/checkout-flow&quot;:     &quot;https://cdn.medline.com/domains/checkout-flow@1.8.0/index.js&quot;,
+    &quot;@ml/account-dashboard&quot;: &quot;https://cdn.medline.com/domains/account-dash@1.5.0/index.js&quot;,
+    &quot;@ml/search-results&quot;:    &quot;https://cdn.medline.com/domains/search-results@2.3.0/index.js&quot;,
+    &quot;@ml/shared/header&quot;:     &quot;https://cdn.medline.com/shared/header@2.1.0/index.js&quot;,
+    &quot;@ml/shared/footer&quot;:     &quot;https://cdn.medline.com/shared/footer@1.4.0/index.js&quot;,
+    &quot;@ml/shared/auth&quot;:       &quot;https://cdn.medline.com/shared/auth@3.0.0/index.js&quot;,
+    &quot;@ml/shared/event-bus&quot;:  &quot;https://cdn.medline.com/shared/event-bus@1.0.0/index.js&quot;
+  }
+}
+&lt;/script&gt;</code></pre>
+
+    <h3>Why Import Maps Matter</h3>
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Benefit</th>
+          <th>Explanation</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="good">Independent versioning</td>
+          <td>Each domain module has its own version. Update Catalog to 3.2.0 without touching Cart 2.0.0.</td>
+        </tr>
+        <tr>
+          <td class="good">No coordinated builds</td>
+          <td>Domains build and publish independently. The import map is the integration point, not a shared build step.</td>
+        </tr>
+        <tr>
+          <td class="good">Instant rollback</td>
+          <td>Change the import map entry to point to the previous version. The next page load uses the old code. No rebuild needed.</td>
+        </tr>
+        <tr>
+          <td class="good">CDN-cached</td>
+          <td>Each versioned module URL is immutable and cacheable forever. <code>catalog-plp@3.1.0/index.js</code> never changes.</td>
+        </tr>
+        <tr>
+          <td class="good">Browser-native</td>
+          <td>No bundler plugin, no custom module loader, no framework-specific federation. The browser handles it natively.</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════════════════════════════════════ -->
+  <section>
+    <h2>Request Flow: URL to Rendered Page</h2>
+    <p>Here&rsquo;s the complete flow from a user typing a URL to seeing a fully rendered page:</p>
+
+    <div class="mermaid-wrap" id="d10-2">
+      <div class="mw-toolbar">
+        <button onclick="mzoom(this,1.2)">+</button>
+        <button onclick="mzoom(this,0.8)">&minus;</button>
+        <button onclick="mreset(this)">Reset</button>
+        <button onclick="mfull(this)">&#x26F6;</button>
+      </div>
+      <div class="mw-view"><div class="mermaid-inner" data-src="sequenceDiagram
+    participant User
+    participant Browser
+    participant CDN
+    participant Shell
+    participant ImportMap
+    participant DomainModule
+    participant BFF
+
+    User->>Browser: Navigate to /products/gloves
+    Browser->>CDN: GET shell.js (cached)
+    CDN-->>Browser: shell.js (from cache)
+    Browser->>Shell: Initialize shell
+    Shell->>Shell: Parse URL → match route /products/*
+    Shell->>Shell: Check auth (public route → OK)
+    Shell->>ImportMap: Resolve @ml/catalog-plp
+    ImportMap-->>Shell: cdn.medline.com/catalog-plp@3.1.0
+    Shell->>CDN: import(catalog-plp@3.1.0)
+    CDN-->>Browser: catalog-plp module (cached)
+    Shell->>DomainModule: Create ml-catalog-plp element
+    DomainModule->>BFF: GET /products?category=gloves
+    BFF-->>DomainModule: Product JSON
+    DomainModule->>Browser: Render product grid
+    Browser-->>User: Page displayed"></div></div>
+      <div class="mw-caption">Complete request flow &mdash; from URL entry to rendered page, showing CDN caching at every stage</div>
+    </div>
+
+    <h3>Performance Characteristics</h3>
+    <ul>
+      <li><strong>Shell JS</strong> &mdash; Tiny (&lt;30KB gzipped). Cached by CDN. Loads in milliseconds.</li>
+      <li><strong>Import map resolution</strong> &mdash; Inline JSON in the HTML. Zero network requests.</li>
+      <li><strong>Domain module loading</strong> &mdash; Versioned URL, cached at CDN edge. First visit downloads, subsequent visits serve from cache.</li>
+      <li><strong>BFF data fetch</strong> &mdash; Only network request that&rsquo;s not cache-friendly (dynamic data). This is the critical path.</li>
+      <li><strong>Rendering</strong> &mdash; Domain module renders directly into the DOM. No server-side rendering step, no hydration mismatch risk.</li>
+    </ul>
+  </section>
+
+  <!-- ════════════════════════════════════════════ -->
+  <section>
+    <h2>Shell Responsibilities in Detail</h2>
+
+    <details>
+      <summary>Routing &amp; Navigation <span class="detail-summary">URL matching, history management, route guards</span></summary>
+      <div class="detail-body">
+        <p>The shell uses the browser&rsquo;s native <code>History API</code> (<code>pushState</code>, <code>popstate</code>) for client-side navigation. When the URL changes:</p>
+        <ol>
+          <li>The route matcher finds the matching pattern</li>
+          <li>Auth guard checks if the user has permission</li>
+          <li>The current domain element is unmounted (custom element <code>disconnectedCallback</code>)</li>
+          <li>The new domain module is loaded (or served from module cache)</li>
+          <li>The new domain element is mounted with route parameters as attributes</li>
+        </ol>
+        <p>Navigation between pages within the same domain (e.g., PLP to PDP) is handled by the domain itself &mdash; the shell only intervenes when the domain changes.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary>Authentication <span class="detail-summary">Session management, token refresh, permission context</span></summary>
+      <div class="detail-body">
+        <p>The shell owns the authentication lifecycle:</p>
+        <ul>
+          <li>On startup: Check for existing session token in secure cookies</li>
+          <li>If valid: Set auth context available to all domains via <code>&lt;ml-auth&gt;</code> shared component</li>
+          <li>If expired: Attempt silent token refresh. If that fails, redirect to login.</li>
+          <li>On logout: Clear session, emit <code>ml:auth-logout</code> event, redirect to home.</li>
+        </ul>
+        <p>Domain modules access auth context through a shared interface &mdash; <code>MLAuth.getUser()</code>, <code>MLAuth.getToken()</code>, <code>MLAuth.hasPermission('checkout')</code>. They never manage tokens directly.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary>Event Bus <span class="detail-summary">Cross-domain communication without coupling</span></summary>
+      <div class="detail-body">
+        <p>The shell provides a centralized event bus built on <code>CustomEvent</code>. It adds:</p>
+        <ul>
+          <li><strong>Event logging</strong> &mdash; Every event is logged for debugging (dev mode only)</li>
+          <li><strong>Event replay</strong> &mdash; When a domain module loads late (lazy), it can request replay of events it missed</li>
+          <li><strong>Event typing</strong> &mdash; Event names are namespaced (<code>ml:domain:action</code>) and payloads are validated in development mode</li>
+          <li><strong>Dead letter handling</strong> &mdash; If an event has no subscribers, it&rsquo;s logged as a warning (possible misconfiguration)</li>
+        </ul>
+      </div>
+    </details>
+
+    <details>
+      <summary>Environment Configuration <span class="detail-summary">API URLs, feature flags, CDN paths</span></summary>
+      <div class="detail-body">
+        <p>The shell provides environment-specific configuration to all domains:</p>
+        <pre><code>// Available to all domains via window.__ML_ENV__
+{
+  apiBase: 'https://api.medline.com',
+  cdnBase: 'https://cdn.medline.com',
+  environment: 'production',
+  region: 'us-east-1',
+  featureFlags: { /* from flag service */ },
+  analytics: { trackingId: '...' }
+}</code></pre>
+        <p>Domains read this configuration at initialization. They never hardcode environment-specific URLs.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary>Error Boundaries <span class="detail-summary">Graceful failure when a domain module crashes</span></summary>
+      <div class="detail-body">
+        <p>If a domain module fails to load (CDN outage) or throws an unhandled error during rendering, the shell catches it and displays a friendly error boundary:</p>
+        <ul>
+          <li>Shows a &ldquo;This section is temporarily unavailable&rdquo; message</li>
+          <li>The rest of the page (header, footer, other domain modules) continues to work</li>
+          <li>Error is reported to the monitoring service</li>
+          <li>User can retry loading the failed domain with a single click</li>
+        </ul>
+        <p>This is a critical safety property: <strong>one domain crashing never takes down the entire page</strong>. Because the shell controls rendering boundaries via Shadow DOM, there are no more weird UI flicker issues caused by competing MFE stylesheets or hydration mismatches.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ════════════════════════════════════════════ -->
+  <section>
+    <h2>Shell Size and Complexity</h2>
+    <p>The shell should be radically simple. Here&rsquo;s what it looks like in terms of scope:</p>
+
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-num">&lt;30KB</div>
+        <div class="stat-label">Gzipped shell bundle</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">&lt;500</div>
+        <div class="stat-label">Lines of shell code</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">0</div>
+        <div class="stat-label">Business logic in shell</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">5</div>
+        <div class="stat-label">Shell responsibilities</div>
+      </div>
+    </div>
+
+    <div class="callout success">
+      <strong>&#9989; If the Shell Is Big, Something Is Wrong</strong>
+      The moment you find yourself putting product logic, cart calculations, or checkout validation in the shell, stop. That code belongs in a domain module. The shell is intentionally anorexic. Its only job is composition and cross-cutting concerns.
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════ -->
+  <section>
+    <h2>Comparison: Shell vs. Monolith</h2>
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Dimension</th>
+          <th>Current Monolith Shell</th>
+          <th>New CSR Shell</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Rendering</td>
+          <td class="bad">Server-side (Next.js SSR)</td>
+          <td class="good">Client-side (CSR)</td>
+        </tr>
+        <tr>
+          <td>Bundle size</td>
+          <td class="bad">~2MB+ shared JS</td>
+          <td class="good">&lt;30KB shell + lazy domain modules</td>
+        </tr>
+        <tr>
+          <td>Deployment</td>
+          <td class="bad">All MFEs deploy together</td>
+          <td class="good">Each domain deploys independently</td>
+        </tr>
+        <tr>
+          <td>Framework dependency</td>
+          <td class="bad">Next.js 12.3 + React 17</td>
+          <td class="good">None &mdash; browser standards only</td>
+        </tr>
+        <tr>
+          <td>Domain isolation</td>
+          <td class="bad">Shared runtime, shared state</td>
+          <td class="good">Shadow DOM boundaries, event-only communication</td>
+        </tr>
+        <tr>
+          <td>Rollback</td>
+          <td class="bad">Full redeployment</td>
+          <td class="good">Update import map entry (instant)</td>
+        </tr>
+        <tr>
+          <td>Error blast radius</td>
+          <td class="bad">One MFE crash can break the page</td>
+          <td class="good">Error boundary per domain, rest of page survives</td>
+        </tr>
+        <tr>
+          <td>Scaling</td>
+          <td class="bad">Scale the SSR server</td>
+          <td class="good">Static files on CDN, infinite scale</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+</main>
+<div style="max-width:900px;margin:0 auto;padding:0 1.5rem;">
+  <div class="page-nav">
+    <a href="09-remaining-domains.html"><span class="pn-label">&larr; Previous</span><span class="pn-title">Account, Search, Content, and Admin</span></a>
+    <a href="11-shell-swap.html" class="next"><span class="pn-label">Next &rarr;</span><span class="pn-title">The Shell Swap: Next.js to WCFramework</span></a>
+  </div>
+</div>
+<footer>Medline Platform Evolution &mdash; v5 &mdash; 2026-04-05 &mdash; Technical Director Series &mdash; Confidential</footer>
+<div class="toast" id="toast">Copied!</div>
+<script src="shared.js"></script>
+</body>
+</html>

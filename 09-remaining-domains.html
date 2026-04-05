@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Account, Search, Content, and Admin Domains &mdash; Medline Platform Evolution</title>
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<div class="progress-bar"></div>
+<nav>
+  <a href="index.html" class="logo">ML Evolution</a>
+  <div class="nav-links">
+    <a href="01-executive-summary.html">Summary</a>
+    <a href="02-current-state.html">Today</a>
+    <a href="03-why-change.html">Why</a>
+    <a href="04-migration-overview.html">Strategy</a>
+    <a href="05-copy-split-strip.html">Copy-Split</a>
+    <a href="06-domain-map.html">Domains</a>
+    <a href="07-catalog-domain.html">Catalog</a>
+    <a href="08-cart-checkout.html">Cart</a>
+    <a href="09-remaining-domains.html" class="active">Other</a>
+    <a href="10-shell-architecture.html">Shell</a>
+    <a href="11-shell-swap.html">Swap</a>
+    <a href="12-web-component-wrapping.html">Wrapping</a>
+    <a href="13-hydration-csr.html">CSR</a>
+    <a href="14-component-standards.html">Standards</a>
+    <a href="15-component-transition.html">Transition</a>
+    <a href="16-app-catalog.html">Catalog</a>
+    <a href="17-api-scanning.html">Scanning</a>
+    <a href="18-bff-pattern.html">BFF</a>
+    <a href="19-managing-drift.html">Drift</a>
+    <a href="20-core-cadence.html">Cadence</a>
+    <a href="21-testing-strategy.html">Testing</a>
+    <a href="22-blue-green-rollouts.html">Deploy</a>
+    <a href="23-migration-timeline.html">Timeline</a>
+    <a href="24-team-impact.html">Teams</a>
+    <a href="25-key-principles.html">Principles</a>
+    <a href="dev-environment.html">DevEx</a>
+  </div>
+  <button class="theme-toggle" id="themeToggle" title="Toggle theme">&#9790;</button>
+</nav>
+<div class="hero">
+  <div class="page-num">Migration Mechanics</div>
+  <h1>Account, Search, Content, and Admin Domains</h1>
+  <p class="subtitle">Completing the domain map &mdash; every bounded context defined, every API dependency mapped, every shared component accounted for</p>
+</div>
+<main>
+
+  <!-- ════════════════════════════════════════════ -->
+  <section>
+    <h2>The Complete Domain Map</h2>
+    <p>After extracting Catalog (page 7) and Cart/Mini-Cart/Checkout (page 8), four more domains remain: Account, Search, Content/CMS, and Admin. Plus the <strong>Shared/Core</strong> layer that provides cross-cutting capabilities to every domain.</p>
+
+    <div class="mermaid-wrap" id="d09-1">
+      <div class="mw-toolbar">
+        <button onclick="mzoom(this,1.2)">+</button>
+        <button onclick="mzoom(this,0.8)">&minus;</button>
+        <button onclick="mreset(this)">Reset</button>
+        <button onclick="mfull(this)">&#x26F6;</button>
+      </div>
+      <div class="mw-view"><div class="mermaid-inner" data-src="graph TB
+    subgraph SHELL[&quot;CSR Shell — Routing &amp; Composition&quot;]
+      ROUTER[Route Manager]
+      HEADER_WC[Header Web Component]
+      FOOTER_WC[Footer Web Component]
+      AUTH_MOD[Auth Module]
+      MSG_BUS[Event Bus]
+    end
+    subgraph CATALOG[&quot;Catalog&quot;]
+      CAT_BFF[Catalog BFF]
+    end
+    subgraph CART_DOMAIN[&quot;Cart / Mini-Cart&quot;]
+      CART_BFF[Cart BFF]
+    end
+    subgraph CHECKOUT_DOMAIN[&quot;Checkout&quot;]
+      CHECKOUT_BFF[Checkout BFF]
+    end
+    subgraph ACCOUNT[&quot;Account&quot;]
+      ACCT_BFF[Account BFF]
+    end
+    subgraph SEARCH[&quot;Search&quot;]
+      SEARCH_BFF[Search BFF]
+    end
+    subgraph CONTENT[&quot;Content / CMS&quot;]
+      CMS_BFF[CMS BFF]
+    end
+    subgraph ADMIN_DOMAIN[&quot;Admin&quot;]
+      ADMIN_BFF[Admin BFF]
+    end
+
+    ROUTER --> CATALOG
+    ROUTER --> CART_DOMAIN
+    ROUTER --> CHECKOUT_DOMAIN
+    ROUTER --> ACCOUNT
+    ROUTER --> SEARCH
+    ROUTER --> CONTENT
+    ROUTER --> ADMIN_DOMAIN
+    MSG_BUS -.-> CATALOG
+    MSG_BUS -.-> CART_DOMAIN
+    MSG_BUS -.-> CHECKOUT_DOMAIN
+    MSG_BUS -.-> ACCOUNT
+
+    style SHELL fill:#1a2744,stroke:#58a6ff,color:#e6edf3
+    style CATALOG fill:#0d2818,stroke:#3fb950,color:#e6edf3
+    style CART_DOMAIN fill:#0d2818,stroke:#3fb950,color:#e6edf3
+    style CHECKOUT_DOMAIN fill:#3d2a14,stroke:#f0883e,color:#e6edf3
+    style ACCOUNT fill:#2a1a3a,stroke:#d2a8ff,color:#e6edf3
+    style SEARCH fill:#2a1a3a,stroke:#d2a8ff,color:#e6edf3
+    style CONTENT fill:#2a1a3a,stroke:#d2a8ff,color:#e6edf3
+    style ADMIN_DOMAIN fill:#3d1418,stroke:#f85149,color:#e6edf3"></div></div>
+      <div class="mw-caption">All domains with their BFFs &mdash; the CSR shell routes traffic and provides shared capabilities via the event bus</div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════ -->
+  <section>
+    <h2>Account Domain</h2>
+    <p>The Account domain owns everything related to the authenticated user&rsquo;s profile and history. It&rsquo;s a medium-complexity domain with moderate release cadence.</p>
+
+    <details>
+      <summary>Account Capabilities <span class="detail-summary">Profile, orders, addresses, payments, preferences</span></summary>
+      <div class="detail-body">
+        <div class="themes-grid">
+          <div class="theme-card">
+            <div class="theme-icon">&#128100;</div>
+            <h4>User Profile</h4>
+            <p>Name, email, phone, company info, job title. Profile editing with validation and confirmation.</p>
+          </div>
+          <div class="theme-card">
+            <div class="theme-icon">&#128230;</div>
+            <h4>Order History</h4>
+            <p>Past orders with line items, status tracking, reorder functionality, invoice download, returns initiation.</p>
+          </div>
+          <div class="theme-card">
+            <div class="theme-icon">&#127968;</div>
+            <h4>Address Book</h4>
+            <p>Saved shipping and billing addresses. Default address selection. Address validation and standardization.</p>
+          </div>
+          <div class="theme-card">
+            <div class="theme-icon">&#128179;</div>
+            <h4>Payment Methods</h4>
+            <p>Saved payment cards (tokenized), purchase order defaults, payment preferences for B2B accounts.</p>
+          </div>
+          <div class="theme-card">
+            <div class="theme-icon">&#9881;</div>
+            <h4>Preferences</h4>
+            <p>Communication preferences, notification settings, display preferences (list vs. grid), language/locale.</p>
+          </div>
+          <div class="theme-card">
+            <div class="theme-icon">&#10084;</div>
+            <h4>Wishlists</h4>
+            <p>Multiple wishlists, shared wishlists for team purchasing, wishlist-to-cart bulk add.</p>
+          </div>
+        </div>
+      </div>
+    </details>
+
+    <details>
+      <summary>Account BFF API Surface <span class="detail-summary">Endpoints for all account operations</span></summary>
+      <div class="detail-body">
+        <table class="compare-table">
+          <thead>
+            <tr><th>Endpoint</th><th>Method</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>/account/profile</code></td><td>GET / PUT</td><td>Read/update user profile</td></tr>
+            <tr><td><code>/account/orders</code></td><td>GET</td><td>Paginated order history</td></tr>
+            <tr><td><code>/account/orders/:id</code></td><td>GET</td><td>Order detail with line items and tracking</td></tr>
+            <tr><td><code>/account/addresses</code></td><td>GET / POST</td><td>List or add addresses</td></tr>
+            <tr><td><code>/account/addresses/:id</code></td><td>PUT / DELETE</td><td>Update or remove an address</td></tr>
+            <tr><td><code>/account/payments</code></td><td>GET / POST</td><td>List or add payment methods (tokenized)</td></tr>
+            <tr><td><code>/account/wishlists</code></td><td>GET / POST</td><td>List or create wishlists</td></tr>
+            <tr><td><code>/account/wishlists/:id/items</code></td><td>POST / DELETE</td><td>Add/remove items from wishlist</td></tr>
+            <tr><td><code>/account/preferences</code></td><td>GET / PUT</td><td>Read/update preferences</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </details>
+
+    <h3>Cross-Domain Dependencies</h3>
+    <p>Account data is consumed by other domains (Checkout reads saved addresses, Mini-Cart uses account preferences), but Account never imports code from other domains. All cross-domain reads go through the Account BFF&rsquo;s internal API.</p>
+  </section>
+
+  <!-- ════════════════════════════════════════════ -->
+  <section>
+    <h2>Search Domain</h2>
+    <p>Search is a cross-cutting capability &mdash; the search bar appears on every page (provided by the shell), but the search results page and the search logic are owned by the Search domain.</p>
+
+    <details>
+      <summary>Search Capabilities <span class="detail-summary">Bar, autocomplete, results, filters, recent searches</span></summary>
+      <div class="detail-body">
+        <h4>Search Bar (Shell-Hosted)</h4>
+        <p>The search bar component (<code>&lt;ml-search-bar&gt;</code>) lives in the shell header. It fires <code>ml:search-submit</code> events and renders autocomplete suggestions from the Search BFF. It&rsquo;s a shared component, not owned by the Search domain, but it consumes Search domain APIs.</p>
+
+        <h4>Autocomplete / Typeahead</h4>
+        <p>As the user types, the search bar calls <code>/search/suggest</code> on the Search BFF. Results include product suggestions, category matches, and recent searches (per-user, from cookies or account data).</p>
+
+        <h4>Search Results Page</h4>
+        <p>The full search results experience at <code>/search?q=...</code> is owned by the Search domain. It includes:</p>
+        <ul>
+          <li>Result grid with product cards (uses <code>&lt;ml-product-card&gt;</code> from Catalog&rsquo;s shared component library)</li>
+          <li>Faceted filtering (brand, category, price range, availability, attributes)</li>
+          <li>Sort options (relevance, price, newest, best-selling)</li>
+          <li>Pagination with &ldquo;load more&rdquo; and traditional page numbers</li>
+          <li>Search result count and active filter summary</li>
+          <li>&ldquo;Did you mean?&rdquo; spelling corrections</li>
+          <li>Zero-results page with suggestions</li>
+        </ul>
+
+        <h4>Recent Searches</h4>
+        <p>Per-user recent search history, stored client-side (localStorage) for anonymous users and server-side for authenticated users. Displayed as suggestions when the search bar is focused.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary>Search BFF API Surface <span class="detail-summary">Endpoints for search operations</span></summary>
+      <div class="detail-body">
+        <table class="compare-table">
+          <thead>
+            <tr><th>Endpoint</th><th>Method</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>/search</code></td><td>GET</td><td>Full-text search with pagination, filters, and facets</td></tr>
+            <tr><td><code>/search/suggest</code></td><td>GET</td><td>Typeahead suggestions (products, categories, corrections)</td></tr>
+            <tr><td><code>/search/facets</code></td><td>GET</td><td>Available facets for current query context</td></tr>
+            <tr><td><code>/search/recent</code></td><td>GET / POST</td><td>Read/save recent search terms (authenticated users)</td></tr>
+            <tr><td><code>/search/trending</code></td><td>GET</td><td>Popular search terms for anonymous users</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </details>
+  </section>
+
+  <!-- ════════════════════════════════════════════ -->
+  <section>
+    <h2>Content / CMS Domain</h2>
+    <p>The Content/CMS domain owns all non-product content pages: marketing landing pages, promotional banners, help articles, and dynamically managed content blocks.</p>
+
+    <details>
+      <summary>Content Capabilities <span class="detail-summary">Marketing, banners, landing pages, help center</span></summary>
+      <div class="detail-body">
+        <div class="themes-grid">
+          <div class="theme-card">
+            <div class="theme-icon">&#128240;</div>
+            <h4>Marketing Pages</h4>
+            <p>Landing pages for campaigns, seasonal promotions, brand spotlights. Content managed via headless CMS, rendered as static pages or CSR components.</p>
+          </div>
+          <div class="theme-card">
+            <div class="theme-icon">&#127991;</div>
+            <h4>Promotional Banners</h4>
+            <p>Site-wide banners, category-specific promotions, hero carousels. Served as Web Components that any domain can embed: <code>&lt;ml-promo-banner slot=&quot;category-hero&quot;&gt;</code>.</p>
+          </div>
+          <div class="theme-card">
+            <div class="theme-icon">&#128214;</div>
+            <h4>Help / Support Pages</h4>
+            <p>FAQ, how-to guides, contact forms, shipping information. Managed as structured content in the headless CMS.</p>
+          </div>
+          <div class="theme-card">
+            <div class="theme-icon">&#127912;</div>
+            <h4>Content Blocks</h4>
+            <p>Reusable content slots that other domains embed: &ldquo;related resources,&rdquo; &ldquo;seasonal picks,&rdquo; &ldquo;featured brands.&rdquo; Served from CMS BFF as Web Components.</p>
+          </div>
+        </div>
+      </div>
+    </details>
+
+    <details>
+      <summary>CMS BFF API Surface <span class="detail-summary">Endpoints for content delivery</span></summary>
+      <div class="detail-body">
+        <table class="compare-table">
+          <thead>
+            <tr><th>Endpoint</th><th>Method</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>/cms/pages/:slug</code></td><td>GET</td><td>Retrieve page content by slug</td></tr>
+            <tr><td><code>/cms/banners</code></td><td>GET</td><td>Active banners for a given slot/context</td></tr>
+            <tr><td><code>/cms/blocks/:id</code></td><td>GET</td><td>Content block by ID for embedding</td></tr>
+            <tr><td><code>/cms/navigation</code></td><td>GET</td><td>CMS-managed navigation menus</td></tr>
+            <tr><td><code>/cms/help/:category</code></td><td>GET</td><td>Help articles by category</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </details>
+  </section>
+
+  <!-- ════════════════════════════════════════════ -->
+  <section>
+    <h2>Admin Domain</h2>
+    <p>The Admin domain is an internal-only application used by operations, merchandising, and customer support teams. It has fundamentally different users, different auth requirements, and a completely different deployment cadence compared to the customer-facing domains.</p>
+
+    <details>
+      <summary>Admin Capabilities <span class="detail-summary">Order management, inventory, content editing, user admin</span></summary>
+      <div class="detail-body">
+        <h4>Order Management</h4>
+        <ul>
+          <li>View and search all orders by status, date, customer, or order number</li>
+          <li>Manual order modifications (cancel, modify, refund)</li>
+          <li>Shipping label generation and tracking updates</li>
+          <li>Customer service notes and communication log</li>
+        </ul>
+
+        <h4>Inventory Management</h4>
+        <ul>
+          <li>Stock level dashboard with alerts for low inventory</li>
+          <li>Manual stock adjustments with audit trail</li>
+          <li>Warehouse assignment and transfer management</li>
+          <li>Backorder management and estimated availability dates</li>
+        </ul>
+
+        <h4>Content Editing</h4>
+        <ul>
+          <li>Headless CMS admin interface for creating/editing pages, banners, and content blocks</li>
+          <li>Preview and publish workflow with approval gates</li>
+          <li>Scheduled content publishing for campaigns</li>
+        </ul>
+
+        <h4>User Management</h4>
+        <ul>
+          <li>Internal user account management and role assignment</li>
+          <li>Customer account lookups and support tools</li>
+          <li>B2B account hierarchy management (parent/child organizations)</li>
+          <li>Permission management and access control lists</li>
+        </ul>
+      </div>
+    </details>
+
+    <div class="callout warn">
+      <strong>&#9888;&#65039; Admin Is a Separate Application</strong>
+      Admin does not run in the same shell as the customer-facing domains. It has its own shell, its own authentication (internal SSO), its own deployment pipeline, and its own security policies. It happens to talk to some of the same backend services, but it is architecturally independent.
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════ -->
+  <section>
+    <h2>Shared / Core Layer</h2>
+    <p>Some capabilities don&rsquo;t belong to any single domain &mdash; they&rsquo;re platform primitives used by every domain. These are published as versioned packages to CDN and loaded via the import map.</p>
+
+    <h3>How Shared Components Work</h3>
+    <ol>
+      <li><strong>Published to CDN</strong> &mdash; Shared components are built, versioned, and uploaded to CDN as ES modules</li>
+      <li><strong>Loaded via import map</strong> &mdash; The shell&rsquo;s import map maps <code>@ml/shared/header</code> to <code>https://cdn.medline.com/shared/header@2.1.0/index.js</code></li>
+      <li><strong>Every domain uses the same version</strong> &mdash; The import map is the single source of truth for which version of a shared component is active</li>
+      <li><strong>Version updates are atomic</strong> &mdash; Update the import map entry, and every domain immediately loads the new version on next page load</li>
+    </ol>
+
+    <div class="mermaid-wrap" id="d09-2">
+      <div class="mw-toolbar">
+        <button onclick="mzoom(this,1.2)">+</button>
+        <button onclick="mzoom(this,0.8)">&minus;</button>
+        <button onclick="mreset(this)">Reset</button>
+        <button onclick="mfull(this)">&#x26F6;</button>
+      </div>
+      <div class="mw-view"><div class="mermaid-inner" data-src="graph LR
+    subgraph CDN[&quot;CDN — Shared Modules&quot;]
+      HEADER_M[ml-header@2.1.0]
+      FOOTER_M[ml-footer@1.4.0]
+      AUTH_M[ml-auth@3.0.0]
+      ANALYTICS_M[ml-analytics@2.2.0]
+      ERROR_M[ml-error-handler@1.1.0]
+      EVENT_M[ml-event-bus@1.0.0]
+    end
+    subgraph IMPORT_MAP[&quot;Import Map&quot;]
+      MAP[Shell Import Map\nSingle source of truth]
+    end
+    subgraph DOMAINS[&quot;All Domains&quot;]
+      D1[Catalog]
+      D2[Cart]
+      D3[Checkout]
+      D4[Account]
+      D5[Search]
+      D6[Content]
+    end
+
+    MAP --> CDN
+    D1 --> MAP
+    D2 --> MAP
+    D3 --> MAP
+    D4 --> MAP
+    D5 --> MAP
+    D6 --> MAP
+
+    style CDN fill:#0d2818,stroke:#3fb950,color:#e6edf3
+    style IMPORT_MAP fill:#1a2744,stroke:#58a6ff,color:#e6edf3
+    style DOMAINS fill:#2a1a3a,stroke:#d2a8ff,color:#e6edf3"></div></div>
+      <div class="mw-caption">Shared component distribution &mdash; all domains load shared modules through the import map from CDN</div>
+    </div>
+
+    <h3>Shared Components Inventory</h3>
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Component</th>
+          <th>Tag</th>
+          <th>Responsibility</th>
+          <th>Consumed By</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Header</td>
+          <td><code>&lt;ml-header&gt;</code></td>
+          <td>Global navigation, search bar, mini-cart, user menu</td>
+          <td>All domains via shell</td>
+        </tr>
+        <tr>
+          <td>Footer</td>
+          <td><code>&lt;ml-footer&gt;</code></td>
+          <td>Site links, legal, contact info, social media</td>
+          <td>All domains via shell</td>
+        </tr>
+        <tr>
+          <td>Auth Module</td>
+          <td><code>&lt;ml-auth&gt;</code></td>
+          <td>Login/logout, session management, token refresh, permissions context</td>
+          <td>All domains</td>
+        </tr>
+        <tr>
+          <td>Analytics</td>
+          <td><code>&lt;ml-analytics&gt;</code></td>
+          <td>Page views, click tracking, performance metrics, A/B test assignment</td>
+          <td>All domains</td>
+        </tr>
+        <tr>
+          <td>Error Handler</td>
+          <td><code>&lt;ml-error-handler&gt;</code></td>
+          <td>Global error boundary, error reporting, fallback UI</td>
+          <td>All domains</td>
+        </tr>
+        <tr>
+          <td>Event Bus</td>
+          <td><code>&lt;ml-event-bus&gt;</code></td>
+          <td>Cross-domain event dispatch, event logging, event replay for late-loading domains</td>
+          <td>All domains</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="industry-std">
+      <strong>Industry Standard: Import Maps &amp; ES Modules</strong>
+      Import maps are a W3C standard (supported in all modern browsers) that lets you control module resolution at runtime without a build step. Combined with ES modules served from CDN, they provide a dependency management system that requires no bundler, no shared node_modules, and no coordinated builds. This is how browsers were designed to load code.
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════ -->
+  <section>
+    <h2>Extraction Priority and Sequencing</h2>
+    <p>Not all domains need to be extracted simultaneously. The sequencing is driven by three factors: <strong>independence value</strong> (how much does this team gain from independent deployment?), <strong>extraction complexity</strong> (how tangled is this code in the monolith?), and <strong>risk</strong> (what breaks if something goes wrong?).</p>
+
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Priority</th>
+          <th>Domain</th>
+          <th>Independence Value</th>
+          <th>Extraction Complexity</th>
+          <th>Risk</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>1</strong></td>
+          <td>Catalog</td>
+          <td class="good">High &mdash; highest traffic</td>
+          <td class="good">Low &mdash; read-only</td>
+          <td class="good">Low</td>
+        </tr>
+        <tr>
+          <td><strong>2</strong></td>
+          <td>Cart</td>
+          <td class="good">High &mdash; frequent promo changes</td>
+          <td class="neutral">Medium &mdash; event wiring</td>
+          <td class="neutral">Medium</td>
+        </tr>
+        <tr>
+          <td><strong>3</strong></td>
+          <td>Mini-Cart</td>
+          <td class="neutral">Medium &mdash; small surface</td>
+          <td class="good">Low &mdash; 2-3 components</td>
+          <td class="good">Low</td>
+        </tr>
+        <tr>
+          <td><strong>4</strong></td>
+          <td>Search</td>
+          <td class="good">High &mdash; search improvements</td>
+          <td class="neutral">Medium &mdash; cross-cutting bar</td>
+          <td class="good">Low</td>
+        </tr>
+        <tr>
+          <td><strong>5</strong></td>
+          <td>Account</td>
+          <td class="neutral">Medium</td>
+          <td class="neutral">Medium</td>
+          <td class="good">Low</td>
+        </tr>
+        <tr>
+          <td><strong>6</strong></td>
+          <td>Checkout</td>
+          <td class="good">High &mdash; payment flows</td>
+          <td class="bad">High &mdash; many backends</td>
+          <td class="bad">High &mdash; payments</td>
+        </tr>
+        <tr>
+          <td><strong>7</strong></td>
+          <td>Content/CMS</td>
+          <td class="neutral">Medium</td>
+          <td class="good">Low &mdash; mostly static</td>
+          <td class="good">Low</td>
+        </tr>
+        <tr>
+          <td><strong>8</strong></td>
+          <td>Admin</td>
+          <td class="good">High &mdash; internal tool</td>
+          <td class="neutral">Medium &mdash; different auth</td>
+          <td class="good">Low &mdash; internal only</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout">
+      <strong>&#128161; Checkout Goes Late, Not Early</strong>
+      Checkout is the riskiest domain to extract because it handles payments. It goes after Cart (step 6, not step 2) because by that point, the team has extracted five domains successfully, the pattern is proven, and confidence is high. Never start with the riskiest piece.
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════ -->
+  <section>
+    <h2>Domain Interaction Map</h2>
+    <p>This table shows which domains interact and through what mechanism. Every interaction is either via events (fire-and-forget) or via BFF (request-response through the domain&rsquo;s own backend). No domain imports code from another domain.</p>
+
+    <details>
+      <summary>Full Interaction Matrix <span class="detail-summary">Which domains talk to which, and how</span></summary>
+      <div class="detail-body">
+        <table class="compare-table">
+          <thead>
+            <tr>
+              <th>From &darr; / To &rarr;</th>
+              <th>Catalog</th>
+              <th>Cart</th>
+              <th>Checkout</th>
+              <th>Account</th>
+              <th>Search</th>
+              <th>Content</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Catalog</strong></td>
+              <td>&mdash;</td>
+              <td>Event: add-to-cart</td>
+              <td>&mdash;</td>
+              <td>&mdash;</td>
+              <td>Embeds search bar</td>
+              <td>Embeds promo banners</td>
+            </tr>
+            <tr>
+              <td><strong>Cart</strong></td>
+              <td>&mdash;</td>
+              <td>&mdash;</td>
+              <td>Event: proceed-to-checkout</td>
+              <td>&mdash;</td>
+              <td>&mdash;</td>
+              <td>&mdash;</td>
+            </tr>
+            <tr>
+              <td><strong>Checkout</strong></td>
+              <td>BFF reads inventory</td>
+              <td>BFF reads cart state</td>
+              <td>&mdash;</td>
+              <td>BFF reads addresses</td>
+              <td>&mdash;</td>
+              <td>&mdash;</td>
+            </tr>
+            <tr>
+              <td><strong>Account</strong></td>
+              <td>&mdash;</td>
+              <td>&mdash;</td>
+              <td>&mdash;</td>
+              <td>&mdash;</td>
+              <td>&mdash;</td>
+              <td>&mdash;</td>
+            </tr>
+            <tr>
+              <td><strong>Search</strong></td>
+              <td>Uses product-card WC</td>
+              <td>&mdash;</td>
+              <td>&mdash;</td>
+              <td>BFF reads recent</td>
+              <td>&mdash;</td>
+              <td>&mdash;</td>
+            </tr>
+            <tr>
+              <td><strong>Content</strong></td>
+              <td>&mdash;</td>
+              <td>&mdash;</td>
+              <td>&mdash;</td>
+              <td>&mdash;</td>
+              <td>&mdash;</td>
+              <td>&mdash;</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </details>
+  </section>
+
+  <!-- ════════════════════════════════════════════ -->
+  <section>
+    <h2>Key Takeaway</h2>
+    <p>Every domain follows the same pattern: <strong>Copy &rarr; Strip &rarr; Build BFF &rarr; Route Traffic</strong>. The differences are in scope, risk profile, and timing &mdash; not in approach. Once Catalog proves the pattern, every subsequent extraction is a repeatable playbook with decreasing uncertainty.</p>
+
+    <div class="industry-std">
+      <strong>Industry Standard: Bounded Contexts with Explicit Interfaces</strong>
+      Each domain is a bounded context (Domain-Driven Design) with an explicit API contract (the BFF). Cross-domain communication uses events or BFF-to-BFF calls &mdash; never shared database tables, never shared state stores, never direct code imports. This is the architecture pattern used by Amazon (each team owns a service), Spotify (each squad owns a domain), and Zalando (each vertical owns their micro frontend).
+    </div>
+  </section>
+
+</main>
+<div style="max-width:900px;margin:0 auto;padding:0 1.5rem;">
+  <div class="page-nav">
+    <a href="08-cart-checkout.html"><span class="pn-label">&larr; Previous</span><span class="pn-title">Cart, Mini-Cart, and Checkout</span></a>
+    <a href="10-shell-architecture.html" class="next"><span class="pn-label">Next &rarr;</span><span class="pn-title">The CSR Shell: How It Works</span></a>
+  </div>
+</div>
+<footer>Medline Platform Evolution &mdash; v5 &mdash; 2026-04-05 &mdash; Technical Director Series &mdash; Confidential</footer>
+<div class="toast" id="toast">Copied!</div>
+<script src="shared.js"></script>
+</body>
+</html>

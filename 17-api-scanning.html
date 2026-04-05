@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Automated API Contract Scanning &mdash; Medline Platform Evolution</title>
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<div class="progress-bar"></div>
+<nav>
+  <a href="index.html" class="logo">ML Evolution</a>
+  <div class="nav-links">
+    <a href="01-executive-summary.html">Summary</a>
+    <a href="02-current-state.html">Today</a>
+    <a href="03-why-change.html">Why</a>
+    <a href="04-migration-overview.html">Strategy</a>
+    <a href="05-copy-split-strip.html">Copy-Split</a>
+    <a href="06-domain-map.html">Domains</a>
+    <a href="07-catalog-domain.html">Catalog</a>
+    <a href="08-cart-checkout.html">Cart</a>
+    <a href="09-remaining-domains.html">Other</a>
+    <a href="10-shell-architecture.html">Shell</a>
+    <a href="11-shell-swap.html">Swap</a>
+    <a href="12-web-component-wrapping.html">Wrapping</a>
+    <a href="13-hydration-csr.html">CSR</a>
+    <a href="14-component-standards.html">Standards</a>
+    <a href="15-component-transition.html">Transition</a>
+    <a href="16-app-catalog.html">Catalog</a>
+    <a href="17-api-scanning.html" class="active">Scanning</a>
+    <a href="18-bff-pattern.html">BFF</a>
+    <a href="19-managing-drift.html">Drift</a>
+    <a href="20-core-cadence.html">Cadence</a>
+    <a href="21-testing-strategy.html">Testing</a>
+    <a href="22-blue-green-rollouts.html">Deploy</a>
+    <a href="23-migration-timeline.html">Timeline</a>
+    <a href="24-team-impact.html">Teams</a>
+    <a href="25-key-principles.html">Principles</a>
+    <a href="dev-environment.html">DevEx</a>
+  </div>
+  <button class="theme-toggle" id="themeToggle" title="Toggle theme">&#9790;</button>
+</nav>
+<div class="hero">
+  <div class="page-num">Component Strategy</div>
+  <h1>Automated API Contract Scanning</h1>
+  <p class="subtitle">Every endpoint, every request shape, every response field &mdash; cataloged, diffed, and validated automatically</p>
+</div>
+<main>
+
+<!-- ────────────────────────────────────────── -->
+<section>
+  <h2>The Contract Problem</h2>
+  <p>In a monolith, the frontend and backend live in the same codebase. When an API changes, the frontend change is in the same commit. You can&rsquo;t deploy one without the other. Coupling is the safety net.</p>
+  <p>In a micro frontend architecture with independent backends, that safety net is gone. The Catalog frontend deploys on Tuesday. The Product API deploys on Thursday. If Thursday&rsquo;s deploy changes a response field that Tuesday&rsquo;s frontend depends on &mdash; <strong>things break silently</strong>.</p>
+  <p>Automated API contract scanning eliminates this entire class of failures.</p>
+
+  <div class="callout danger">
+    <strong>&ldquo;If your API changes and your frontend breaks, that&rsquo;s not a frontend bug &mdash; that&rsquo;s a contract violation.&rdquo;</strong>
+    The scanner turns implicit contracts into explicit, versioned, machine-readable agreements. Violations are detected before deployment, not after incident reports.
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="stat-num">Auto</div>
+      <div class="stat-label">Contract Discovery</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num green">Every</div>
+      <div class="stat-label">Endpoint Cataloged</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num purple">Diff</div>
+      <div class="stat-label">Before &amp; After Comparison</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num orange">Block</div>
+      <div class="stat-label">Breaking Deploys Prevented</div>
+    </div>
+  </div>
+</section>
+
+<!-- ────────────────────────────────────────── -->
+<section>
+  <h2>How Scanning Works</h2>
+  <p>The API scanner operates continuously against running services. It doesn&rsquo;t rely on manually written API documentation. The scanner IS the documentation.</p>
+
+  <div class="mermaid-wrap" id="d17-1">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">&#x26F6;</button>
+    </div>
+    <div class="mw-view"><div class="mermaid-inner" data-src="sequenceDiagram
+    participant SVC as Running API Service
+    participant SCN as Contract Scanner
+    participant CAT as App Catalog Registry
+    participant DIFF as Diff Engine
+    participant CI as CI/CD Pipeline
+    participant FE as Frontend Domain
+    SCN->>SVC: Probe endpoints (OpenAPI, GraphQL introspection, or traffic analysis)
+    SVC->>SCN: Return schema / response samples
+    SCN->>SCN: Extract contract: endpoints, request shapes, response shapes, field types
+    SCN->>CAT: Store versioned contract snapshot
+    Note over SCN,CAT: Runs on every deploy and on a scheduled interval
+    CAT->>DIFF: Compare new contract vs. previous version
+    DIFF->>DIFF: Classify changes: additive, modified, removed
+    DIFF->>CAT: Tag breaking changes with affected consumers
+    CI->>CAT: Pre-deploy check: will this API change break any frontend?
+    CAT->>CI: Return impact analysis with consumer list
+    CI->>CI: Block deploy if breaking changes affect active consumers
+    FE->>CAT: Declare data dependencies: fields, types, endpoints
+    CAT->>FE: Validate dependencies still match current contract"></div></div>
+    <div class="mw-caption">API Scanning Flow &mdash; Scanner extracts contracts from running services; Diff engine classifies changes; CI pipeline blocks breaking deploys; Frontend dependencies are validated</div>
+  </div>
+
+  <h3>Contract Extraction Methods</h3>
+  <p>The scanner supports multiple extraction strategies depending on the API technology:</p>
+
+  <table class="compare-table">
+    <thead>
+      <tr><th>API Type</th><th>Extraction Method</th><th>Coverage</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>OpenAPI / Swagger</strong></td>
+        <td>Parse the published OpenAPI spec directly &mdash; endpoints, schemas, types</td>
+        <td class="good">Complete &mdash; every documented endpoint and model</td>
+      </tr>
+      <tr>
+        <td><strong>GraphQL</strong></td>
+        <td>Introspection query to extract full schema, types, queries, mutations</td>
+        <td class="good">Complete &mdash; GraphQL schemas are self-documenting</td>
+      </tr>
+      <tr>
+        <td><strong>REST (no spec)</strong></td>
+        <td>Traffic analysis &mdash; observe request/response shapes from real production traffic</td>
+        <td class="neutral">High &mdash; coverage improves over time as more paths are observed</td>
+      </tr>
+      <tr>
+        <td><strong>gRPC</strong></td>
+        <td>Parse .proto files from the service repository for message and service definitions</td>
+        <td class="good">Complete &mdash; protobuf schemas are definitive</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ────────────────────────────────────────── -->
+<section>
+  <h2>Contract Diff: Before &amp; After</h2>
+  <p>Every time a service is scanned, the contract is compared to its previous version. Changes are classified into three categories:</p>
+
+  <div class="mermaid-wrap" id="d17-2">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">&#x26F6;</button>
+    </div>
+    <div class="mw-view"><div class="mermaid-inner" data-src="graph TB
+    subgraph BEFORE[&quot;Product API v3.1 — Previous Contract&quot;]
+      B1[&quot;GET /products/:id&quot;]
+      B2[&quot;Response: id, name, price, sku, category&quot;]
+      B3[&quot;GET /products?search=term&quot;]
+      B4[&quot;Response: items[], totalCount, page&quot;]
+    end
+    subgraph AFTER[&quot;Product API v3.2 — New Contract&quot;]
+      A1[&quot;GET /products/:id&quot;]
+      A2[&quot;Response: id, name, price, sku, category, rating ✅ ADDED&quot;]
+      A3[&quot;GET /products?search=term&amp;sort=field&quot;]
+      A4[&quot;Response: items[], totalCount, page, facets ✅ ADDED&quot;]
+      A5[&quot;GET /products/:id/reviews ✅ NEW ENDPOINT&quot;]
+    end
+    subgraph BREAKING[&quot;Hypothetical v3.3 — Breaking Changes&quot;]
+      X1[&quot;GET /products/:id&quot;]
+      X2[&quot;Response: id, name, cost ⚠️ RENAMED price→cost&quot;]
+      X3[&quot;❌ REMOVED: sku field&quot;]
+      X4[&quot;❌ REMOVED: GET /products?search=term&quot;]
+    end
+    BEFORE -.->|&quot;Safe diff&quot;| AFTER
+    BEFORE -.->|&quot;Breaking diff ⛔&quot;| BREAKING
+    style BEFORE fill:#1c2333,stroke:#58a6ff,color:#e6edf3
+    style AFTER fill:#0d2818,stroke:#3fb950,color:#e6edf3
+    style BREAKING fill:#3d1212,stroke:#f85149,color:#e6edf3
+    style B1 fill:#161b22,stroke:#58a6ff,color:#58a6ff
+    style B2 fill:#161b22,stroke:#58a6ff,color:#58a6ff
+    style B3 fill:#161b22,stroke:#58a6ff,color:#58a6ff
+    style B4 fill:#161b22,stroke:#58a6ff,color:#58a6ff
+    style A1 fill:#122a1a,stroke:#3fb950,color:#3fb950
+    style A2 fill:#122a1a,stroke:#3fb950,color:#3fb950
+    style A3 fill:#122a1a,stroke:#3fb950,color:#3fb950
+    style A4 fill:#122a1a,stroke:#3fb950,color:#3fb950
+    style A5 fill:#122a1a,stroke:#3fb950,color:#3fb950
+    style X1 fill:#2d1212,stroke:#f85149,color:#f85149
+    style X2 fill:#2d1212,stroke:#f85149,color:#f85149
+    style X3 fill:#2d1212,stroke:#f85149,color:#f85149
+    style X4 fill:#2d1212,stroke:#f85149,color:#f85149"></div></div>
+    <div class="mw-caption">Contract Diff &mdash; v3.1 to v3.2 is safe (additive only); a hypothetical v3.3 with removals and renames would be flagged as breaking</div>
+  </div>
+
+  <h3>Change Classification</h3>
+  <table class="compare-table">
+    <thead>
+      <tr><th>Change Type</th><th>Classification</th><th>Pipeline Action</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>New endpoint added</td>
+        <td class="good">Additive &mdash; Safe</td>
+        <td>Auto-approve; update catalog</td>
+      </tr>
+      <tr>
+        <td>New response field added</td>
+        <td class="good">Additive &mdash; Safe</td>
+        <td>Auto-approve; update catalog</td>
+      </tr>
+      <tr>
+        <td>New optional request parameter</td>
+        <td class="good">Additive &mdash; Safe</td>
+        <td>Auto-approve; update catalog</td>
+      </tr>
+      <tr>
+        <td>Response field type changed</td>
+        <td class="neutral">Modified &mdash; Review</td>
+        <td>Flag for review; list affected consumers</td>
+      </tr>
+      <tr>
+        <td>Response field renamed</td>
+        <td class="bad">Breaking &mdash; Blocked</td>
+        <td>Block deploy; notify consumer teams</td>
+      </tr>
+      <tr>
+        <td>Response field removed</td>
+        <td class="bad">Breaking &mdash; Blocked</td>
+        <td>Block deploy; notify consumer teams</td>
+      </tr>
+      <tr>
+        <td>Endpoint removed</td>
+        <td class="bad">Breaking &mdash; Blocked</td>
+        <td>Block deploy; notify consumer teams</td>
+      </tr>
+      <tr>
+        <td>New required request parameter</td>
+        <td class="bad">Breaking &mdash; Blocked</td>
+        <td>Block deploy; notify consumer teams</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ────────────────────────────────────────── -->
+<section>
+  <h2>Frontend Data Dependencies</h2>
+  <p>Contract scanning works in both directions. API services publish their contracts, and frontend domains declare their <strong>data dependencies</strong> &mdash; the specific fields, types, and endpoints they rely on.</p>
+
+  <details>
+    <summary>How Frontends Declare Dependencies <span class="detail-summary">Machine-readable contract pinning</span></summary>
+    <div class="detail-body">
+      <p>Each frontend domain maintains a <code>data-contracts.json</code> file that declares exactly which API endpoints and fields it depends on:</p>
+      <pre><code>{
+  "domain": "catalog-frontend",
+  "dependencies": [
+    {
+      "service": "product-api",
+      "version": "3.1",
+      "endpoints": [
+        {
+          "path": "GET /products/:id",
+          "requiredFields": ["id", "name", "price", "sku", "category"]
+        },
+        {
+          "path": "GET /products?search=term",
+          "requiredFields": ["items", "totalCount", "page"]
+        }
+      ]
+    }
+  ]
+}</code></pre>
+      <p>The scanner validates these declarations against the running service contracts. If the Product API removes the <code>sku</code> field, the scanner flags it because <code>catalog-frontend</code> depends on it.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>Bi-Directional Validation <span class="detail-summary">APIs validate consumers, consumers validate APIs</span></summary>
+    <div class="detail-body">
+      <p>Validation runs in both directions:</p>
+      <ul>
+        <li><strong>API-side:</strong> Before deploying an API change, the pipeline checks which frontends depend on the modified fields. If any active consumer uses a field being removed, the deploy is blocked.</li>
+        <li><strong>Frontend-side:</strong> Before deploying a frontend, the pipeline verifies that all declared data dependencies still match the current API contracts. If the frontend expects a field that no longer exists, the deploy is blocked.</li>
+      </ul>
+      <p>This bi-directional validation ensures that neither side can deploy a breaking change unilaterally.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>Version Pinning &amp; Migration <span class="detail-summary">APIs publish versions, frontends pin to them</span></summary>
+    <div class="detail-body">
+      <p>APIs publish versioned contracts, and frontends pin to specific versions:</p>
+      <ul>
+        <li>Product API publishes <code>v3.1</code> and <code>v3.2</code> contracts simultaneously</li>
+        <li>Catalog frontend pins to <code>v3.1</code>; it continues to work even after <code>v3.2</code> is released</li>
+        <li>When Catalog is ready to use <code>v3.2</code> features (like the new <code>rating</code> field), it updates its dependency declaration</li>
+        <li>Old versions are maintained until all consumers have migrated</li>
+        <li>The catalog tracks which consumers are on which API version &mdash; just like component versioning</li>
+      </ul>
+    </div>
+  </details>
+</section>
+
+<!-- ────────────────────────────────────────── -->
+<section>
+  <h2>Pipeline Integration</h2>
+  <p>Contract scanning integrates directly into the CI/CD pipeline as a deployment gate. No manual approval needed for safe changes. Automatic blocking for breaking changes.</p>
+
+  <div class="themes-grid">
+    <div class="theme-card">
+      <div class="theme-icon">&#x1F6A6;</div>
+      <h4>Pre-Deploy Gate</h4>
+      <p>Every API deployment triggers a contract scan. The diff engine compares the new contract to the current version. Additive changes pass automatically. Breaking changes are blocked with a detailed impact report.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#x1F4E3;</div>
+      <h4>Consumer Notification</h4>
+      <p>When a breaking change is detected, the system automatically notifies every affected frontend team with the specific fields and endpoints that changed.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#x1F504;</div>
+      <h4>Scheduled Scans</h4>
+      <p>Beyond deploy-time scanning, scheduled scans run every hour against all production services. This catches contract drift from configuration changes, database migrations, or other non-deploy modifications.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#x1F4CA;</div>
+      <h4>Compatibility Matrix</h4>
+      <p>The catalog generates a live compatibility matrix showing every frontend&rsquo;s declared dependencies against every API&rsquo;s current contracts. Green means compatible. Red means action needed.</p>
+    </div>
+  </div>
+
+  <div class="industry-std">
+    <strong>Industry Standard: Contract Testing</strong>
+    Pact (consumer-driven contract testing), AWS EventBridge Schema Registry, and Confluent Schema Registry all implement this pattern. The principle is universal: when services communicate across network boundaries, the contract between them must be explicit, versioned, and automatically validated. This is not an experimental practice &mdash; it is table stakes for distributed systems.
+  </div>
+</section>
+
+<!-- ────────────────────────────────────────── -->
+<section>
+  <h2>No Manual Documentation</h2>
+  <p>The scanner replaces the entire API documentation workflow:</p>
+  <ul>
+    <li><strong>No Swagger annotations to maintain</strong> &mdash; the scanner reads the live service, not static annotations that drift</li>
+    <li><strong>No wiki pages to update</strong> &mdash; the catalog IS the documentation, and it&rsquo;s always current</li>
+    <li><strong>No Slack threads asking &ldquo;what does this endpoint return?&rdquo;</strong> &mdash; the catalog answers with the actual, verified contract</li>
+    <li><strong>No integration testing surprises</strong> &mdash; contract violations are caught at the pipeline level, not in staging</li>
+    <li><strong>No missed CVEs</strong> &mdash; alongside contract scans, automated CVE (Common Vulnerabilities and Exposures) scanning flags known security issues in every dependency before deployment</li>
+    <li><strong>No post-incident root cause analysis for contract drift</strong> &mdash; drift is detected in real-time, not after the outage</li>
+  </ul>
+
+  <div class="callout success">
+    <strong>The Scanner Is the Documentation</strong>
+    Documentation that requires manual effort will always be incomplete and outdated. The scanner produces documentation as a side effect of its primary job: validating contracts. Accuracy is guaranteed because the source is the running service itself.
+  </div>
+</section>
+
+<!-- ────────────────────────────────────────── -->
+<section>
+  <h2>Real-World Impact</h2>
+  <p>Without contract scanning, a typical API change in a micro frontend ecosystem follows this path:</p>
+  <ol>
+    <li>Backend team changes a field name in the Product API</li>
+    <li>Backend team deploys to production</li>
+    <li>Catalog frontend continues to request the old field name</li>
+    <li>Users see blank product names or broken pages</li>
+    <li>Incident is raised, on-call is paged</li>
+    <li>Root cause analysis takes hours: &ldquo;which deploy broke which consumer?&rdquo;</li>
+    <li>Rollback or hotfix deployed</li>
+  </ol>
+  <p>With contract scanning, the same change follows this path:</p>
+  <ol>
+    <li>Backend team changes a field name in the Product API</li>
+    <li>CI pipeline triggers contract scan</li>
+    <li>Scanner detects the renamed field and identifies Catalog frontend as a consumer</li>
+    <li><strong>Deploy is blocked</strong> with a message: &ldquo;Field <code>name</code> renamed to <code>title</code> &mdash; consumed by <code>catalog-frontend</code>&rdquo;</li>
+    <li>Backend team coordinates with Catalog team, or publishes the change as a new API version</li>
+    <li>Zero incidents. Zero pages. Zero root cause analysis.</li>
+  </ol>
+</section>
+
+</main>
+<div style="max-width:900px;margin:0 auto;padding:0 1.5rem;">
+  <div class="page-nav">
+    <a href="16-app-catalog.html"><span class="pn-label">&larr; Previous</span><span class="pn-title">The App Catalog</span></a>
+    <a href="18-bff-pattern.html" class="next"><span class="pn-label">Next &rarr;</span><span class="pn-title">Backend-for-Frontend</span></a>
+  </div>
+</div>
+<footer>Medline Platform Evolution &mdash; v5 &mdash; 2026-04-05 &mdash; Technical Director Series &mdash; Confidential</footer>
+<div class="toast" id="toast">Copied!</div>
+<script src="shared.js"></script>
+</body>
+</html>

@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Automated Sign-off: Quality Without Meetings &mdash; Medline Platform Evolution</title>
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<div class="progress-bar"></div>
+<nav>
+  <a href="t-index.html" class="logo">ML Training</a>
+  <div class="nav-links">
+    <a href="index.html">&larr; Migration Series</a>
+    <a href="t01-overview.html">Overview</a>
+    <a href="t02-domain-developer.html">Domain Dev</a>
+    <a href="t03-component-author.html">Component Author</a>
+    <a href="t04-platform-engineer.html">Platform Eng</a>
+    <a href="t05-sign-off-gates.html" class="active">Gates</a>
+    <a href="t06-certification.html">Certification</a>
+    <a href="t07-onboarding-checklist.html">Day One</a>
+  </div>
+  <button class="theme-toggle" id="themeToggle" title="Toggle theme">&#9790;</button>
+</nav>
+
+<div class="hero">
+  <div class="page-num">Training &mdash; Page 5 of 7</div>
+  <h1>Automated Sign-off: Quality Without Meetings</h1>
+  <p class="subtitle">Seven automated pipeline gates enforce quality on every commit. If it passes the gates, it ships. No review meetings required. No scheduling bottlenecks. No subjective approvals.</p>
+</div>
+
+<main>
+
+<!-- The Philosophy -->
+<section>
+  <h2>The Philosophy</h2>
+  <p>Traditional sign-off requires a human to review, approve, and grant permission. That model has three problems: it doesn't scale across timezones, it introduces subjectivity, and it creates bottlenecks when the approver is unavailable.</p>
+  <p>Our model replaces human sign-off with <strong>seven automated gates</strong> in the CI/CD pipeline. Each gate checks one specific quality dimension. If all seven gates pass, the code ships. If any gate fails, the developer gets immediate, specific feedback and retries.</p>
+
+  <div class="callout success">
+    <strong>The Rule</strong>
+    If it passes the gates, it ships. No review meeting required. The pipeline is the sign-off.
+  </div>
+
+  <div class="industry-std">
+    <strong>Industry Standard: Automated Quality Gates</strong>
+    Automated quality gates are the industry standard for high-velocity enterprise teams. Netflix, Google, Amazon, and Spotify all use pipeline-based quality enforcement instead of manual review meetings. Objective criteria, reproducible checks, instant feedback.
+  </div>
+</section>
+
+<!-- Pipeline Diagram -->
+<section>
+  <h2>The Pipeline</h2>
+  <p>Every commit passes through seven gates, in order. Each gate must pass before the next one runs.</p>
+
+  <div class="mermaid-wrap" id="dt05-1">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">&#9974;</button>
+    </div>
+    <div class="mw-view">
+      <div class="mermaid-inner" data-src="graph TD
+  PUSH[Developer Pushes Code] --> G1
+  G1[Gate 1: Code Standards\nLinting + Formatting + Naming] -->|Pass| G2[Gate 2: Component Contract\nAttributes Documented + Events Typed]
+  G2 -->|Pass| G3[Gate 3: Test Coverage\nUnit + Integration Thresholds]
+  G3 -->|Pass| G4[Gate 4: API Compatibility\nNo Breaking Changes to Consumers]
+  G4 -->|Pass| G5[Gate 5: Visual Regression\nNo Unintended Visual Changes]
+  G5 -->|Pass| G6[Gate 6: Catalog Registration\nVersion Bumped + Dependencies Declared]
+  G6 -->|Pass| G7[Gate 7: Security Scan\nNo Vulnerabilities + No Exposed Secrets]
+  G7 -->|All Pass| SHIP[Ship It\nBlue/Green Deploy]
+  style PUSH fill:#58a6ff,stroke:#58a6ff,color:#fff
+  style G1 fill:#d2a8ff,stroke:#d2a8ff,color:#000
+  style G2 fill:#d2a8ff,stroke:#d2a8ff,color:#000
+  style G3 fill:#d2a8ff,stroke:#d2a8ff,color:#000
+  style G4 fill:#f0883e,stroke:#f0883e,color:#fff
+  style G5 fill:#f0883e,stroke:#f0883e,color:#fff
+  style G6 fill:#f0883e,stroke:#f0883e,color:#fff
+  style G7 fill:#f0883e,stroke:#f0883e,color:#fff
+  style SHIP fill:#3fb950,stroke:#3fb950,color:#fff"></div>
+    </div>
+    <div class="mw-caption">Seven automated gates: every commit must pass all seven before it ships</div>
+  </div>
+</section>
+
+<!-- Gate 1 -->
+<section>
+  <h2>Gate 1: Code Standards</h2>
+  <p>Enforces linting, formatting, and naming conventions. No style debates. No inconsistencies. The tool decides.</p>
+
+  <details>
+    <summary>Gate details <span class="detail-summary">Linting, formatting, naming</span></summary>
+    <div class="detail-body">
+      <h4>What It Checks</h4>
+      <ul>
+        <li><strong>Linting</strong> &mdash; ESLint rules specific to the platform: no global variables, no direct DOM access outside components, required error handling</li>
+        <li><strong>Formatting</strong> &mdash; Prettier with the platform's configuration. Tabs vs spaces is decided once, forever.</li>
+        <li><strong>Naming conventions</strong> &mdash; ML- prefix for components, domain-specific prefixes for services, standard file naming patterns</li>
+        <li><strong>Import rules</strong> &mdash; no cross-domain imports, no reaching into another component's internals</li>
+      </ul>
+      <h4>Why It Matters</h4>
+      <p>Code standards eliminate entire categories of code review feedback. When every file looks the same, developers can focus on logic, not style.</p>
+    </div>
+  </details>
+</section>
+
+<!-- Gate 2 -->
+<section>
+  <h2>Gate 2: Component Contract</h2>
+  <p>Ensures every ML- component has a complete, accurate contract. All attributes documented. All events typed. No undocumented APIs.</p>
+
+  <details>
+    <summary>Gate details <span class="detail-summary">Contract completeness, type safety</span></summary>
+    <div class="detail-body">
+      <h4>What It Checks</h4>
+      <ul>
+        <li><strong>Attribute completeness</strong> &mdash; every observed attribute has a name, type, default, and description in the contract</li>
+        <li><strong>Event typing</strong> &mdash; every dispatched Custom Event has a typed detail object documented in the contract</li>
+        <li><strong>Slot documentation</strong> &mdash; every named slot is documented with expected content description</li>
+        <li><strong>CSS custom property documentation</strong> &mdash; every styling hook is documented with name, default, and description</li>
+        <li><strong>Contract-code sync</strong> &mdash; the contract file matches the actual component implementation (no drift)</li>
+      </ul>
+      <h4>Why It Matters</h4>
+      <p>The component contract is the API surface that every consumer depends on. Incomplete contracts lead to tribal knowledge and integration bugs. Complete contracts enable self-service consumption.</p>
+    </div>
+  </details>
+
+  <div class="industry-std">
+    <strong>Industry Standard: Contract-First Component Development</strong>
+    Contract-first development&mdash;where the interface is documented before or alongside implementation&mdash;is the industry standard for design systems. It enables independent team consumption, automated compatibility checking, and generated documentation.
+  </div>
+</section>
+
+<!-- Gate 3 -->
+<section>
+  <h2>Gate 3: Test Coverage</h2>
+  <p>Verifies that unit and integration test thresholds are met. No shipping code with untested paths.</p>
+
+  <details>
+    <summary>Gate details <span class="detail-summary">Coverage thresholds, test quality</span></summary>
+    <div class="detail-body">
+      <h4>What It Checks</h4>
+      <ul>
+        <li><strong>Unit test coverage</strong> &mdash; minimum 80% line coverage for business logic, 100% for component contracts</li>
+        <li><strong>Integration tests</strong> &mdash; every route must have at least one integration test that verifies component wiring</li>
+        <li><strong>Test quality</strong> &mdash; tests must assert behavior (not just run without errors); snapshot-only tests don't count toward coverage</li>
+        <li><strong>New code coverage</strong> &mdash; any new or modified code must have test coverage (no shipping untested new features)</li>
+      </ul>
+      <h4>Why It Matters</h4>
+      <p>Test coverage thresholds catch regressions before they reach staging. Combined with the other gates, this means most bugs are caught in the pipeline, not in production.</p>
+    </div>
+  </details>
+</section>
+
+<!-- Gate 4 -->
+<section>
+  <h2>Gate 4: API Contract Compatibility</h2>
+  <p>Checks that changes don't break existing consumers. No surprise breakages for downstream domains.</p>
+
+  <details>
+    <summary>Gate details <span class="detail-summary">Breaking change detection, consumer impact</span></summary>
+    <div class="detail-body">
+      <h4>What It Checks</h4>
+      <ul>
+        <li><strong>Component contract diff</strong> &mdash; compares the new contract against the published version; flags breaking changes</li>
+        <li><strong>BFF contract diff</strong> &mdash; compares the new OpenAPI spec against the published version; flags removed or renamed fields</li>
+        <li><strong>Consumer impact analysis</strong> &mdash; identifies which domains would be affected by breaking changes</li>
+        <li><strong>Semver enforcement</strong> &mdash; breaking changes require a major version bump; non-breaking changes require minor or patch</li>
+      </ul>
+      <h4>Why It Matters</h4>
+      <p>In a micro frontend platform with dozens of domains, one breaking API change can cascade across the entire system. Automated compatibility checking catches these before they ship.</p>
+    </div>
+  </details>
+</section>
+
+<!-- Gate 5 -->
+<section>
+  <h2>Gate 5: Visual Regression</h2>
+  <p>Detects unintended visual changes by comparing screenshots of every component state against a baseline.</p>
+
+  <details>
+    <summary>Gate details <span class="detail-summary">Screenshot comparison, visual diffs</span></summary>
+    <div class="detail-body">
+      <h4>What It Checks</h4>
+      <ul>
+        <li><strong>Component screenshots</strong> &mdash; every component state (default, hover, active, disabled, error) is captured and compared</li>
+        <li><strong>Pixel-level diff</strong> &mdash; changes beyond a configurable threshold trigger a failure</li>
+        <li><strong>Responsive states</strong> &mdash; screenshots at multiple viewport widths (mobile, tablet, desktop)</li>
+        <li><strong>Dark/light mode</strong> &mdash; both themes are screenshot-tested</li>
+      </ul>
+      <h4>Why It Matters</h4>
+      <p>CSS changes often have unintended side effects. Visual regression testing catches &ldquo;I changed one padding value and it broke three other components&rdquo; before it reaches users.</p>
+    </div>
+  </details>
+
+  <div class="industry-std">
+    <strong>Industry Standard: Visual Regression Testing</strong>
+    Automated visual regression testing is the industry standard for component libraries and design systems. Tools like Chromatic, Percy, and BackstopJS are used by enterprise teams to catch visual bugs that unit tests miss. If it looks different, you know about it before it ships.
+  </div>
+</section>
+
+<!-- Gate 6 -->
+<section>
+  <h2>Gate 6: Catalog Registration</h2>
+  <p>Ensures the component or domain is properly registered, versioned, and has its dependencies declared.</p>
+
+  <details>
+    <summary>Gate details <span class="detail-summary">Registration, versioning, dependencies</span></summary>
+    <div class="detail-body">
+      <h4>What It Checks</h4>
+      <ul>
+        <li><strong>Catalog entry</strong> &mdash; the component/domain is registered in the App Catalog with correct metadata</li>
+        <li><strong>Version bump</strong> &mdash; version has been bumped according to semver rules</li>
+        <li><strong>Dependency declaration</strong> &mdash; all consumed components and APIs are declared in the dependency manifest</li>
+        <li><strong>Changelog entry</strong> &mdash; a human-readable changelog entry exists for the new version</li>
+      </ul>
+      <h4>Why It Matters</h4>
+      <p>The App Catalog is the single source of truth for what's running where. Incomplete or missing registrations create blind spots. This gate ensures the catalog is always accurate.</p>
+    </div>
+  </details>
+</section>
+
+<!-- Gate 7 -->
+<section>
+  <h2>Gate 7: Security Scan</h2>
+  <p>Scans for known vulnerabilities, exposed secrets, and unsafe patterns. No shipping code with security holes.</p>
+
+  <details>
+    <summary>Gate details <span class="detail-summary">Vulnerability scanning, secret detection</span></summary>
+    <div class="detail-body">
+      <h4>What It Checks</h4>
+      <ul>
+        <li><strong>Dependency vulnerabilities</strong> &mdash; scans all dependencies for known CVEs using a continuously updated vulnerability database</li>
+        <li><strong>Secret detection</strong> &mdash; scans code for accidentally committed API keys, tokens, passwords, or connection strings</li>
+        <li><strong>Unsafe patterns</strong> &mdash; detects dangerous patterns like <code>innerHTML</code> without sanitization, <code>eval()</code>, or unvalidated user input</li>
+        <li><strong>License compliance</strong> &mdash; verifies all dependencies use approved open-source licenses</li>
+      </ul>
+      <h4>Why It Matters</h4>
+      <p>Security vulnerabilities in production are expensive and embarrassing. Catching them in the pipeline&mdash;before the code leaves the developer's hands&mdash;is orders of magnitude cheaper than catching them after deployment.</p>
+    </div>
+  </details>
+
+  <div class="industry-std">
+    <strong>Industry Standard: Shift-Left Security</strong>
+    Shift-left security&mdash;catching vulnerabilities as early as possible in the development lifecycle&mdash;is the industry standard endorsed by OWASP, NIST, and every major security framework. Automated scanning in the CI/CD pipeline is the most effective implementation of this principle.
+  </div>
+</section>
+
+<!-- Gate Failure Flow -->
+<section>
+  <h2>When a Gate Fails</h2>
+  <p>Gate failures are not punishments. They're feedback. Here's exactly what happens when a gate fails.</p>
+
+  <div class="mermaid-wrap" id="dt05-2">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">&#9974;</button>
+    </div>
+    <div class="mw-view">
+      <div class="mermaid-inner" data-src="graph TD
+  FAIL[Gate Fails] --> REPORT[Failure Report\nWhich gate + specific error]
+  REPORT --> GUIDANCE[Remediation Guidance\nHow to fix with examples]
+  GUIDANCE --> FIX[Developer Fixes\nAddress the specific issue]
+  FIX --> REPUSH[Re-push Code]
+  REPUSH --> RERUN[Pipeline Re-runs\nAll gates from start]
+  RERUN -->|All pass| SHIP[Ship It]
+  RERUN -->|Fail again| FAIL
+  style FAIL fill:#f85149,stroke:#f85149,color:#fff
+  style REPORT fill:#f0883e,stroke:#f0883e,color:#fff
+  style GUIDANCE fill:#d2a8ff,stroke:#d2a8ff,color:#000
+  style FIX fill:#58a6ff,stroke:#58a6ff,color:#fff
+  style REPUSH fill:#58a6ff,stroke:#58a6ff,color:#fff
+  style RERUN fill:#f0883e,stroke:#f0883e,color:#fff
+  style SHIP fill:#3fb950,stroke:#3fb950,color:#fff"></div>
+    </div>
+    <div class="mw-caption">Gate failure flow: fail &rarr; report &rarr; guidance &rarr; fix &rarr; retry. No limit on retries.</div>
+  </div>
+
+  <details>
+    <summary>What makes good failure feedback? <span class="detail-summary">Why generic errors waste time</span></summary>
+    <div class="detail-body">
+      <p>Every gate failure report includes three things:</p>
+      <ol>
+        <li><strong>Which gate failed</strong> &mdash; &ldquo;Gate 3: Test Coverage&rdquo;</li>
+        <li><strong>Specific error</strong> &mdash; &ldquo;File <code>src/services/product.ts</code> has 42% line coverage (minimum: 80%)&rdquo;</li>
+        <li><strong>Remediation example</strong> &mdash; &ldquo;Add tests for the <code>fetchProducts</code> and <code>filterByCategory</code> functions. Example test pattern: [link]&rdquo;</li>
+      </ol>
+      <p>Generic messages like &ldquo;tests failed&rdquo; or &ldquo;coverage too low&rdquo; waste developer time. Specific, actionable feedback with examples gets the code shipping faster.</p>
+    </div>
+  </details>
+</section>
+
+</main>
+
+<div style="max-width:900px;margin:0 auto;padding:0 1.5rem;">
+  <div class="page-nav">
+    <a href="t04-platform-engineer.html"><span class="pn-label">&larr; Previous</span><span class="pn-title">Track: Platform Engineer</span></a>
+    <a href="t06-certification.html" class="next"><span class="pn-label">Next &rarr;</span><span class="pn-title">Certification &amp; Badges</span></a>
+  </div>
+</div>
+
+<footer>Medline Platform Evolution &mdash; Training &amp; Sign-off Plan &mdash; v5 &mdash; 2026-04-05 &mdash; Confidential</footer>
+<div class="toast" id="toast">Copied!</div>
+<script src="shared.js"></script>
+</body>
+</html>

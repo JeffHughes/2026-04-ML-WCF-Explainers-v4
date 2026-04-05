@@ -1,0 +1,1634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Platform Evolution: From Monolith to Domain-Driven Micro Frontends</title>
+<style>
+  /* ── CSS Variables (Dark Theme Default) ── */
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface2: #1c2333;
+    --border: #30363d;
+    --text: #e6edf3;
+    --text-dim: #8b949e;
+    --accent: #58a6ff;
+    --accent2: #3fb950;
+    --accent3: #d2a8ff;
+    --accent4: #f0883e;
+    --danger: #f85149;
+    --code-bg: #0d1117;
+    --toc-width: 260px;
+  }
+
+  /* ── Light Theme ── */
+  body.light {
+    --bg: #ffffff;
+    --surface: #f6f8fa;
+    --surface2: #eef1f5;
+    --border: #d0d7de;
+    --text: #1f2328;
+    --text-dim: #656d76;
+    --accent: #0969da;
+    --accent2: #1a7f37;
+    --accent3: #8250df;
+    --accent4: #bc4c00;
+    --danger: #cf222e;
+    --code-bg: #f6f8fa;
+  }
+  body.light nav { background: rgba(255,255,255,0.92); }
+  body.light .hero { background: linear-gradient(180deg, #ffffff 0%, #f6f8fa 100%); }
+  body.light .hero h1 {
+    background: linear-gradient(135deg, var(--accent), var(--accent3));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  body.light .industry-std { background: linear-gradient(135deg, #dafbe1 0%, #e6ffec 100%); border-color: #1a7f37; }
+  body.light .industry-std strong { color: #116329; }
+  body.light .industry-std::before { color: #1a7f37; }
+  body.light .toc-sidebar { background: rgba(246,248,250,0.97); }
+  body.light .stat-card { background: var(--surface); }
+  body.light details summary { background: var(--surface); }
+  body.light details summary:hover { background: var(--surface2); }
+
+  /* ── Reset ── */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+  }
+
+  /* ── Progress Bar ── */
+  .progress-bar {
+    position: fixed; top: 0; left: 0; height: 3px; z-index: 1000;
+    background: linear-gradient(90deg, var(--accent), var(--accent3));
+    width: 0%; transition: width 0.1s linear;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 3px; left: 0; right: 0;
+    background: rgba(13,17,23,0.92); backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border); z-index: 100;
+    padding: 0 2rem; display: flex; align-items: center;
+    height: 56px; gap: 1.5rem;
+  }
+  nav .logo { font-weight: 700; font-size: 1.05rem; color: var(--accent); white-space: nowrap; }
+  nav .nav-title { color: var(--text-dim); font-size: 0.82rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .theme-toggle {
+    margin-left: auto; background: none; border: 1px solid var(--border);
+    color: var(--text-dim); cursor: pointer; border-radius: 8px;
+    width: 36px; height: 36px; display: flex; align-items: center;
+    justify-content: center; font-size: 1.1rem; transition: all 0.2s; flex-shrink: 0;
+  }
+  .theme-toggle:hover { border-color: var(--accent); color: var(--text); }
+
+  /* ── TOC Sidebar ── */
+  .toc-sidebar {
+    position: fixed; top: 59px; left: 0; bottom: 0;
+    width: var(--toc-width); background: rgba(22,27,34,0.97);
+    border-right: 1px solid var(--border); z-index: 90;
+    overflow-y: auto; padding: 1rem 0; transition: transform 0.3s ease;
+  }
+  .toc-sidebar h3 {
+    font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--text-dim); padding: 0 1rem 0.5rem; margin: 0;
+  }
+  .toc-search {
+    margin: 0 0.75rem 0.75rem; position: relative;
+  }
+  .toc-search input {
+    width: 100%; padding: 0.4rem 0.6rem 0.4rem 1.8rem;
+    border: 1px solid var(--border); border-radius: 6px;
+    background: var(--surface2); color: var(--text); font-size: 0.8rem;
+    outline: none; transition: border-color 0.2s;
+  }
+  .toc-search input:focus { border-color: var(--accent); }
+  .toc-search::before {
+    content: '\1F50D'; position: absolute; left: 0.6rem; top: 50%;
+    transform: translateY(-50%); font-size: 0.75rem; pointer-events: none;
+  }
+  .toc-list { list-style: none; padding: 0; margin: 0; }
+  .toc-list li { margin: 0; }
+  .toc-list a {
+    display: block; padding: 0.35rem 1rem; font-size: 0.82rem;
+    color: var(--text-dim); text-decoration: none; border-left: 2px solid transparent;
+    transition: all 0.15s; line-height: 1.4;
+  }
+  .toc-list a:hover { color: var(--text); background: var(--surface2); }
+  .toc-list a.active { color: var(--accent); border-left-color: var(--accent); background: rgba(88,166,255,0.06); font-weight: 600; }
+  .toc-list li.hidden { display: none; }
+  .toc-list .search-highlight { background: rgba(240,136,62,0.3); border-radius: 2px; padding: 0 1px; }
+
+  /* Hamburger for mobile */
+  .hamburger {
+    display: none; background: none; border: 1px solid var(--border);
+    color: var(--text); cursor: pointer; border-radius: 6px;
+    width: 36px; height: 36px; font-size: 1.2rem;
+    align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .toc-overlay {
+    display: none; position: fixed; top: 59px; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5); z-index: 89;
+  }
+
+  /* ── MAIN CONTENT ── */
+  .main-content {
+    margin-left: var(--toc-width); padding-top: 59px;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    padding: 4rem 2rem 3rem;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, #0d1117 0%, #111827 100%);
+  }
+  .hero h1 {
+    font-size: 2.4rem; font-weight: 800; margin-bottom: 0.75rem;
+    background: linear-gradient(135deg, var(--accent), var(--accent3));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .hero .subtitle { color: var(--text-dim); font-size: 1.1rem; max-width: 700px; margin: 0 auto 0.75rem; }
+  .hero .meta-line { color: var(--text-dim); font-size: 0.82rem; margin-bottom: 2rem; }
+  .hero .badge-row { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; }
+  .badge {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    padding: 0.35rem 0.85rem; border-radius: 20px;
+    font-size: 0.78rem; font-weight: 600;
+    border: 1px solid var(--border); background: var(--surface); color: var(--text-dim);
+  }
+  .badge .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+  .badge .dot.blue { background: var(--accent); }
+  .badge .dot.green { background: var(--accent2); }
+  .badge .dot.purple { background: var(--accent3); }
+  .badge .dot.orange { background: var(--accent4); }
+
+  /* ── Stat Cards ── */
+  .stat-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem; margin-top: 2rem; max-width: 900px; margin-left: auto; margin-right: auto;
+  }
+  .stat-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 1.25rem; text-align: center; transition: all 0.2s;
+  }
+  .stat-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .stat-card .stat-value { font-size: 1.15rem; font-weight: 700; color: var(--accent); margin-bottom: 0.35rem; }
+  .stat-card .stat-label { font-size: 0.82rem; color: var(--text-dim); line-height: 1.4; }
+
+  /* ── Content Area ── */
+  .content-area {
+    max-width: 920px; margin: 0 auto; padding: 2.5rem 2rem 6rem;
+  }
+
+  /* ── Details / Expandable Sections ── */
+  details {
+    margin-bottom: 1.5rem; border: 1px solid var(--border);
+    border-radius: 12px; overflow: hidden; scroll-margin-top: 80px;
+  }
+  details[open] { border-color: var(--accent); }
+  details summary {
+    padding: 1.1rem 1.5rem; cursor: pointer; font-size: 1.15rem;
+    font-weight: 700; color: var(--text); background: var(--surface);
+    list-style: none; display: flex; align-items: center; gap: 0.75rem;
+    transition: background 0.2s; user-select: none; position: relative;
+  }
+  details summary::-webkit-details-marker { display: none; }
+  details summary::before {
+    content: '\25B6'; font-size: 0.7rem; color: var(--accent);
+    transition: transform 0.2s; flex-shrink: 0;
+  }
+  details[open] summary::before { transform: rotate(90deg); }
+  details summary:hover { background: var(--surface2); }
+  details summary .section-num {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--accent); color: var(--bg); font-size: 0.78rem;
+    font-weight: 700; flex-shrink: 0;
+  }
+  details summary .summary-text {
+    font-size: 0.85rem; color: var(--text-dim); font-weight: 400;
+    margin-left: auto; text-align: right; max-width: 50%;
+  }
+  details .section-body { padding: 1.5rem; border-top: 1px solid var(--border); }
+
+  /* ── Section inner styles ── */
+  h2 { font-size: 1.5rem; font-weight: 700; margin-bottom: 1rem; padding-bottom: 0.5rem; color: var(--accent); }
+  h3 { font-size: 1.15rem; font-weight: 600; margin: 1.5rem 0 0.75rem; color: var(--accent3); }
+  p { margin-bottom: 1rem; }
+  ul, ol { margin: 0 0 1rem 1.5rem; }
+  li { margin-bottom: 0.35rem; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  code { background: var(--code-bg); border: 1px solid var(--border); border-radius: 4px; padding: 0.1rem 0.35rem; font-size: 0.88em; }
+
+  /* ── Mermaid Wrap ── */
+  .mermaid-wrap { border: 1px solid var(--border); border-radius: 10px; background: var(--surface); margin: 1.5rem 0; overflow: hidden; }
+  .mw-toolbar { display: flex; gap: 0.3rem; padding: 0.4rem 0.65rem; border-bottom: 1px solid var(--border); background: var(--surface2); }
+  .mw-toolbar button { background: none; border: 1px solid var(--border); color: var(--text-dim); cursor: pointer; border-radius: 6px; padding: 0.2rem 0.55rem; font-size: 0.78rem; transition: all 0.15s; line-height: 1.4; }
+  .mw-toolbar button:hover { border-color: var(--accent); color: var(--text); }
+  .mw-toolbar button.active { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+  .mw-view { padding: 1.25rem; overflow: hidden; min-height: 120px; cursor: grab; position: relative; display: flex; justify-content: center; }
+  .mw-view:active { cursor: grabbing; }
+  .mw-view .mermaid-inner { transform-origin: center center; transition: transform 0.15s; }
+  .mw-view svg { max-width: 100%; height: auto; }
+  .mw-caption { font-size: 0.75rem; color: var(--text-dim); padding: 0.35rem 0.75rem; border-top: 1px solid var(--border); text-align: center; font-style: italic; }
+  .mermaid-wrap:fullscreen, .mermaid-wrap:-webkit-full-screen { background: var(--bg); }
+  .mermaid-wrap:fullscreen .mw-view, .mermaid-wrap:-webkit-full-screen .mw-view { height: calc(100vh - 72px); align-items: center; }
+  .mw-source { display: none; margin: 0; padding: 1rem 1.25rem; background: var(--code-bg); border-top: 1px solid var(--border); font-size: 0.8rem; line-height: 1.5; color: var(--text-dim); white-space: pre-wrap; word-break: break-word; max-height: 300px; overflow-y: auto; }
+  .mw-source.visible { display: block; }
+
+  /* ── Industry Standard Callout ── */
+  .industry-std {
+    background: linear-gradient(135deg, #0d2818 0%, #122a1a 100%);
+    border: 1px solid #1a7f37; border-radius: 10px;
+    padding: 1rem 1.25rem 1rem 3rem; margin: 1.25rem 0;
+    position: relative; font-size: 0.93rem; color: var(--text);
+  }
+  .industry-std::before { content: '\2713'; position: absolute; left: 1rem; top: 1rem; font-size: 1.2rem; font-weight: 700; color: #3fb950; }
+  .industry-std strong { color: #3fb950; display: block; margin-bottom: 0.25rem; font-size: 0.95rem; }
+
+  /* ── Callout ── */
+  .callout {
+    border-left: 3px solid var(--accent); background: var(--surface);
+    padding: 1rem 1.25rem; border-radius: 0 8px 8px 0;
+    margin: 1.25rem 0; font-size: 0.93rem;
+  }
+  .callout.warn { border-left-color: var(--accent4); }
+  .callout strong { display: block; margin-bottom: 0.3rem; }
+
+  /* ── Key Principles Grid ── */
+  .principles-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1rem; margin-top: 1.5rem;
+  }
+  .principle-card {
+    border: 1px solid var(--border); border-radius: 10px;
+    padding: 1.25rem; background: var(--surface); transition: all 0.2s;
+  }
+  .principle-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .principle-card .p-icon { font-size: 1.5rem; margin-bottom: 0.5rem; }
+  .principle-card h4 { font-size: 0.95rem; font-weight: 600; margin-bottom: 0.4rem; color: var(--text); }
+  .principle-card p { font-size: 0.85rem; color: var(--text-dim); margin: 0; line-height: 1.5; }
+
+  /* ── Confluence Export + Toast ── */
+  .confluence-export {
+    position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 200;
+    padding: 0.6rem 1.2rem; border-radius: 8px; border: 1px solid var(--accent);
+    background: var(--surface); color: var(--accent); font-size: 0.85rem;
+    font-weight: 600; cursor: pointer; transition: all 0.2s;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+  }
+  .confluence-export:hover { background: var(--accent); color: var(--bg); }
+  .toast {
+    position: fixed; bottom: 4.5rem; right: 1.5rem; z-index: 201;
+    padding: 0.5rem 1rem; border-radius: 6px; background: var(--accent2);
+    color: #fff; font-size: 0.82rem; font-weight: 600;
+    opacity: 0; transition: opacity 0.3s; pointer-events: none;
+  }
+  .toast.show { opacity: 1; }
+
+  /* ── Footer ── */
+  footer {
+    text-align: center; padding: 2rem; color: var(--text-dim);
+    font-size: 0.82rem; border-top: 1px solid var(--border);
+  }
+
+  /* ── Mobile Responsive ── */
+  @media (max-width: 900px) {
+    .toc-sidebar { transform: translateX(-100%); width: 280px; z-index: 95; }
+    .toc-sidebar.open { transform: translateX(0); }
+    .toc-overlay.open { display: block; }
+    .hamburger { display: flex; }
+    .main-content { margin-left: 0; }
+    .hero h1 { font-size: 1.8rem; }
+    .stat-grid { grid-template-columns: 1fr 1fr; }
+    details summary .summary-text { display: none; }
+    .principles-grid { grid-template-columns: 1fr; }
+    .content-area { padding: 1.5rem 1rem 4rem; }
+  }
+  @media (max-width: 500px) {
+    .stat-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Reading Progress Bar -->
+<div class="progress-bar" id="progressBar"></div>
+
+<!-- Top Navigation -->
+<nav>
+  <button class="hamburger" id="hamburgerBtn" aria-label="Toggle table of contents">&#9776;</button>
+  <div class="logo">WCFramework</div>
+  <div class="nav-title">Platform Evolution &mdash; Medline Director Explainer</div>
+  <button class="theme-toggle" id="themeToggle" title="Toggle light/dark theme" aria-label="Toggle theme">&#9790;</button>
+</nav>
+
+<!-- TOC Sidebar -->
+<div class="toc-overlay" id="tocOverlay"></div>
+<aside class="toc-sidebar" id="tocSidebar">
+  <h3>Contents</h3>
+  <div class="toc-search">
+    <input type="text" id="tocSearch" placeholder="Search sections..." aria-label="Search sections">
+  </div>
+  <ul class="toc-list" id="tocList">
+    <li><a href="#hero" data-section="hero">Overview</a></li>
+    <li><a href="#s01" data-section="s01">1. Where You Are Today</a></li>
+    <li><a href="#s02" data-section="s02">2. Copy, Split, Strip</a></li>
+    <li><a href="#s03" data-section="s03">3. Domain Extraction</a></li>
+    <li><a href="#s04" data-section="s04">4. Shell Swap: CSR Shell</a></li>
+    <li><a href="#s05" data-section="s05">5. Component Transition</a></li>
+    <li><a href="#s06" data-section="s06">6. The App Catalog</a></li>
+    <li><a href="#s07" data-section="s07">7. Managing Drift</a></li>
+    <li><a href="#s08" data-section="s08">8. The BFF Pattern</a></li>
+    <li><a href="#s09" data-section="s09">9. Testing &amp; Rollouts</a></li>
+    <li><a href="#s10" data-section="s10">10. Why This Wins</a></li>
+    <li><a href="#s11" data-section="s11">11. Migration Timeline</a></li>
+    <li><a href="#s12" data-section="s12">12. What Changes for Teams</a></li>
+    <li><a href="#principles" data-section="principles">Key Principles</a></li>
+  </ul>
+</aside>
+
+<!-- Main Content -->
+<div class="main-content">
+
+  <!-- HERO SECTION -->
+  <div class="hero" id="hero">
+    <h1>Platform Evolution: From Monolith to Domain-Driven Micro Frontends</h1>
+    <p class="subtitle">A practical migration path for enterprise e-commerce at scale</p>
+    <p class="meta-line">v5 &mdash; Updated: 2026-04-05 &mdash; Audience: Technical Director</p>
+    <div class="badge-row">
+      <span class="badge"><span class="dot green"></span> Zero-Risk Migration</span>
+      <span class="badge"><span class="dot purple"></span> Domain Independence</span>
+      <span class="badge"><span class="dot blue"></span> Standards-Based</span>
+      <span class="badge"><span class="dot orange"></span> Enterprise Longevity</span>
+    </div>
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-value">Zero Downtime Migration</div>
+        <div class="stat-label">Copy-split-strip, never rewrite. The safest migration strategy in the industry.</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">84+ MFEs &rarr; Independent Domains</div>
+        <div class="stat-label">Each domain ships on its own cadence. No more waiting for the monolith release train.</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">1-Year Core Cadence</div>
+        <div class="stat-label">Automated change-mod scripts. No surprise breaks. Upgrade when you are ready.</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">SSR Monolith &rarr; CSR + BFF</div>
+        <div class="stat-label">Backend isolation from day one. Frontend composition stays client-side.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content-area">
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- SECTION 1: Where You Are Today -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <details id="s01" open>
+      <summary>
+        <span class="section-num">1</span>
+        Where You Are Today
+        <span class="summary-text">Monolithic Next.js 12.3 shell with 84+ coupled micro frontends</span>
+      </summary>
+      <div class="section-body">
+        <p>Your current architecture is a monolithic Next.js 12.3 shell serving 84+ micro frontends through a tightly coupled SSR rendering pipeline. This is the architecture pattern that made sense when the platform was smaller&mdash;but at enterprise scale, it has become the primary constraint on delivery speed, team autonomy, and platform reliability.</p>
+
+        <h3>Current Pain Points</h3>
+        <ul>
+          <li><strong>Tightly coupled SSR rendering</strong> &mdash; Every micro frontend shares the same server-side rendering process. One team's memory leak or slow API call degrades the entire site.</li>
+          <li><strong>Shared runtime = shared risk</strong> &mdash; A single team's change can break every other team's UI. Version conflicts, dependency collisions, and CSS leaks are weekly events.</li>
+          <li><strong>React 17.x components with no common standards</strong> &mdash; 84+ micro frontends, each with their own patterns, their own state management, their own build configurations. No catalog. No discoverability.</li>
+          <li><strong>Every update requires full regression</strong> &mdash; Because everything is coupled, nothing deploys in isolation. A simple button color change requires the full QA cycle.</li>
+          <li><strong>Monolith release train</strong> &mdash; All 84+ MFEs deploy together. The fastest team moves at the speed of the slowest.</li>
+        </ul>
+
+        <div class="industry-std">
+          <strong>Industry Standard: Micro Frontend Independence</strong>
+          The W3C Custom Elements specification and Shadow DOM standard were designed specifically to solve runtime isolation problems in large-scale web applications. Every major browser vendor has committed to these standards indefinitely.
+        </div>
+
+        <div class="mermaid-wrap" id="d01-1">
+          <div class="mw-toolbar">
+            <button onclick="mzoom(this,1.2)">+</button>
+            <button onclick="mzoom(this,0.8)">&minus;</button>
+            <button onclick="mreset(this)">Reset</button>
+            <button onclick="mfull(this)">&#x26F6;</button>
+          </div>
+          <div class="mw-view"><div class="mermaid-inner" data-src="graph TB
+    subgraph MONOLITH[&quot;Next.js 12.3 Monolithic Shell&quot;]
+      SSR[SSR Rendering Engine]
+      RT[Shared Runtime]
+      subgraph MFEs[&quot;84+ Micro Frontends - All Coupled&quot;]
+        MF1[Catalog MFE]
+        MF2[Cart MFE]
+        MF3[Checkout MFE]
+        MF4[Account MFE]
+        MF5[Search MFE]
+        MF6[PDP MFE]
+        MF7[PLP MFE]
+        MF8[... 77 more]
+      end
+    end
+    SSR --> RT
+    RT --> MF1
+    RT --> MF2
+    RT --> MF3
+    RT --> MF4
+    RT --> MF5
+    RT --> MF6
+    RT --> MF7
+    RT --> MF8
+    MONOLITH --> K8S[Single K8s Deployment]
+    K8S --> QA[Full Regression Required]
+    style MONOLITH fill:#3d1f00,stroke:#f0883e,color:#f0883e
+    style SSR fill:#6e1616,stroke:#f85149,color:#f85149
+    style RT fill:#6e1616,stroke:#f85149,color:#f85149
+    style MFEs fill:#1c2333,stroke:#30363d,color:#8b949e
+    style K8S fill:#1c2333,stroke:#30363d,color:#8b949e
+    style QA fill:#6e1616,stroke:#f85149,color:#f85149"></div></div>
+          <div class="mw-caption">Current Architecture &mdash; Monolithic Next.js shell with all 84+ MFEs sharing a single SSR runtime</div>
+        </div>
+
+        <div class="callout warn">
+          <strong>The Core Problem</strong>
+          In this architecture, independence is an illusion. Every team shares the runtime, shares the deployment pipeline, and shares the risk. The only way to achieve true domain independence is to break the monolith apart&mdash;safely, incrementally, without a rewrite.
+        </div>
+      </div>
+    </details>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- SECTION 2: The Migration Strategy -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <details id="s02">
+      <summary>
+        <span class="section-num">2</span>
+        The Migration Strategy: Copy, Split, Strip
+        <span class="summary-text">The safest migration pattern in enterprise software</span>
+      </summary>
+      <div class="section-body">
+        <p>The safest possible migration is one where nothing changes on day one. Copy-split-strip is the enterprise standard for decomposing monoliths because it eliminates the "big bang rewrite" risk entirely.</p>
+
+        <h3>How It Works</h3>
+        <ol>
+          <li><strong>Copy</strong> &mdash; Take the entire monolith codebase and duplicate it. This is your new domain candidate. It runs. It's the same code. Zero risk.</li>
+          <li><strong>Split</strong> &mdash; Rename the copy to its domain identity (e.g., "Catalog"). Configure it as its own deployable unit in K8s.</li>
+          <li><strong>Strip</strong> &mdash; Progressively remove everything the domain doesn't need. Cart code comes out of Catalog. Checkout code comes out of Catalog. What remains is a focused, domain-specific application.</li>
+        </ol>
+
+        <h3>Why This Is Zero Risk</h3>
+        <ul>
+          <li>The original monolith continues running, unchanged, serving all traffic</li>
+          <li>The copied domain runs alongside it&mdash;same code, same behavior</li>
+          <li>Traffic shifts gradually via routing rules (canary, blue/green)</li>
+          <li>At any point, you can route 100% back to the original monolith</li>
+          <li>This is the classic <strong>strangler fig pattern</strong>&mdash;the industry-standard approach for monolith decomposition</li>
+        </ul>
+
+        <div class="industry-std">
+          <strong>Industry Standard: Strangler Fig Pattern</strong>
+          Originally described by Martin Fowler, the strangler fig pattern is the gold standard for enterprise migration. It has been used at Amazon, Netflix, Spotify, and every other enterprise that has successfully decomposed a monolith without downtime.
+        </div>
+
+        <h3>Concrete Example</h3>
+        <p>Take the Catalog domain:</p>
+        <ol>
+          <li>Copy the entire Next.js monolith &rarr; <code>medline-catalog</code></li>
+          <li>Deploy <code>medline-catalog</code> to K8s as its own SSR service (same code, runs identically)</li>
+          <li>Route <code>/catalog/*</code> traffic to the new service</li>
+          <li>Begin stripping Cart, Checkout, Account, and other non-Catalog code from the copy</li>
+          <li>The Catalog team now owns their deployment pipeline end-to-end</li>
+        </ol>
+
+        <div class="mermaid-wrap" id="d02-1">
+          <div class="mw-toolbar">
+            <button onclick="mzoom(this,1.2)">+</button>
+            <button onclick="mzoom(this,0.8)">&minus;</button>
+            <button onclick="mreset(this)">Reset</button>
+            <button onclick="mfull(this)">&#x26F6;</button>
+          </div>
+          <div class="mw-view"><div class="mermaid-inner" data-src="graph LR
+    subgraph STEP1[&quot;Step 1: Copy&quot;]
+      M1[Monolith\n84+ MFEs] -->|clone| C1[Full Copy\n84+ MFEs]
+    end
+    subgraph STEP2[&quot;Step 2: Split&quot;]
+      C1 -->|rename| CAT[Catalog Service\n84+ MFEs still present]
+      CAT -->|deploy| K8S[Own K8s Pod]
+    end
+    subgraph STEP3[&quot;Step 3: Strip&quot;]
+      CAT -->|remove non-catalog| CLEAN[Catalog Service\nCatalog MFEs Only]
+    end
+    M1 -.->|still running| TRAFFIC[All Traffic]
+    CLEAN -.->|canary route| TRAFFIC
+    style STEP1 fill:#1c2333,stroke:#58a6ff,color:#58a6ff
+    style STEP2 fill:#1c2333,stroke:#d2a8ff,color:#d2a8ff
+    style STEP3 fill:#1c2333,stroke:#3fb950,color:#3fb950
+    style M1 fill:#3d1f00,stroke:#f0883e,color:#f0883e
+    style CLEAN fill:#0d2818,stroke:#3fb950,color:#3fb950"></div></div>
+          <div class="mw-caption">Copy-Split-Strip Flow &mdash; The monolith is cloned per domain, then trimmed down to only what that domain needs</div>
+        </div>
+
+        <div class="callout">
+          <strong>Key Insight</strong>
+          You never stop running the original monolith until you choose to. There is no flag day. There is no cutover weekend. Domains peel off one at a time, at whatever pace makes sense for your teams.
+        </div>
+      </div>
+    </details>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- SECTION 3: Domain Extraction -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <details id="s03">
+      <summary>
+        <span class="section-num">3</span>
+        Domain Extraction: One Vertical at a Time
+        <span class="summary-text">Each e-commerce domain becomes its own deployable unit</span>
+      </summary>
+      <div class="section-body">
+        <p>The 84+ micro frontends in today's monolith represent distinct business domains. Each domain should own its own deployment lifecycle, its own release cadence, and its own team structure. Domain extraction makes this real.</p>
+
+        <h3>E-Commerce Domain Map</h3>
+        <ul>
+          <li><strong>Catalog / PLP</strong> &mdash; Product listing pages, category navigation, filtering, sorting</li>
+          <li><strong>PDP (Product Detail)</strong> &mdash; Product pages, specifications, images, reviews</li>
+          <li><strong>Search</strong> &mdash; Site search, typeahead, faceted search, search analytics</li>
+          <li><strong>Cart / Mini-Cart</strong> &mdash; Shopping cart, quantity management, saved carts</li>
+          <li><strong>Checkout</strong> &mdash; Checkout flow, payment, shipping, order confirmation</li>
+          <li><strong>Account</strong> &mdash; User profiles, order history, lists, preferences</li>
+          <li><strong>Content / CMS</strong> &mdash; Landing pages, promotional content, banners</li>
+          <li><strong>Navigation / Shell</strong> &mdash; Global header, footer, mega-menu, breadcrumbs</li>
+          <li><strong>Analytics</strong> &mdash; Tracking, event collection, A/B testing integration</li>
+          <li><strong>Shared Components</strong> &mdash; Design system components used across domains</li>
+        </ul>
+
+        <h3>What Domain Independence Means</h3>
+        <ul>
+          <li>Each domain deploys independently&mdash;Catalog ships without waiting for Checkout</li>
+          <li>Teams own their domain end-to-end: code, tests, deployment, monitoring</li>
+          <li>Domain boundaries are explicit, not implicit</li>
+          <li>Cross-domain communication happens through well-defined contracts, not shared state</li>
+          <li>Drift between domains is expected and managed (covered in Section 7)</li>
+        </ul>
+
+        <div class="industry-std">
+          <strong>Industry Standard: Domain-Driven Design</strong>
+          Domain-driven micro frontend architecture aligns with the bounded context patterns described by Eric Evans. Each domain is a bounded context with explicit interfaces. This is the pattern used by Amazon, Zalando, IKEA, and every other enterprise e-commerce platform operating at scale.
+        </div>
+
+        <div class="mermaid-wrap" id="d03-1">
+          <div class="mw-toolbar">
+            <button onclick="mzoom(this,1.2)">+</button>
+            <button onclick="mzoom(this,0.8)">&minus;</button>
+            <button onclick="mreset(this)">Reset</button>
+            <button onclick="mfull(this)">&#x26F6;</button>
+          </div>
+          <div class="mw-view"><div class="mermaid-inner" data-src="graph TB
+    SHELL[CSR Shell\nComposition Layer]
+    SHELL --> CAT[Catalog / PLP\nOwn Deploy]
+    SHELL --> PDP[PDP\nOwn Deploy]
+    SHELL --> SRCH[Search\nOwn Deploy]
+    SHELL --> CART[Cart / Mini-Cart\nOwn Deploy]
+    SHELL --> CHK[Checkout\nOwn Deploy]
+    SHELL --> ACCT[Account\nOwn Deploy]
+    SHELL --> CMS[Content / CMS\nOwn Deploy]
+    SHELL --> NAV[Navigation\nOwn Deploy]
+    CAT -.->|contract| CART
+    PDP -.->|contract| CART
+    SRCH -.->|contract| CAT
+    CHK -.->|contract| CART
+    style SHELL fill:#1c2333,stroke:#58a6ff,color:#58a6ff
+    style CAT fill:#0d2818,stroke:#3fb950,color:#3fb950
+    style PDP fill:#0d2818,stroke:#3fb950,color:#3fb950
+    style SRCH fill:#0d2818,stroke:#3fb950,color:#3fb950
+    style CART fill:#0d2818,stroke:#3fb950,color:#3fb950
+    style CHK fill:#0d2818,stroke:#3fb950,color:#3fb950
+    style ACCT fill:#0d2818,stroke:#3fb950,color:#3fb950
+    style CMS fill:#0d2818,stroke:#3fb950,color:#3fb950
+    style NAV fill:#0d2818,stroke:#3fb950,color:#3fb950"></div></div>
+          <div class="mw-caption">Domain Map &mdash; Each e-commerce domain as an independent deployable unit with explicit contracts</div>
+        </div>
+
+        <div class="callout">
+          <strong>Team Autonomy</strong>
+          The Catalog team can ship three times a day if they want. The Checkout team can take two weeks for a careful release. Neither is blocked by the other. This is the fundamental shift from monolith thinking to domain thinking.
+        </div>
+      </div>
+    </details>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- SECTION 4: Shell Swap -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <details id="s04">
+      <summary>
+        <span class="section-num">4</span>
+        Shell Swap: Next.js &rarr; WCFramework CSR Shell
+        <span class="summary-text">Lightweight client-side composition replaces server-side monolith</span>
+      </summary>
+      <div class="section-body">
+        <p>Once domains are extracted, the Next.js monolith shell is no longer needed. It gets replaced by a lightweight CSR (Client-Side Rendering) shell that composes micro frontends at the browser level using W3C Web Components.</p>
+
+        <h3>Why CSR Over SSR for Composition</h3>
+        <ul>
+          <li><strong>Separation of concerns</strong> &mdash; The BFF handles data fetching and API orchestration. The shell handles UI composition. Clean boundary.</li>
+          <li><strong>No shared server resources</strong> &mdash; SSR-first architectures that made sense for small teams doing SEO-focused content sites become a bottleneck when 84 micro frontends are competing for the same server-side rendering pipeline.</li>
+          <li><strong>Simpler deployment model</strong> &mdash; A CSR shell is static HTML/JS/CSS on a CDN. No Node.js servers to scale. No SSR memory leaks to debug.</li>
+          <li><strong>True runtime isolation</strong> &mdash; Web Components with Shadow DOM provide browser-native encapsulation. No CSS leaks. No global state collisions.</li>
+        </ul>
+
+        <h3>How the Shell Works</h3>
+        <ol>
+          <li>The CSR shell loads as a lightweight HTML page from CDN</li>
+          <li>An import map defines which micro frontends to load and from where</li>
+          <li>Each micro frontend is a Web Component, loaded dynamically</li>
+          <li>Existing React 17 components are wrapped as Web Components&mdash;they work inside the new shell immediately</li>
+          <li>The shell provides routing, layout, and cross-domain event bus&mdash;nothing else</li>
+        </ol>
+
+        <div class="industry-std">
+          <strong>Industry Standard: W3C Custom Elements &amp; Shadow DOM</strong>
+          Custom Elements (v1) and Shadow DOM (v1) are W3C standards implemented natively in every modern browser. They provide component registration, lifecycle hooks, and style encapsulation without any framework dependency. This is the browser's built-in component model.
+        </div>
+
+        <div class="callout">
+          <strong>The SSR Counterargument</strong>
+          SSR is valuable for SEO-critical content pages and initial load performance. For authenticated e-commerce experiences with 84+ micro frontends, the SSR overhead creates more problems than it solves. The BFF pattern (Section 8) provides all the data performance benefits of SSR without coupling the rendering pipeline.
+        </div>
+
+        <div class="mermaid-wrap" id="d04-1">
+          <div class="mw-toolbar">
+            <button onclick="mzoom(this,1.2)">+</button>
+            <button onclick="mzoom(this,0.8)">&minus;</button>
+            <button onclick="mreset(this)">Reset</button>
+            <button onclick="mfull(this)">&#x26F6;</button>
+          </div>
+          <div class="mw-view"><div class="mermaid-inner" data-src="graph TB
+    subgraph BEFORE[&quot;Before: SSR Monolith&quot;]
+      NJS[Next.js 12.3 Server] -->|SSR render| HTML1[Full HTML]
+      NJS --> API1[Direct Backend Calls]
+      NJS --> MFE1[84+ MFEs Sharing Runtime]
+    end
+    subgraph AFTER[&quot;After: CSR Shell + BFF&quot;]
+      CDN[CDN\nStatic Shell] -->|load| SHELL2[WCFramework CSR Shell]
+      SHELL2 -->|import map| WC1[Catalog WC]
+      SHELL2 -->|import map| WC2[Cart WC]
+      SHELL2 -->|import map| WC3[Checkout WC]
+      SHELL2 -->|import map| WC4[Account WC]
+      WC1 --> BFF1[Catalog BFF]
+      WC2 --> BFF2[Cart BFF]
+      WC3 --> BFF3[Checkout BFF]
+      WC4 --> BFF4[Account BFF]
+    end
+    style BEFORE fill:#3d1f00,stroke:#f0883e,color:#f0883e
+    style AFTER fill:#0d2818,stroke:#3fb950,color:#3fb950
+    style NJS fill:#6e1616,stroke:#f85149,color:#f85149
+    style CDN fill:#1a3a5c,stroke:#58a6ff,color:#58a6ff
+    style SHELL2 fill:#1a3a5c,stroke:#58a6ff,color:#58a6ff"></div></div>
+          <div class="mw-caption">Before &amp; After &mdash; SSR monolith replaced by CDN-served CSR shell with domain-specific BFFs</div>
+        </div>
+      </div>
+    </details>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- SECTION 5: Component Transition -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <details id="s05">
+      <summary>
+        <span class="section-num">5</span>
+        Component Transition: React 17 &rarr; HTML-First MV* Components
+        <span class="summary-text">Gradual migration from React to standards-based components</span>
+      </summary>
+      <div class="section-body">
+        <p>You don't rewrite 84+ micro frontends on day one. The component transition is progressive, running at each team's pace. Existing React components stay, wrapped as Web Components. New components use the WCFramework HTML-first pattern.</p>
+
+        <h3>The Three-Stage Component Lifecycle</h3>
+        <ol>
+          <li><strong>Stage 1: React as-is</strong> &mdash; Existing React 17 components run inside the CSR shell, wrapped in a thin Web Component adapter. No code changes required.</li>
+          <li><strong>Stage 2: React wrapped</strong> &mdash; React components are formally registered as Web Components with proper Shadow DOM encapsulation. They participate in the component catalog.</li>
+          <li><strong>Stage 3: WCFramework native</strong> &mdash; When a component needs a major rewrite anyway, it's rebuilt using the WCFramework HTML-first MV* pattern. Pure standards. No framework dependency.</li>
+        </ol>
+
+        <h3>WCFramework Component Pattern</h3>
+        <ul>
+          <li><strong>ML- prefix</strong> &mdash; All Medline components use the <code>ml-</code> prefix (e.g., <code>&lt;ml-product-card&gt;</code>, <code>&lt;ml-cart-summary&gt;</code>, <code>&lt;ml-search-bar&gt;</code>)</li>
+          <li><strong>Single module per component</strong> &mdash; Each component is a self-contained ES module, loaded dynamically from CDN</li>
+          <li><strong>HTML-first</strong> &mdash; Components are authored in HTML templates with declarative bindings. No JSX compilation step.</li>
+          <li><strong>MV* pattern</strong> &mdash; Model-View-Whatever: the component defines its data model, its template, and its behavior. No prescribed state management library.</li>
+          <li><strong>Shadow DOM encapsulation</strong> &mdash; Every component's styles and DOM are isolated from the rest of the page. No CSS leaks, ever.</li>
+        </ul>
+
+        <div class="industry-std">
+          <strong>Industry Standard: HTML Templates &amp; ES Modules</strong>
+          HTML Templates and ES Modules are W3C/WHATWG standards supported by every browser. Combined with Custom Elements and Shadow DOM, they form a complete component model with zero framework dependencies. This is the platform itself as the framework.
+        </div>
+
+        <div class="mermaid-wrap" id="d05-1">
+          <div class="mw-toolbar">
+            <button onclick="mzoom(this,1.2)">+</button>
+            <button onclick="mzoom(this,0.8)">&minus;</button>
+            <button onclick="mreset(this)">Reset</button>
+            <button onclick="mfull(this)">&#x26F6;</button>
+          </div>
+          <div class="mw-view"><div class="mermaid-inner" data-src="graph LR
+    subgraph STAGE1[&quot;Stage 1: React As-Is&quot;]
+      R1[React 17 Component] -->|thin wrapper| WC1[Web Component Shell]
+    end
+    subgraph STAGE2[&quot;Stage 2: React Wrapped&quot;]
+      R2[React Component] -->|Shadow DOM adapter| WC2[Registered WC\nIn Catalog]
+    end
+    subgraph STAGE3[&quot;Stage 3: WCFramework Native&quot;]
+      HTML[HTML Template] --> MV[MV* Pattern]
+      MV --> WC3[ml-component\nPure Standards]
+    end
+    STAGE1 -->|team decides when| STAGE2
+    STAGE2 -->|next major rewrite| STAGE3
+    style STAGE1 fill:#3d1f00,stroke:#f0883e,color:#f0883e
+    style STAGE2 fill:#2a1a40,stroke:#d2a8ff,color:#d2a8ff
+    style STAGE3 fill:#0d2818,stroke:#3fb950,color:#3fb950
+    style WC3 fill:#0d2818,stroke:#3fb950,color:#3fb950"></div></div>
+          <div class="mw-caption">Component Lifecycle &mdash; Progressive transition from React 17 to standards-based WCFramework components</div>
+        </div>
+
+        <div class="callout">
+          <strong>No Flag Day</strong>
+          React components and WCFramework components coexist in the same shell, on the same page. A product listing page could have <code>&lt;ml-product-card&gt;</code> (WCFramework) next to a React-wrapped filter component. Both are Web Components to the shell. Both work.
+        </div>
+      </div>
+    </details>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- SECTION 6: The App Catalog -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <details id="s06">
+      <summary>
+        <span class="section-num">6</span>
+        The App Catalog: Your Single Source of Truth
+        <span class="summary-text">Every component, version, and dependency tracked and discoverable</span>
+      </summary>
+      <div class="section-body">
+        <p>With 84+ micro frontends splitting into independent domains, you need a single place that knows everything: what components exist, what version each is running, what data contracts each consumes, and what depends on what. That's the App Catalog.</p>
+
+        <h3>What the App Catalog Tracks</h3>
+        <ul>
+          <li><strong>Component registry</strong> &mdash; Every <code>ml-*</code> component, every React-wrapped component, every shared utility. Versioned, tagged, searchable.</li>
+          <li><strong>Deployment status</strong> &mdash; Which version is deployed to which environment (Dev, QA, UAT, Prod) for every domain.</li>
+          <li><strong>Dependency graph</strong> &mdash; What depends on what. If <code>ml-product-card@2.3.1</code> changes its API, the catalog knows exactly which pages and domains are affected.</li>
+          <li><strong>Data contracts</strong> &mdash; API scanning discovers data shapes automatically. The catalog knows the contract between every BFF and every component.</li>
+          <li><strong>Breaking change detection</strong> &mdash; Before deployment, the catalog compares the new version's API surface against all consumers. Breaking changes are flagged automatically.</li>
+          <li><strong>Health metrics</strong> &mdash; Bundle sizes, load times, error rates, usage frequency&mdash;all visible in one place.</li>
+        </ul>
+
+        <h3>Discovery Over Documentation</h3>
+        <p>The App Catalog doesn't rely on teams keeping documentation up to date. It scans. It discovers. It tracks automatically. When a new component is published to CDN, the catalog picks it up. When an API contract changes, the catalog detects it.</p>
+
+        <div class="industry-std">
+          <strong>Industry Standard: Software Catalog (Backstage Pattern)</strong>
+          Centralized software catalogs are the industry standard for managing micro frontend and microservice architectures at scale. Spotify's Backstage, which popularized this pattern, is now a CNCF incubating project used by hundreds of enterprises. The App Catalog extends this pattern with component-level granularity and automated contract scanning.
+        </div>
+
+        <div class="mermaid-wrap" id="d06-1">
+          <div class="mw-toolbar">
+            <button onclick="mzoom(this,1.2)">+</button>
+            <button onclick="mzoom(this,0.8)">&minus;</button>
+            <button onclick="mreset(this)">Reset</button>
+            <button onclick="mfull(this)">&#x26F6;</button>
+          </div>
+          <div class="mw-view"><div class="mermaid-inner" data-src="graph TB
+    subgraph CATALOG[&quot;App Catalog — Single Source of Truth&quot;]
+      REG[Component Registry\nml-product-card@2.3.1\nml-cart-summary@1.8.0\n...]
+      DEP[Dependency Graph\nWho uses what]
+      CON[Data Contracts\nAPI shapes per domain]
+      ENV[Environment Status\nDev / QA / UAT / Prod]
+      BRK[Breaking Change\nDetection]
+    end
+    SCAN[API Scanner\nAutomatic Discovery] --> CON
+    PUB[CDN Publish\nNew Versions] --> REG
+    REG --> DEP
+    DEP --> BRK
+    CON --> BRK
+    BRK -->|alert| TEAMS[Domain Teams]
+    ENV --> DASH[Operations Dashboard]
+    style CATALOG fill:#1a3a5c,stroke:#58a6ff,color:#58a6ff
+    style BRK fill:#3d1f00,stroke:#f0883e,color:#f0883e
+    style SCAN fill:#0d2818,stroke:#3fb950,color:#3fb950
+    style PUB fill:#0d2818,stroke:#3fb950,color:#3fb950"></div></div>
+          <div class="mw-caption">App Catalog &mdash; Component registry with version tracking, dependency graphs, and automated contract scanning</div>
+        </div>
+
+        <div class="callout">
+          <strong>The Question It Answers</strong>
+          "What version of the product card is running in production, who published it, when, and what will break if we upgrade?" The App Catalog answers this in seconds, not hours of Slack threads.
+        </div>
+      </div>
+    </details>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- SECTION 7: Managing Drift -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <details id="s07">
+      <summary>
+        <span class="section-num">7</span>
+        Managing Drift: Automation Over Coordination
+        <span class="summary-text">Domains will drift — that's expected and managed automatically</span>
+      </summary>
+      <div class="section-body">
+        <p>Once domains split and teams own their own release cadence, they will drift. Different domains will run different versions of shared components. Different teams will adopt new patterns at different speeds. <strong>This is not a bug. This is the feature.</strong></p>
+
+        <h3>Why Drift Is Good</h3>
+        <ul>
+          <li><strong>Team autonomy</strong> &mdash; Teams that are ready to upgrade do so. Teams that are mid-sprint on a critical feature don't get interrupted.</li>
+          <li><strong>Risk isolation</strong> &mdash; If the new version of a shared component has a subtle issue, only the domains that adopted it are affected. Not all 84.</li>
+          <li><strong>Natural testing</strong> &mdash; Early adopter domains serve as canaries for the rest of the organization.</li>
+        </ul>
+
+        <h3>The 1-Year Core Cadence</h3>
+        <ul>
+          <li>Core framework and shared components publish <strong>one major version per year</strong></li>
+          <li>Two component sets published yearly: one in WCFramework format, one in React wrapper format</li>
+          <li>Domains have 12 months to adopt the new version at their own pace</li>
+          <li><strong>Automated change-mod scripts</strong> handle the mechanical parts of upgrades (import paths, API signature changes, deprecation replacements)</li>
+          <li>Small sites and small teams can move fast. Large domains can take their time. Or stay on last year's stack&mdash;that's fine too.</li>
+        </ul>
+
+        <h3>How the App Catalog Manages Drift</h3>
+        <ul>
+          <li>The catalog shows exactly which version each domain is running</li>
+          <li>It provides a clear target: "here's the latest, here's what changed, here's the automated script to get there"</li>
+          <li>Drift metrics are visible to leadership without requiring manual reporting</li>
+          <li>No surprise breaks&mdash;the 1-year cadence means teams plan for upgrades, not react to them</li>
+        </ul>
+
+        <div class="industry-std">
+          <strong>Industry Standard: Managed Dependency Cadence</strong>
+          Enterprise teams of 50-200 developers cannot coordinate simultaneous upgrades across 84+ deployable units. The managed cadence pattern (annual major, quarterly minor, weekly patch) provides predictability without forcing lockstep coordination. This is the same pattern used by the Java ecosystem (LTS releases), .NET (annual cadence), and every successful enterprise platform.
+        </div>
+
+        <div class="mermaid-wrap" id="d07-1">
+          <div class="mw-toolbar">
+            <button onclick="mzoom(this,1.2)">+</button>
+            <button onclick="mzoom(this,0.8)">&minus;</button>
+            <button onclick="mreset(this)">Reset</button>
+            <button onclick="mfull(this)">&#x26F6;</button>
+          </div>
+          <div class="mw-view"><div class="mermaid-inner" data-src="gantt
+    title Component Version Adoption Timeline
+    dateFormat YYYY-MM
+    axisFormat %b %Y
+    section Core Release
+    Core v3.0 Published           :milestone, m1, 2026-01, 0d
+    Core v4.0 Published           :milestone, m2, 2027-01, 0d
+    section Catalog Domain
+    v3.0 Adoption                 :active, cat3, 2026-02, 2026-04
+    v4.0 Adoption                 :cat4, 2027-02, 2027-04
+    section Cart Domain
+    v3.0 Adoption                 :cart3, 2026-04, 2026-06
+    v4.0 Adoption                 :cart4, 2027-03, 2027-06
+    section Checkout Domain
+    v3.0 Adoption                 :chk3, 2026-05, 2026-08
+    v4.0 Adoption                 :chk4, 2027-04, 2027-08
+    section Account Domain
+    v3.0 Adoption                 :acct3, 2026-06, 2026-10
+    v4.0 Adoption                 :acct4, 2027-06, 2027-10</div></div>
+          <div class="mw-caption">Version Timeline &mdash; 1-year core cadence with domains adopting at their own pace</div>
+        </div>
+
+        <div class="callout">
+          <strong>Automation Over Coordination</strong>
+          The change-mod scripts do the mechanical work. The App Catalog tracks the progress. Leadership sees a dashboard, not a spreadsheet maintained by a program manager. Drift is a solved problem when you have the right tooling.
+        </div>
+      </div>
+    </details>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- SECTION 8: The BFF Pattern -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <details id="s08">
+      <summary>
+        <span class="section-num">8</span>
+        The BFF Pattern: Backend Isolation
+        <span class="summary-text">Backend-for-Frontend isolates every domain from backend complexity</span>
+      </summary>
+      <div class="section-body">
+        <p>The Backend-for-Frontend (BFF) pattern gives each domain its own backend layer. Frontend teams never touch backend services directly. The BFF is the boundary between frontend concerns (presentation, interaction) and backend concerns (business logic, data, integrations).</p>
+
+        <h3>How the BFF Works</h3>
+        <ul>
+          <li>Each domain has its own BFF service</li>
+          <li>The BFF aggregates data from multiple backend services into exactly the shape the frontend needs</li>
+          <li>The BFF handles authentication, caching, and error transformation</li>
+          <li>Frontend components call their domain's BFF and only their domain's BFF</li>
+          <li>Backend service changes are absorbed by the BFF layer, not by the frontend</li>
+        </ul>
+
+        <h3>API Contract Scanning</h3>
+        <ul>
+          <li>The App Catalog's API scanner automatically discovers data shapes between BFFs and backend services</li>
+          <li>Contract changes are detected before deployment</li>
+          <li>Breaking changes trigger automated alerts to affected domain teams</li>
+          <li>Contract tests run in CI/CD to validate compatibility</li>
+        </ul>
+
+        <h3>Deployment Model</h3>
+        <ul>
+          <li>BFFs deploy independently from both frontend and backend</li>
+          <li>Blue/green deployments at the BFF level provide instant rollback</li>
+          <li>Each BFF can be scaled independently based on its domain's traffic patterns</li>
+          <li>The Catalog BFF handles thousands of product queries; the Account BFF handles fewer, more complex transactions</li>
+        </ul>
+
+        <div class="industry-std">
+          <strong>Industry Standard: Backend-for-Frontend</strong>
+          The BFF pattern was pioneered by Sam Newman at ThoughtWorks and is now the standard architecture for any enterprise with multiple frontend experiences (web, mobile, kiosk) consuming shared backend services. It eliminates the "one API to rule them all" problem that creates coupling between frontend and backend teams.
+        </div>
+
+        <div class="mermaid-wrap" id="d08-1">
+          <div class="mw-toolbar">
+            <button onclick="mzoom(this,1.2)">+</button>
+            <button onclick="mzoom(this,0.8)">&minus;</button>
+            <button onclick="mreset(this)">Reset</button>
+            <button onclick="mfull(this)">&#x26F6;</button>
+          </div>
+          <div class="mw-view"><div class="mermaid-inner" data-src="graph TB
+    subgraph FRONTEND[&quot;Frontend — CSR Shell&quot;]
+      ML1[ml-product-card]
+      ML2[ml-cart-summary]
+      ML3[ml-checkout-flow]
+      ML4[ml-account-profile]
+    end
+    subgraph BFF_LAYER[&quot;BFF Layer — Domain Isolation&quot;]
+      BFF1[Catalog BFF]
+      BFF2[Cart BFF]
+      BFF3[Checkout BFF]
+      BFF4[Account BFF]
+    end
+    subgraph BACKEND[&quot;Backend Services&quot;]
+      PROD[Product Service]
+      INV[Inventory Service]
+      PRICE[Pricing Service]
+      ORDER[Order Service]
+      PAY[Payment Service]
+      USER[User Service]
+    end
+    ML1 --> BFF1
+    ML2 --> BFF2
+    ML3 --> BFF3
+    ML4 --> BFF4
+    BFF1 --> PROD
+    BFF1 --> INV
+    BFF1 --> PRICE
+    BFF2 --> PROD
+    BFF2 --> PRICE
+    BFF3 --> ORDER
+    BFF3 --> PAY
+    BFF3 --> INV
+    BFF4 --> USER
+    BFF4 --> ORDER
+    style FRONTEND fill:#1a3a5c,stroke:#58a6ff,color:#58a6ff
+    style BFF_LAYER fill:#2a1a40,stroke:#d2a8ff,color:#d2a8ff
+    style BACKEND fill:#1c2333,stroke:#30363d,color:#8b949e"></div></div>
+          <div class="mw-caption">BFF Architecture &mdash; Each domain's frontend communicates exclusively with its own BFF, which orchestrates backend calls</div>
+        </div>
+
+        <div class="callout">
+          <strong>Backend Changes Don't Break the Frontend</strong>
+          When the Product Service team refactors their API, only the Catalog BFF and Cart BFF need to adapt. The <code>&lt;ml-product-card&gt;</code> component doesn't change at all. This is isolation at every layer.
+        </div>
+      </div>
+    </details>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- SECTION 9: Testing, Rollouts, Blue/Green -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <details id="s09">
+      <summary>
+        <span class="section-num">9</span>
+        Testing, Rollouts, and Blue/Green Deployments
+        <span class="summary-text">Each domain deploys independently with instant rollback</span>
+      </summary>
+      <div class="section-body">
+        <p>Independent domains mean independent deployments. Each domain can roll out changes, validate them, and roll back without affecting any other domain. No more "wait for the release train."</p>
+
+        <h3>Blue/Green at the Domain Level</h3>
+        <ul>
+          <li>Each domain maintains two production slots: blue (current) and green (new version)</li>
+          <li>New version deploys to the green slot and gets validated</li>
+          <li>Traffic shifts from blue to green when validation passes</li>
+          <li>If anything goes wrong, traffic routes back to blue instantly</li>
+          <li>This is per-domain, not per-site. Catalog can be mid-rollout while Checkout is stable on its current version.</li>
+        </ul>
+
+        <h3>Import Map Rollback</h3>
+        <p>For the CSR shell, rollback is even simpler. The import map defines which component version loads. Rolling back means updating one line in the import map to point to the previous version on CDN. The previous version is still there&mdash;immutable artifacts never get deleted.</p>
+
+        <h3>Contract Testing</h3>
+        <ul>
+          <li><strong>Component contract tests</strong> &mdash; Verify that each Web Component's public API (attributes, events, slots) matches its documented contract</li>
+          <li><strong>BFF contract tests</strong> &mdash; Verify that each BFF's response shape matches what the frontend components expect</li>
+          <li><strong>Cross-domain integration tests</strong> &mdash; Verify that domain interactions (e.g., "add to cart" from PDP) work correctly across boundaries</li>
+          <li><strong>Visual regression tests</strong> &mdash; Automated screenshot comparison catches unexpected UI changes</li>
+        </ul>
+
+        <div class="industry-std">
+          <strong>Industry Standard: Immutable Artifacts + Import Maps</strong>
+          Immutable deployment artifacts on CDN are the gold standard for frontend deployment. Combined with browser-native import maps (now supported in all major browsers), they provide declarative version management with instant rollback. This eliminates the need for complex deployment orchestration.
+        </div>
+
+        <div class="mermaid-wrap" id="d09-1">
+          <div class="mw-toolbar">
+            <button onclick="mzoom(this,1.2)">+</button>
+            <button onclick="mzoom(this,0.8)">&minus;</button>
+            <button onclick="mreset(this)">Reset</button>
+            <button onclick="mfull(this)">&#x26F6;</button>
+          </div>
+          <div class="mw-view"><div class="mermaid-inner" data-src="graph LR
+    subgraph DEPLOY[&quot;Domain Deployment Flow&quot;]
+      BUILD[Build + Test] -->|pass| CDN_PUB[Publish to CDN\nImmutable Artifact]
+      CDN_PUB --> GREEN[Green Slot\nNew Version]
+      GREEN --> VALIDATE[Validation\nContract Tests\nVisual Regression]
+      VALIDATE -->|pass| SWITCH[Traffic Switch\nUpdate Import Map]
+      VALIDATE -->|fail| ROLLBACK[Keep Blue\nNo Impact]
+      SWITCH --> BLUE_OLD[Blue = Previous\nStill Available]
+    end
+    subgraph INSTANT[&quot;Instant Rollback&quot;]
+      ISSUE[Issue Detected] --> REVERT[Revert Import Map\n1 Line Change]
+      REVERT --> RESTORED[Previous Version\nInstant Recovery]
+    end
+    style GREEN fill:#0d2818,stroke:#3fb950,color:#3fb950
+    style ROLLBACK fill:#6e1616,stroke:#f85149,color:#f85149
+    style SWITCH fill:#1a3a5c,stroke:#58a6ff,color:#58a6ff
+    style REVERT fill:#3d1f00,stroke:#f0883e,color:#f0883e
+    style RESTORED fill:#0d2818,stroke:#3fb950,color:#3fb950"></div></div>
+          <div class="mw-caption">Blue/Green Deployment &mdash; Per-domain deployment with instant import map rollback</div>
+        </div>
+
+        <div class="callout">
+          <strong>Rollback in Seconds, Not Hours</strong>
+          Traditional monolith rollback means redeploying the entire application. Domain-level rollback means changing one entry in an import map. The old version is already on CDN. The switch is instant.
+        </div>
+      </div>
+    </details>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- SECTION 10: Why This Pattern Wins -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <details id="s10">
+      <summary>
+        <span class="section-num">10</span>
+        Why This Pattern Wins for Enterprise
+        <span class="summary-text">Standards-based longevity vs. framework churn</span>
+      </summary>
+      <div class="section-body">
+        <p>The patterns that work for small teams who throw out and start over every 6-18 months do <strong>not</strong> work for enterprise teams of 50-200 developers managing platforms that need to last 10-15 years. This is the fundamental disconnect in the current frontend ecosystem.</p>
+
+        <h3>The Enterprise Reality</h3>
+        <ul>
+          <li><strong>Frameworks with 18-month major version cycles create perpetual migration tax.</strong> Every major version means rewriting, retesting, and redeploying. With 84+ micro frontends, that migration tax is enormous.</li>
+          <li><strong>Library-specific hiring pools are narrow and expensive.</strong> Developers who know "React 18 with Server Components and the App Router" are a subset of developers who know React, who are a subset of developers who know JavaScript.</li>
+          <li><strong>Framework lock-in is invisible until it isn't.</strong> When the framework community moves on (jQuery, Backbone, Ember), you're left maintaining a legacy ecosystem with a shrinking talent pool.</li>
+        </ul>
+
+        <h3>The Standards Advantage</h3>
+        <ul>
+          <li><strong>W3C Web Components are browser-native</strong> &mdash; Backed by every browser vendor (Google, Apple, Mozilla, Microsoft). Not going away. Not changing their API every 18 months.</li>
+          <li><strong>No proprietary framework lock-in</strong> &mdash; Components are standard HTML elements. Any developer who knows HTML, CSS, and JavaScript can be productive.</li>
+          <li><strong>10-15 year component lifespans</strong> &mdash; Web Components written today will work in browsers 15 years from now, just like HTML written in 2010 still works today.</li>
+          <li><strong>The hiring pool is everyone</strong> &mdash; The platform IS the framework. HTML, CSS, JavaScript. Every web developer already knows the stack. Onboarding time drops from weeks to days.</li>
+        </ul>
+
+        <div class="industry-std">
+          <strong>Industry Standard: Platform-as-Framework</strong>
+          The web platform itself provides Custom Elements, Shadow DOM, HTML Templates, ES Modules, Import Maps, CSS Custom Properties, and the Fetch API. These are the building blocks of enterprise component development. They are maintained by the browser vendors, standardized by the W3C, and backward-compatible by design. No framework in history has matched this longevity commitment.
+        </div>
+
+        <div class="mermaid-wrap" id="d10-1">
+          <div class="mw-toolbar">
+            <button onclick="mzoom(this,1.2)">+</button>
+            <button onclick="mzoom(this,0.8)">&minus;</button>
+            <button onclick="mreset(this)">Reset</button>
+            <button onclick="mfull(this)">&#x26F6;</button>
+          </div>
+          <div class="mw-view"><div class="mermaid-inner" data-src="graph TB
+    subgraph FRAMEWORK_PATH[&quot;Framework-Centric Path&quot;]
+      FW1[Framework v16\n2022] -->|18 months| FW2[Framework v17\n2023]
+      FW2 -->|18 months| FW3[Framework v18\n2025]
+      FW3 -->|18 months| FW4[Framework v19\n2026]
+      FW4 -->|18 months| FW5[Framework v20\n2028]
+      FW1 -.->|migration tax| MIG1[Rewrite 84 MFEs]
+      FW2 -.->|migration tax| MIG2[Rewrite 84 MFEs]
+      FW3 -.->|migration tax| MIG3[Rewrite 84 MFEs]
+    end
+    subgraph STANDARDS_PATH[&quot;Standards-Based Path&quot;]
+      WC1[Web Components\n2022] --> WC2[Same Components\n2025]
+      WC2 --> WC3[Same Components\n2028]
+      WC3 --> WC4[Same Components\n2032]
+      WC4 --> WC5[Same Components\n2037]
+    end
+    style FRAMEWORK_PATH fill:#3d1f00,stroke:#f0883e,color:#f0883e
+    style STANDARDS_PATH fill:#0d2818,stroke:#3fb950,color:#3fb950
+    style MIG1 fill:#6e1616,stroke:#f85149,color:#f85149
+    style MIG2 fill:#6e1616,stroke:#f85149,color:#f85149
+    style MIG3 fill:#6e1616,stroke:#f85149,color:#f85149"></div></div>
+          <div class="mw-caption">Framework Churn vs. Standards Longevity &mdash; 18-month migration cycles vs. 10-15 year component lifespans</div>
+        </div>
+
+        <div class="callout">
+          <strong>The Simple Test</strong>
+          Will the components you build today still work in a browser 10 years from now? With Web Components, the answer is yes&mdash;because the browser vendors guarantee backward compatibility. With framework-specific components, the answer depends on whether the framework community still exists in 10 years.
+        </div>
+      </div>
+    </details>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- SECTION 11: Migration Timeline -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <details id="s11">
+      <summary>
+        <span class="section-num">11</span>
+        The Migration Timeline
+        <span class="summary-text">Four phases, each delivering value independently</span>
+      </summary>
+      <div class="section-body">
+        <p>The migration is structured as four overlapping phases. Each phase delivers value independently&mdash;you don't need to complete all four to see benefits. Phase 1 alone gives teams domain ownership and independent deployment.</p>
+
+        <h3>Phase 1: Domain Extraction (Copy-Split-Strip)</h3>
+        <ul>
+          <li>Copy the monolith for each domain</li>
+          <li>Deploy domain copies as independent K8s services (still SSR, same code)</li>
+          <li>Route traffic per-domain</li>
+          <li>Strip non-domain code from each copy</li>
+          <li><strong>Outcome:</strong> Teams own their deployment. Domains deploy independently. The monolith still runs as a fallback.</li>
+        </ul>
+
+        <h3>Phase 2: Shell Swap</h3>
+        <ul>
+          <li>Introduce the WCFramework CSR shell alongside the SSR domains</li>
+          <li>Wrap existing React micro frontends as Web Components</li>
+          <li>The CSR shell serves wrapped MFEs&mdash;same functionality, new composition model</li>
+          <li><strong>Outcome:</strong> Client-side composition in place. SSR rendering dependency removed. CDN-served shell.</li>
+        </ul>
+
+        <h3>Phase 3: Component Catalog + BFF Integration</h3>
+        <ul>
+          <li>Stand up the App Catalog with API scanning</li>
+          <li>Register all components (React-wrapped and native) in the catalog</li>
+          <li>Introduce BFF services for each domain</li>
+          <li>Migrate frontend components from direct backend calls to BFF calls</li>
+          <li><strong>Outcome:</strong> Full visibility into the component ecosystem. Backend isolation complete.</li>
+        </ul>
+
+        <h3>Phase 4: Progressive Component Evolution</h3>
+        <ul>
+          <li>As teams do major rewrites, they build with WCFramework patterns instead of React</li>
+          <li>New components use the <code>ml-</code> prefix and HTML-first pattern</li>
+          <li>Existing React components continue working&mdash;no forced migration</li>
+          <li>The 1-year core cadence provides the framework for gradual adoption</li>
+          <li><strong>Outcome:</strong> Standards-based component library growing organically. Framework dependency shrinking naturally.</li>
+        </ul>
+
+        <div class="mermaid-wrap" id="d11-1">
+          <div class="mw-toolbar">
+            <button onclick="mzoom(this,1.2)">+</button>
+            <button onclick="mzoom(this,0.8)">&minus;</button>
+            <button onclick="mreset(this)">Reset</button>
+            <button onclick="mfull(this)">&#x26F6;</button>
+          </div>
+          <div class="mw-view"><div class="mermaid-inner" data-src="gantt
+    title Migration Timeline — Four Overlapping Phases
+    dateFormat YYYY-Q
+    axisFormat %Y Q%q
+    section Phase 1 — Domain Extraction
+    Copy-Split-Strip Catalog       :active, p1a, 2026-Q2, 2026-Q3
+    Copy-Split-Strip Cart          :p1b, 2026-Q2, 2026-Q3
+    Copy-Split-Strip Checkout      :p1c, 2026-Q3, 2026-Q4
+    Copy-Split-Strip Remaining     :p1d, 2026-Q3, 2027-Q1
+    section Phase 2 — Shell Swap
+    CSR Shell Development          :p2a, 2026-Q3, 2026-Q4
+    React WC Wrappers              :p2b, 2026-Q3, 2027-Q1
+    Traffic Migration to CSR       :p2c, 2026-Q4, 2027-Q2
+    section Phase 3 — Catalog + BFF
+    App Catalog Setup              :p3a, 2026-Q4, 2027-Q1
+    BFF Services Per Domain        :p3b, 2027-Q1, 2027-Q3
+    API Contract Scanning          :p3c, 2027-Q1, 2027-Q2
+    section Phase 4 — Component Evolution
+    ml- Component Library          :p4a, 2027-Q1, 2027-Q4
+    Progressive React Replacement  :p4b, 2027-Q2, 2028-Q2
+    Full Standards-Based Stack     :milestone, p4m, 2028-Q2, 0d</div></div>
+          <div class="mw-caption">Migration Timeline &mdash; Four overlapping phases, each delivering value independently</div>
+        </div>
+
+        <div class="industry-std">
+          <strong>Industry Standard: Incremental Migration</strong>
+          Every successful enterprise platform migration in history has been incremental. Amazon's migration from monolith to microservices took years. Netflix's migration took years. The key is that each phase delivers value and each phase is reversible. There is no "Phase 3 fails and everything falls apart" scenario.
+        </div>
+
+        <div class="callout">
+          <strong>Each Phase Pays for the Next</strong>
+          Phase 1 (domain extraction) immediately gives teams deployment independence. That speed improvement justifies Phase 2. Phase 2 (shell swap) simplifies the infrastructure, which makes Phase 3 straightforward. There's no "big investment now, payoff later" gamble.
+        </div>
+      </div>
+    </details>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- SECTION 12: What Changes for Teams -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <details id="s12">
+      <summary>
+        <span class="section-num">12</span>
+        What Changes for Your Teams
+        <span class="summary-text">Domain ownership, faster onboarding, and no more waiting</span>
+      </summary>
+      <div class="section-body">
+        <p>This migration changes how teams work, how they deploy, and how fast new developers become productive. Here's what's concretely different.</p>
+
+        <h3>Deployment Cadence</h3>
+        <ul>
+          <li><strong>Before:</strong> All 84+ MFEs deploy together on a release train. A single broken test blocks everyone.</li>
+          <li><strong>After:</strong> Each domain deploys independently. The Catalog team can ship three times a day. The Checkout team can take two weeks. Neither blocks the other.</li>
+        </ul>
+
+        <h3>Team Ownership</h3>
+        <ul>
+          <li><strong>Before:</strong> Teams "own" their micro frontend but share the runtime, share the build, share the deployment. Ownership is nominal.</li>
+          <li><strong>After:</strong> Teams own their domain end-to-end: code, build, tests, deployment, monitoring, BFF. True ownership with true accountability.</li>
+        </ul>
+
+        <h3>Onboarding Speed</h3>
+        <ul>
+          <li><strong>Before:</strong> New developers need to understand the Next.js monolith, the shared runtime, the build system, the deployment pipeline, and the implicit dependencies between 84 micro frontends.</li>
+          <li><strong>After:</strong> New developers learn their domain's components and their domain's BFF. The component catalog tells them what exists. The standards-based stack (HTML, CSS, JS) is what they already know.</li>
+          <li><strong>Offshore resources who know HTML can be productive on day one.</strong> The WCFramework pattern is HTML templates and JavaScript. No JSX. No framework-specific idioms to learn.</li>
+        </ul>
+
+        <h3>Upgrade Path</h3>
+        <ul>
+          <li><strong>Before:</strong> Framework major version upgrades are multi-month, all-hands projects that touch every MFE.</li>
+          <li><strong>After:</strong> 1-year core cadence with automated change-mod scripts. Each team upgrades at their own pace. The catalog tracks who's on what version.</li>
+        </ul>
+
+        <h3>Discoverability</h3>
+        <ul>
+          <li><strong>Before:</strong> "Does a product card component already exist? What version? Where's the code? What data does it need?" &mdash; Slack threads, tribal knowledge, stale docs.</li>
+          <li><strong>After:</strong> The App Catalog. Search for any component, see every version, see every consumer, see the data contract. Seconds, not hours.</li>
+        </ul>
+
+        <div class="mermaid-wrap" id="d12-1">
+          <div class="mw-toolbar">
+            <button onclick="mzoom(this,1.2)">+</button>
+            <button onclick="mzoom(this,0.8)">&minus;</button>
+            <button onclick="mreset(this)">Reset</button>
+            <button onclick="mfull(this)">&#x26F6;</button>
+          </div>
+          <div class="mw-view"><div class="mermaid-inner" data-src="graph LR
+    subgraph BEFORE[&quot;Before: Monolith Release Train&quot;]
+      T1[Team A\nReady] --> TRAIN[Release Train\nWait for all 84]
+      T2[Team B\nReady] --> TRAIN
+      T3[Team C\nBlocked] --> TRAIN
+      TRAIN --> DEPLOY1[Deploy Everything\nFull Regression]
+    end
+    subgraph AFTER[&quot;After: Domain Independence&quot;]
+      TA[Catalog Team] -->|own pipeline| DA[Deploy Catalog\n3x/day]
+      TB[Cart Team] -->|own pipeline| DB[Deploy Cart\nWeekly]
+      TC[Checkout Team] -->|own pipeline| DC[Deploy Checkout\nBi-weekly]
+    end
+    style BEFORE fill:#3d1f00,stroke:#f0883e,color:#f0883e
+    style AFTER fill:#0d2818,stroke:#3fb950,color:#3fb950
+    style TRAIN fill:#6e1616,stroke:#f85149,color:#f85149
+    style DA fill:#0d2818,stroke:#3fb950,color:#3fb950
+    style DB fill:#0d2818,stroke:#3fb950,color:#3fb950
+    style DC fill:#0d2818,stroke:#3fb950,color:#3fb950"></div></div>
+          <div class="mw-caption">Team Impact &mdash; From shared release train to independent domain deployment</div>
+        </div>
+
+        <div class="callout">
+          <strong>The Bottom Line for Teams</strong>
+          Less waiting. More shipping. Clear ownership. Better tools. And a technology stack that doesn't require a framework migration every 18 months. This is what domain independence looks like in practice.
+        </div>
+      </div>
+    </details>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- KEY PRINCIPLES GRID -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <section id="principles" style="scroll-margin-top: 80px;">
+      <h2>Key Principles</h2>
+      <p>Six foundational principles that drive every decision in this migration strategy.</p>
+
+      <div class="principles-grid">
+        <div class="principle-card">
+          <div class="p-icon">&#128737;</div>
+          <h4>Zero-Risk Migration</h4>
+          <p>Copy, don't rewrite. The original monolith stays running until you choose to decommission it. Every step is reversible. The strangler fig pattern is the safest migration strategy in enterprise software.</p>
+        </div>
+        <div class="principle-card">
+          <div class="p-icon">&#127919;</div>
+          <h4>Domain Independence</h4>
+          <p>Ship on your own schedule. Each domain owns its code, its deployment pipeline, its release cadence, and its BFF. No more waiting for the monolith release train. No more "one team's change breaks everyone."</p>
+        </div>
+        <div class="principle-card">
+          <div class="p-icon">&#127760;</div>
+          <h4>Standards Over Frameworks</h4>
+          <p>W3C, not React. Not Vue. Not any framework. Web Components are browser-native, vendor-maintained, and backward-compatible by design. The platform is the framework. It will be here in 15 years.</p>
+        </div>
+        <div class="principle-card">
+          <div class="p-icon">&#9881;</div>
+          <h4>Automated Governance</h4>
+          <p>The App Catalog tracks every component. API scanning discovers contracts. Change-mod scripts automate upgrades. Breaking change detection prevents deployment surprises. Automation over coordination, always.</p>
+        </div>
+        <div class="principle-card">
+          <div class="p-icon">&#128274;</div>
+          <h4>Backend Isolation</h4>
+          <p>The BFF pattern ensures frontend teams never touch backend services directly. Backend changes are absorbed by the BFF layer. Frontend components only know their domain's BFF contract. Clean separation at every layer.</p>
+        </div>
+        <div class="principle-card">
+          <div class="p-icon">&#9203;</div>
+          <h4>Enterprise Longevity</h4>
+          <p>10-15 year component lifespans without framework migrations. 1-year core cadence with automated upgrade tooling. Developers who know HTML, CSS, and JavaScript are immediately productive. The hiring pool is everyone.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- NAMING NOTE -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div class="callout warn" style="margin-top: 2rem;">
+      <strong>Naming Convention</strong>
+      This document refers to the standards-based component framework as <strong>WCFramework</strong> (Web Component Framework) throughout. All Medline-specific components use the <code>ml-</code> prefix. These are the naming conventions used in all technical communications and the App Catalog.
+    </div>
+
+  </div><!-- /content-area -->
+</div><!-- /main-content -->
+
+<footer>
+  Platform Evolution: From Monolith to Domain-Driven Micro Frontends &mdash; v5 &mdash; 2026-04-05 &mdash; Confidential
+</footer>
+
+<!-- Confluence Export + Toast -->
+<button class="confluence-export" id="confExport" title="Copy Confluence-ready HTML to clipboard">Copy for Confluence</button>
+<div class="toast" id="toast">Copied!</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- SCRIPTS -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<script type="module">
+import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+
+(function() {
+  var body = document.body;
+  var themeBtn = document.getElementById('themeToggle');
+  var themeKey = 'wcf-theme';
+
+  /* ── Theme Toggle ── */
+  function isDark() { return !body.classList.contains('light'); }
+  function applyTheme(t) {
+    if (t === 'light') { body.classList.add('light'); themeBtn.innerHTML = '&#9728;'; }
+    else { body.classList.remove('light'); themeBtn.innerHTML = '&#9790;'; }
+  }
+  applyTheme(localStorage.getItem(themeKey) || 'dark');
+  themeBtn.addEventListener('click', function() {
+    var n = isDark() ? 'light' : 'dark';
+    localStorage.setItem(themeKey, n);
+    applyTheme(n);
+    renderMermaid();
+  });
+
+  /* ── Progress Bar ── */
+  var progressBar = document.getElementById('progressBar');
+  window.addEventListener('scroll', function() {
+    var winHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+    var scrolled = window.scrollY || window.pageYOffset;
+    var pct = winHeight > 0 ? (scrolled / winHeight) * 100 : 0;
+    progressBar.style.width = pct + '%';
+  });
+
+  /* ── TOC Sidebar: Hamburger Toggle ── */
+  var hamburger = document.getElementById('hamburgerBtn');
+  var tocSidebar = document.getElementById('tocSidebar');
+  var tocOverlay = document.getElementById('tocOverlay');
+  function closeToc() { tocSidebar.classList.remove('open'); tocOverlay.classList.remove('open'); }
+  function openToc() { tocSidebar.classList.add('open'); tocOverlay.classList.add('open'); }
+  hamburger.addEventListener('click', function() {
+    if (tocSidebar.classList.contains('open')) closeToc(); else openToc();
+  });
+  tocOverlay.addEventListener('click', closeToc);
+
+  /* ── TOC: Active Section Highlight on Scroll ── */
+  var tocLinks = document.querySelectorAll('.toc-list a');
+  var sectionIds = [];
+  tocLinks.forEach(function(link) { sectionIds.push(link.getAttribute('data-section')); });
+
+  function updateActiveToc() {
+    var scrollPos = window.scrollY + 120;
+    var activeId = sectionIds[0];
+    for (var i = 0; i < sectionIds.length; i++) {
+      var el = document.getElementById(sectionIds[i]);
+      if (el && el.getBoundingClientRect().top + window.scrollY <= scrollPos) {
+        activeId = sectionIds[i];
+      }
+    }
+    tocLinks.forEach(function(link) {
+      if (link.getAttribute('data-section') === activeId) link.classList.add('active');
+      else link.classList.remove('active');
+    });
+  }
+  window.addEventListener('scroll', updateActiveToc);
+  updateActiveToc();
+
+  /* Close mobile TOC when clicking a link */
+  tocLinks.forEach(function(link) {
+    link.addEventListener('click', function() {
+      if (window.innerWidth <= 900) closeToc();
+    });
+  });
+
+  /* ── TOC: Full-Text Search ── */
+  var tocSearchInput = document.getElementById('tocSearch');
+  var tocListItems = document.querySelectorAll('.toc-list li');
+
+  tocSearchInput.addEventListener('input', function() {
+    var query = this.value.trim().toLowerCase();
+    tocListItems.forEach(function(li) {
+      var link = li.querySelector('a');
+      var text = link.textContent.toLowerCase();
+      if (!query) {
+        li.classList.remove('hidden');
+        link.innerHTML = link.textContent;
+        return;
+      }
+      if (text.indexOf(query) !== -1) {
+        li.classList.remove('hidden');
+        var raw = link.textContent;
+        var idx = raw.toLowerCase().indexOf(query);
+        if (idx !== -1) {
+          link.innerHTML = raw.substring(0, idx) +
+            '<span class="search-highlight">' + raw.substring(idx, idx + query.length) + '</span>' +
+            raw.substring(idx + query.length);
+        }
+      } else {
+        li.classList.add('hidden');
+        link.innerHTML = link.textContent;
+      }
+    });
+  });
+
+  /* ── Mermaid Setup: Source + Copy Buttons ── */
+  document.querySelectorAll('.mermaid-wrap').forEach(function(wrap) {
+    var inner = wrap.querySelector('.mermaid-inner');
+    var src = inner.getAttribute('data-src');
+    var tb = wrap.querySelector('.mw-toolbar');
+
+    var srcBtn = document.createElement('button');
+    srcBtn.textContent = 'Source';
+    srcBtn.addEventListener('click', function() {
+      wrap.querySelector('.mw-source').classList.toggle('visible');
+      srcBtn.classList.toggle('active');
+    });
+    tb.appendChild(srcBtn);
+
+    var cpBtn = document.createElement('button');
+    cpBtn.textContent = 'Copy';
+    cpBtn.addEventListener('click', function() {
+      navigator.clipboard.writeText(src).then(function() { showToast('Mermaid source copied!'); });
+    });
+    tb.appendChild(cpBtn);
+
+    var pre = document.createElement('pre');
+    pre.className = 'mw-source';
+    pre.textContent = src;
+    var cap = wrap.querySelector('.mw-caption');
+    if (cap) wrap.insertBefore(pre, cap); else wrap.appendChild(pre);
+  });
+
+  /* ── Toast ── */
+  function showToast(msg) {
+    var t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(function() { t.classList.remove('show'); }, 2000);
+  }
+
+  /* ── Confluence Export ── */
+  document.getElementById('confExport').addEventListener('click', function() {
+    var main = document.querySelector('.content-area').cloneNode(true);
+    main.querySelectorAll('.mermaid-wrap').forEach(function(wrap) {
+      var src = wrap.querySelector('.mermaid-inner').getAttribute('data-src');
+      var cap = wrap.querySelector('.mw-caption');
+      var capText = cap ? cap.textContent : '';
+      var ph = document.createElement('div');
+      ph.innerHTML = '<ac:structured-macro ac:name="info"><ac:rich-text-body><p><strong>Mermaid Diagram: ' +
+        capText + '</strong></p></ac:rich-text-body></ac:structured-macro>' +
+        '<ac:structured-macro ac:name="code"><ac:parameter ac:name="language">mermaid</ac:parameter>' +
+        '<ac:plain-text-body><![CDATA[' + src + ']]></ac:plain-text-body></ac:structured-macro>';
+      wrap.replaceWith(ph);
+    });
+    main.querySelectorAll('script, .confluence-export, .toast').forEach(function(el) { el.remove(); });
+    navigator.clipboard.writeText(main.innerHTML).then(function() { showToast('Confluence HTML copied!'); });
+  });
+
+  /* ── Mermaid Rendering ── */
+  function renderMermaid() {
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: isDark() ? 'dark' : 'default',
+      themeVariables: isDark() ? {
+        primaryColor: '#1c2333',
+        primaryTextColor: '#e6edf3',
+        lineColor: '#58a6ff',
+        secondaryColor: '#161b22'
+      } : {},
+      gantt: {
+        titleTopMargin: 15,
+        barHeight: 20,
+        barGap: 4,
+        topPadding: 50,
+        sidePadding: 50
+      }
+    });
+    document.querySelectorAll('.mermaid-inner').forEach(function(el, i) {
+      var s = el.getAttribute('data-src');
+      el.innerHTML = s;
+      mermaid.render('m' + i + '-' + Date.now(), s).then(function(r) {
+        el.innerHTML = r.svg;
+      });
+    });
+  }
+  renderMermaid();
+
+  /* ── Mermaid Pan/Zoom/Fullscreen ── */
+  var scales = {}, pans = {};
+  window.mzoom = function(b, f) {
+    var w = b.closest('.mermaid-wrap'), id = w.id;
+    scales[id] = (scales[id] || 1) * f;
+    var p = pans[id] || { x: 0, y: 0 };
+    w.querySelector('.mermaid-inner').style.transform =
+      'translate(' + p.x + 'px,' + p.y + 'px) scale(' + scales[id] + ')';
+  };
+  window.mreset = function(b) {
+    var w = b.closest('.mermaid-wrap');
+    scales[w.id] = 1; pans[w.id] = { x: 0, y: 0 };
+    w.querySelector('.mermaid-inner').style.transform = 'scale(1)';
+  };
+  window.mfull = function(b) {
+    var w = b.closest('.mermaid-wrap');
+    if (document.fullscreenElement) document.exitFullscreen();
+    else w.requestFullscreen();
+  };
+
+  document.querySelectorAll('.mw-view').forEach(function(v) {
+    var d = false, sx, sy;
+    var w = v.closest('.mermaid-wrap');
+    var inner = v.querySelector('.mermaid-inner');
+    v.addEventListener('mousedown', function(e) { d = true; sx = e.clientX; sy = e.clientY; e.preventDefault(); });
+    window.addEventListener('mousemove', function(e) {
+      if (!d) return;
+      var id = w.id, p = pans[id] || { x: 0, y: 0 };
+      p.x += e.clientX - sx; p.y += e.clientY - sy;
+      pans[id] = p; sx = e.clientX; sy = e.clientY;
+      inner.style.transform = 'translate(' + p.x + 'px,' + p.y + 'px) scale(' + (scales[id] || 1) + ')';
+    });
+    window.addEventListener('mouseup', function() { d = false; });
+    v.addEventListener('wheel', function(e) {
+      e.preventDefault();
+      var id = w.id, f = e.deltaY < 0 ? 1.1 : 0.9;
+      scales[id] = (scales[id] || 1) * f;
+      var p = pans[id] || { x: 0, y: 0 };
+      inner.style.transform = 'translate(' + p.x + 'px,' + p.y + 'px) scale(' + scales[id] + ')';
+    }, { passive: false });
+  });
+
+  /* ── Smooth scroll for TOC links ── */
+  tocLinks.forEach(function(link) {
+    link.addEventListener('click', function(e) {
+      var target = document.getElementById(this.getAttribute('data-section'));
+      if (target) {
+        e.preventDefault();
+        /* If it's a details element, open it first */
+        if (target.tagName === 'DETAILS' && !target.open) {
+          target.open = true;
+        }
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        /* Update URL hash */
+        history.pushState(null, '', '#' + this.getAttribute('data-section'));
+      }
+    });
+  });
+
+  /* ── Open section from URL hash on load ── */
+  if (window.location.hash) {
+    var hashTarget = document.getElementById(window.location.hash.substring(1));
+    if (hashTarget && hashTarget.tagName === 'DETAILS') {
+      hashTarget.open = true;
+      setTimeout(function() { hashTarget.scrollIntoView({ block: 'start' }); }, 300);
+    }
+  }
+
+})();
+</script>
+
+</body>
+</html>

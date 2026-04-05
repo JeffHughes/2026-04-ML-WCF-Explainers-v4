@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Status at a Glance &mdash; Medline Platform Evolution</title>
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<div class="progress-bar"></div>
+<nav>
+  <a href="p-index.html" class="logo">ML Progress</a>
+  <div class="nav-links">
+    <a href="index.html">&larr; Migration Series</a>
+    <a href="p01-executive-dashboard.html" class="active">Dashboard</a>
+    <a href="p02-poc-results.html">POCs</a>
+    <a href="p03-domain-extraction-status.html">Domains</a>
+    <a href="p04-shell-and-components.html">Shell</a>
+    <a href="p05-infrastructure-status.html">Infra</a>
+    <a href="p06-risk-register.html">Risks</a>
+    <a href="p07-next-milestones.html">Next 90d</a>
+  </div>
+  <button class="theme-toggle" id="themeToggle" title="Toggle theme">&#9790;</button>
+</nav>
+
+<div class="hero">
+  <div class="page-num">Delivery Tracking &middot; P1</div>
+  <h1>Status at a Glance</h1>
+  <p class="subtitle">The 60-second executive dashboard. Everything you need to know about where we stand, delivered in one page.</p>
+</div>
+
+<main>
+
+<!-- Overall Progress -->
+<section>
+  <h2>Overall Program Progress</h2>
+  <p>Phase 1 (Domain Extraction &amp; Shell Foundation) is <strong>65% complete</strong> as of April 5, 2026. All three proof-of-concept validations passed. Two domains are extracted and running independently. Infrastructure tooling is ahead of schedule.</p>
+
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="stat-num green">65%</div>
+      <div class="stat-label">Phase 1 Complete</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num green">3/3</div>
+      <div class="stat-label">POCs Passed</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">2/9</div>
+      <div class="stat-label">Domains Extracted</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num purple">0</div>
+      <div class="stat-label">Critical Blockers</div>
+    </div>
+  </div>
+</section>
+
+<!-- Workstream Status -->
+<section>
+  <h2>Workstream Status</h2>
+  <table class="compare-table">
+    <thead>
+      <tr><th>Workstream</th><th>Status</th><th>Lead</th><th>Health</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>POC Validation</td><td class="good">&#9989; Complete</td><td>Architecture</td><td class="good">&#9632; Green</td></tr>
+      <tr><td>Catalog Domain Extraction</td><td class="good">&#9989; Complete</td><td>Catalog Team</td><td class="good">&#9632; Green</td></tr>
+      <tr><td>Shared/Core Isolation</td><td class="good">&#9989; Complete</td><td>Platform Team</td><td class="good">&#9632; Green</td></tr>
+      <tr><td>Cart Domain Extraction</td><td class="neutral">&#128309; Active &mdash; 80%</td><td>Cart Team</td><td class="good">&#9632; Green</td></tr>
+      <tr><td>Search Domain Extraction</td><td class="neutral">&#128309; Active &mdash; 60%</td><td>Search Team</td><td class="good">&#9632; Green</td></tr>
+      <tr><td>WCFramework Shell</td><td class="neutral">&#128309; Active &mdash; v0.9</td><td>Platform Team</td><td class="good">&#9632; Green</td></tr>
+      <tr><td>Component Wrapping</td><td class="neutral">&#128309; Active &mdash; 42/147</td><td>Component Team</td><td class="neutral">&#9632; Amber</td></tr>
+      <tr><td>CDN &amp; Import Maps</td><td class="good">&#9989; Complete</td><td>DevOps</td><td class="good">&#9632; Green</td></tr>
+      <tr><td>App Catalog Dashboard</td><td class="neutral">&#128309; Active &mdash; 80%</td><td>Platform Team</td><td class="good">&#9632; Green</td></tr>
+      <tr><td>API Scanning &amp; Contracts</td><td class="good">&#9989; Complete</td><td>Architecture</td><td class="good">&#9632; Green</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- Key Milestones Achieved -->
+<section>
+  <h2>&#9989; Key Milestones Achieved</h2>
+  <table class="compare-table">
+    <thead>
+      <tr><th>Milestone</th><th>Target Date</th><th>Actual Date</th><th>Result</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>POC 1: Domain Extraction validated</td><td>Jan 10</td><td class="good">Jan 9</td><td class="good">&#10003; 1 day early</td></tr>
+      <tr><td>POC 2: Web Component Wrapping validated</td><td>Jan 17</td><td class="good">Jan 16</td><td class="good">&#10003; 1 day early</td></tr>
+      <tr><td>POC 3: App Catalog Scanner validated</td><td>Jan 24</td><td class="good">Jan 24</td><td class="good">&#10003; On time</td></tr>
+      <tr><td>Catalog domain live in K8s independently</td><td>Feb 14</td><td class="good">Feb 12</td><td class="good">&#10003; 2 days early</td></tr>
+      <tr><td>Shared/Core published to CDN</td><td>Feb 21</td><td class="good">Feb 20</td><td class="good">&#10003; 1 day early</td></tr>
+      <tr><td>WCFramework shell v0.9 in staging</td><td>Mar 7</td><td class="good">Mar 7</td><td class="good">&#10003; On time</td></tr>
+      <tr><td>CDN pipeline operational</td><td>Mar 7</td><td class="good">Mar 5</td><td class="good">&#10003; 2 days early</td></tr>
+      <tr><td>API scanner in CI/CD</td><td>Feb 14</td><td class="good">Feb 13</td><td class="good">&#10003; 1 day early</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- Upcoming Milestones -->
+<section>
+  <h2>&#128312; Next 3 Milestones</h2>
+  <div class="themes-grid">
+    <div class="theme-card">
+      <div class="theme-icon">&#128722;</div>
+      <h4>Cart Domain Extraction Complete</h4>
+      <p><strong>Target: April 11, 2026</strong><br>Cart runs independently in K8s with full test coverage. State management tested across Cart/Mini-Cart boundary. Currently at 80% &mdash; on track.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#128218;</div>
+      <h4>App Catalog Dashboard v1.0</h4>
+      <p><strong>Target: April 18, 2026</strong><br>Full UI showing every component version, health status, and dependency graph. Backend complete, UI at 80%. On track for release.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#128269;</div>
+      <h4>Search Domain Extraction Complete</h4>
+      <p><strong>Target: April 25, 2026</strong><br>Search domain decoupled from monolith with BFF serving typeahead, PLP, and faceted search APIs. Currently at 60% &mdash; on track.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Blockers & Risks -->
+<section>
+  <h2>Blockers &amp; Risks</h2>
+  <div class="callout warn">
+    <strong>&#9888;&#65039; No Critical Blockers</strong>
+    There are no critical blockers at this time. All workstreams are progressing on or ahead of schedule. See the <a href="p06-risk-register.html">Risk Register</a> for tracked risks and their mitigations.
+  </div>
+
+  <table class="compare-table">
+    <thead>
+      <tr><th>Risk</th><th>Impact</th><th>Status</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>SSR-dependent SEO pages</td><td class="neutral">Medium</td><td class="good">Mitigated &mdash; pre-rendering in place</td></tr>
+      <tr><td>React 17 &rarr; 18 bridge complexity</td><td class="neutral">Medium</td><td class="good">Mitigated &mdash; tested in POC 2</td></tr>
+      <tr><td>Cross-domain state management</td><td class="neutral">Medium</td><td class="good">Mitigated &mdash; message bus tested</td></tr>
+      <tr><td>Offshore team ramp-up</td><td class="bad">High</td><td class="neutral">In progress &mdash; training tracks live</td></tr>
+      <tr><td>CDN availability</td><td class="neutral">Low</td><td class="good">Mitigated &mdash; multi-region + SW cache</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- Timeline Diagram -->
+<section>
+  <h2>Program Timeline</h2>
+  <div class="mermaid-wrap" id="dp01-1">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">&#9974;</button>
+    </div>
+    <div class="mw-view">
+      <div class="mermaid-inner" data-src="timeline
+  title Evolution Milestones
+  section Q1 2026
+    POC 1 Passed           : 2026-01-09
+    POC 2 Passed           : 2026-01-16
+    POC 3 Passed           : 2026-01-24
+    Catalog Extracted      : 2026-02-12
+    Shared/Core Published  : 2026-02-20
+    Shell v0.9 Staging     : 2026-03-07
+  section Q2 2026
+    Cart Extracted         : 2026-04-11
+    App Catalog v1.0       : 2026-04-18
+    Search Extracted       : 2026-04-25
+    Mini-Cart Extracted    : 2026-05-22
+    Shell Swap to Staging  : 2026-05-15
+    Checkout Extracted     : 2026-06-12"></div>
+    </div>
+    <div class="mw-caption">Completed and upcoming milestones across Q1&ndash;Q2 2026</div>
+  </div>
+</section>
+
+<!-- Confidence Assessment -->
+<section>
+  <h2>Delivery Confidence</h2>
+  <div class="industry-std">
+    <strong>Industry Standard: Evidence-Based Delivery Confidence</strong>
+    Confidence is earned, not declared. Every estimate is backed by POC data: extraction time validated at 3 days (not 3 weeks), wrapping validated at ~40 lines per component, and scanner validated against production APIs.
+  </div>
+  <p>Based on POC results and Phase 1 velocity, our delivery confidence for the full Phase 1 completion (all core domains extracted, shell in staging, infrastructure operational) by end of Q2 2026 is <strong>HIGH</strong>. We are currently tracking ahead of the original plan.</p>
+</section>
+
+</main>
+
+<div style="max-width:900px;margin:0 auto;padding:0 1.5rem;">
+  <div class="page-nav">
+    <a href="p-index.html"><span class="pn-label">&larr; Previous</span><span class="pn-title">Progress Dashboard</span></a>
+    <a href="p02-poc-results.html" class="next"><span class="pn-label">Next &rarr;</span><span class="pn-title">POC Results</span></a>
+  </div>
+</div>
+
+<footer>Medline Platform Evolution &mdash; Progress Dashboard &mdash; v5 &mdash; 2026-04-05 &mdash; Confidential</footer>
+<div class="toast" id="toast">Copied!</div>
+<script src="shared.js"></script>
+</body>
+</html>

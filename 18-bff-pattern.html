@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Backend-for-Frontend: Complete Isolation &mdash; Medline Platform Evolution</title>
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<div class="progress-bar"></div>
+<nav>
+  <a href="index.html" class="logo">ML Evolution</a>
+  <div class="nav-links">
+    <a href="01-executive-summary.html">Summary</a>
+    <a href="02-current-state.html">Today</a>
+    <a href="03-why-change.html">Why</a>
+    <a href="04-migration-overview.html">Strategy</a>
+    <a href="05-copy-split-strip.html">Copy-Split</a>
+    <a href="06-domain-map.html">Domains</a>
+    <a href="07-catalog-domain.html">Catalog</a>
+    <a href="08-cart-checkout.html">Cart</a>
+    <a href="09-remaining-domains.html">Other</a>
+    <a href="10-shell-architecture.html">Shell</a>
+    <a href="11-shell-swap.html">Swap</a>
+    <a href="12-web-component-wrapping.html">Wrapping</a>
+    <a href="13-hydration-csr.html">CSR</a>
+    <a href="14-component-standards.html">Standards</a>
+    <a href="15-component-transition.html">Transition</a>
+    <a href="16-app-catalog.html">Catalog</a>
+    <a href="17-api-scanning.html">Scanning</a>
+    <a href="18-bff-pattern.html" class="active">BFF</a>
+    <a href="19-managing-drift.html">Drift</a>
+    <a href="20-core-cadence.html">Cadence</a>
+    <a href="21-testing-strategy.html">Testing</a>
+    <a href="22-blue-green-rollouts.html">Deploy</a>
+    <a href="23-migration-timeline.html">Timeline</a>
+    <a href="24-team-impact.html">Teams</a>
+    <a href="25-key-principles.html">Principles</a>
+    <a href="dev-environment.html">DevEx</a>
+  </div>
+  <button class="theme-toggle" id="themeToggle" title="Toggle theme">&#9790;</button>
+</nav>
+<div class="hero">
+  <div class="page-num">Operations</div>
+  <h1>Backend-for-Frontend: Complete Isolation</h1>
+  <p class="subtitle">Every domain gets its own BFF &mdash; a clean contract surface that separates frontend concerns from backend complexity</p>
+</div>
+<main>
+
+<!-- ────────────────────────────────────────── -->
+<section>
+  <h2>What Is a BFF?</h2>
+  <p>A Backend-for-Frontend (BFF) is a lightweight service that sits between a frontend domain and the backend microservices it depends on. The BFF&rsquo;s sole purpose is to translate backend data into the exact shape the frontend needs.</p>
+  <p>Each domain gets its own BFF. The Catalog domain has a Catalog BFF. The Cart domain has a Cart BFF. The Checkout domain has a Checkout BFF. Each is owned, deployed, and scaled independently by the frontend team that consumes it.</p>
+
+  <div class="callout">
+    <strong>&ldquo;The BFF is the contract surface. Everything behind it is backend&rsquo;s problem. Everything in front of it is frontend&rsquo;s problem.&rdquo;</strong>
+    This single sentence defines the entire ownership model. The BFF is the handshake point. Both sides can evolve independently as long as the BFF contract holds.
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="stat-num">1:1</div>
+      <div class="stat-label">Domain to BFF Ratio</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num green">FE</div>
+      <div class="stat-label">Teams Own Their BFF</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num purple">Indep.</div>
+      <div class="stat-label">Deploy &amp; Scale</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num orange">Clean</div>
+      <div class="stat-label">Contract Boundary</div>
+    </div>
+  </div>
+</section>
+
+<!-- ────────────────────────────────────────── -->
+<section>
+  <h2>BFF Architecture</h2>
+  <p>The BFF pattern creates a clear horizontal layer between frontend domains and backend services. No frontend ever calls a backend service directly. All data flows through the domain&rsquo;s BFF.</p>
+
+  <div class="mermaid-wrap" id="d18-1">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">&#x26F6;</button>
+    </div>
+    <div class="mw-view"><div class="mermaid-inner" data-src="graph TB
+    subgraph FE[&quot;Frontend Domains&quot;]
+      CAT_FE[&quot;Catalog Frontend&quot;]
+      CART_FE[&quot;Cart Frontend&quot;]
+      CHKOUT_FE[&quot;Checkout Frontend&quot;]
+      ACCT_FE[&quot;Account Frontend&quot;]
+    end
+    subgraph BFF_LAYER[&quot;BFF Layer — Owned by Frontend Teams&quot;]
+      CAT_BFF[&quot;Catalog BFF&quot;]
+      CART_BFF[&quot;Cart BFF&quot;]
+      CHKOUT_BFF[&quot;Checkout BFF&quot;]
+      ACCT_BFF[&quot;Account BFF&quot;]
+    end
+    subgraph SERVICES[&quot;Backend Microservices — Owned by Backend Teams&quot;]
+      PROD[&quot;Product Service&quot;]
+      PRICE[&quot;Pricing Service&quot;]
+      INV[&quot;Inventory Service&quot;]
+      CART_SVC[&quot;Cart Service&quot;]
+      PAY[&quot;Payment Service&quot;]
+      SHIP[&quot;Shipping Service&quot;]
+      AUTH[&quot;Auth Service&quot;]
+      USER[&quot;User Service&quot;]
+    end
+    CAT_FE -->|&quot;shaped data&quot;| CAT_BFF
+    CART_FE -->|&quot;shaped data&quot;| CART_BFF
+    CHKOUT_FE -->|&quot;shaped data&quot;| CHKOUT_BFF
+    ACCT_FE -->|&quot;shaped data&quot;| ACCT_BFF
+    CAT_BFF --> PROD
+    CAT_BFF --> PRICE
+    CAT_BFF --> INV
+    CART_BFF --> CART_SVC
+    CART_BFF --> PRICE
+    CART_BFF --> INV
+    CHKOUT_BFF --> CART_SVC
+    CHKOUT_BFF --> PAY
+    CHKOUT_BFF --> SHIP
+    CHKOUT_BFF --> AUTH
+    ACCT_BFF --> USER
+    ACCT_BFF --> AUTH
+    style FE fill:#1c2333,stroke:#58a6ff,color:#e6edf3
+    style BFF_LAYER fill:#0d2818,stroke:#3fb950,color:#e6edf3
+    style SERVICES fill:#1c2333,stroke:#d2a8ff,color:#e6edf3
+    style CAT_BFF fill:#122a1a,stroke:#3fb950,color:#3fb950
+    style CART_BFF fill:#122a1a,stroke:#3fb950,color:#3fb950
+    style CHKOUT_BFF fill:#122a1a,stroke:#3fb950,color:#3fb950
+    style ACCT_BFF fill:#122a1a,stroke:#3fb950,color:#3fb950"></div></div>
+    <div class="mw-caption">BFF Architecture &mdash; Each frontend domain has a dedicated BFF that aggregates data from multiple backend services into exactly the shape the frontend needs</div>
+  </div>
+</section>
+
+<!-- ────────────────────────────────────────── -->
+<section>
+  <h2>Request Flow: Catalog Domain</h2>
+  <p>Let&rsquo;s trace a real request through the Catalog domain. When a user views a product detail page, the Catalog frontend makes a single call to its BFF, which fans out to three backend services and returns a unified response.</p>
+
+  <div class="mermaid-wrap" id="d18-2">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">&#x26F6;</button>
+    </div>
+    <div class="mw-view"><div class="mermaid-inner" data-src="sequenceDiagram
+    participant USER as User Browser
+    participant FE as Catalog Frontend
+    participant BFF as Catalog BFF
+    participant PROD as Product Service
+    participant PRICE as Pricing Service
+    participant INV as Inventory Service
+    USER->>FE: Navigate to /products/ML-12345
+    FE->>BFF: GET /catalog/products/ML-12345
+    par Fan-out to backend services
+      BFF->>PROD: GET /products/ML-12345
+      PROD->>BFF: { id, name, description, images, category }
+    and
+      BFF->>PRICE: GET /pricing/ML-12345?tier=hospital
+      PRICE->>BFF: { listPrice, contractPrice, currency }
+    and
+      BFF->>INV: GET /inventory/ML-12345?warehouse=central
+      INV->>BFF: { inStock: true, qty: 2847, eta: null }
+    end
+    BFF->>BFF: Aggregate, shape, cache
+    BFF->>FE: { product: { name, images, price, stock, ... } }
+    FE->>USER: Render product detail page
+    Note over BFF: Frontend gets ONE call with exactly the data it needs
+    Note over PROD,INV: Backend services remain generic — no frontend-specific shaping"></div></div>
+    <div class="mw-caption">Catalog Request Flow &mdash; Frontend makes one BFF call; BFF fans out to Product, Pricing, and Inventory services in parallel; frontend receives a single, shaped response</div>
+  </div>
+
+  <div class="industry-std">
+    <strong>Industry Standard: Backend-for-Frontend Pattern</strong>
+    The BFF pattern was formalized by Sam Newman (author of &ldquo;Building Microservices&rdquo;) and is used by Netflix, Spotify, SoundCloud, and every major streaming and e-commerce platform. It is the standard approach for decoupling frontend data needs from backend service structure.
+  </div>
+</section>
+
+<!-- ────────────────────────────────────────── -->
+<section>
+  <h2>What the BFF Handles</h2>
+  <p>The BFF is not a simple proxy. It provides five critical capabilities that keep the frontend team productive and the backend team independent:</p>
+
+  <details>
+    <summary>Data Aggregation <span class="detail-summary">Combine multiple services into one response</span></summary>
+    <div class="detail-body">
+      <p>The frontend needs a product with its price and inventory status. That data lives in three separate services. Without a BFF, the frontend makes three separate API calls, handles three separate loading states, and manages three separate error conditions.</p>
+      <p>With the BFF, the frontend makes <strong>one call</strong>. The BFF fans out to the three services in parallel, aggregates the results, and returns a single, shaped response. The frontend code is simpler, faster, and easier to test.</p>
+      <ul>
+        <li>Parallel fan-out reduces latency to the slowest backend call, not the sum of all calls</li>
+        <li>Frontend handles one loading state and one error condition</li>
+        <li>Data joins happen server-side where they&rsquo;re cheap, not client-side where they&rsquo;re expensive</li>
+      </ul>
+    </div>
+  </details>
+
+  <details>
+    <summary>Response Shaping <span class="detail-summary">Transform backend models into frontend models</span></summary>
+    <div class="detail-body">
+      <p>Backend services return data in their own canonical models. The Product Service returns every field about a product. The frontend only needs six of those fields for a product card. The BFF strips out what the frontend doesn&rsquo;t need and reshapes what it does.</p>
+      <ul>
+        <li>Smaller payloads &mdash; only the fields the frontend actually renders</li>
+        <li>Frontend-friendly naming &mdash; <code>contractPrice</code> instead of <code>tier_pricing_schedule.active_rate</code></li>
+        <li>Computed fields &mdash; <code>isOnSale: true</code> calculated from pricing data the frontend shouldn&rsquo;t know about</li>
+        <li>Backend schema changes don&rsquo;t automatically propagate to the frontend</li>
+      </ul>
+    </div>
+  </details>
+
+  <details>
+    <summary>Authorization <span class="detail-summary">Enforce access control at the boundary</span></summary>
+    <div class="detail-body">
+      <p>The BFF validates the user&rsquo;s session and enforces domain-specific access rules before any backend call is made:</p>
+      <ul>
+        <li>Session token validation and refresh</li>
+        <li>Role-based access control for domain-specific operations</li>
+        <li>Data filtering &mdash; hospital users see contract pricing, general users see list pricing</li>
+        <li>Rate limiting per user and per domain</li>
+      </ul>
+      <p>Backend services trust the BFF. The BFF is the security boundary for the frontend domain.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>Caching <span class="detail-summary">Domain-specific caching strategies</span></summary>
+    <div class="detail-body">
+      <p>Each BFF implements caching strategies specific to its domain&rsquo;s data patterns:</p>
+      <ul>
+        <li><strong>Catalog BFF:</strong> Aggressive caching of product data (changes hourly); short cache on inventory (changes minutely)</li>
+        <li><strong>Cart BFF:</strong> No caching of cart state (must be real-time); cache product metadata referenced by cart items</li>
+        <li><strong>Account BFF:</strong> Cache user profile (changes rarely); no cache on session state</li>
+      </ul>
+      <p>Each domain&rsquo;s caching is tuned to its specific access patterns, not a one-size-fits-all policy.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>Error Handling &amp; Fallbacks <span class="detail-summary">Graceful degradation at the boundary</span></summary>
+    <div class="detail-body">
+      <p>When a backend service is slow or down, the BFF provides intelligent fallbacks:</p>
+      <ul>
+        <li><strong>Timeout handling:</strong> If the Pricing Service is slow, return product data with a &ldquo;price loading&rdquo; indicator instead of failing the entire request</li>
+        <li><strong>Circuit breaking:</strong> If Inventory Service is down, return last-known stock status with a staleness indicator</li>
+        <li><strong>Partial responses:</strong> If one of three backend calls fails, return the two that succeeded with a clear indication of what&rsquo;s missing</li>
+        <li><strong>Retry logic:</strong> Transient failures are retried at the BFF level; the frontend never sees them</li>
+      </ul>
+    </div>
+  </details>
+</section>
+
+<!-- ────────────────────────────────────────── -->
+<section>
+  <h2>Why Not Call Backend Services Directly?</h2>
+  <p>The direct-call pattern seems simpler at first. But at scale, it creates compounding problems:</p>
+
+  <table class="compare-table">
+    <thead>
+      <tr><th>Dimension</th><th class="bad">Direct Backend Calls</th><th class="good">Through BFF</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>API Calls per Page</strong></td>
+        <td class="bad">3-8 calls from the browser to different backend services</td>
+        <td class="good">1 call from browser to BFF; BFF fans out server-side</td>
+      </tr>
+      <tr>
+        <td><strong>Latency</strong></td>
+        <td class="bad">Sequential or waterfall calls from client; each crosses the internet</td>
+        <td class="good">Single round-trip to BFF; fan-out happens on fast internal network</td>
+      </tr>
+      <tr>
+        <td><strong>Payload Size</strong></td>
+        <td class="bad">Full backend models sent to browser; client discards most fields</td>
+        <td class="good">BFF returns only the fields the frontend renders</td>
+      </tr>
+      <tr>
+        <td><strong>Coupling</strong></td>
+        <td class="bad">Frontend must know backend service URLs, auth patterns, data models</td>
+        <td class="good">Frontend knows only its BFF contract; backend is abstracted</td>
+      </tr>
+      <tr>
+        <td><strong>Error Handling</strong></td>
+        <td class="bad">Frontend manages errors from multiple services independently</td>
+        <td class="good">BFF consolidates errors and provides fallbacks</td>
+      </tr>
+      <tr>
+        <td><strong>Backend Freedom</strong></td>
+        <td class="bad">Backend can&rsquo;t restructure services without breaking frontends</td>
+        <td class="good">Backend restructures freely; BFF adapts the mapping</td>
+      </tr>
+      <tr>
+        <td><strong>Testing</strong></td>
+        <td class="bad">Frontend tests must mock 3-8 backend services</td>
+        <td class="good">Frontend tests mock one BFF endpoint</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ────────────────────────────────────────── -->
+<section>
+  <h2>Testing with BFFs</h2>
+  <p>The BFF creates a clean testing boundary. Each side of the boundary has its own test strategy:</p>
+
+  <div class="themes-grid">
+    <div class="theme-card">
+      <div class="theme-icon">&#x1F3AD;</div>
+      <h4>Frontend Tests</h4>
+      <p>Mock the BFF contract. The frontend only knows the BFF&rsquo;s response shape. One mock per endpoint, one loading state, one error state. Simple, fast, reliable.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#x1F527;</div>
+      <h4>BFF Tests</h4>
+      <p>Mock the backend services. The BFF tests verify aggregation logic, response shaping, caching, and error handling. Backend services are stubbed with known responses.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#x1F50C;</div>
+      <h4>Contract Tests</h4>
+      <p>The API scanner validates that the BFF&rsquo;s expectations of backend services still hold. If the Product Service changes its response shape, the scanner catches it before deploy.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#x1F30D;</div>
+      <h4>Integration Tests</h4>
+      <p>End-to-end tests run against the full stack: frontend &rarr; BFF &rarr; backend services. These run in staging only, catching integration issues that unit tests can&rsquo;t.</p>
+    </div>
+  </div>
+
+  <div class="callout success">
+    <strong>Test Isolation = Test Speed</strong>
+    When frontend tests only mock one BFF endpoint instead of five backend services, test suites run faster, have fewer false failures, and are easier to maintain. The BFF boundary is the best thing that ever happened to frontend testing.
+  </div>
+</section>
+
+<!-- ────────────────────────────────────────── -->
+<section>
+  <h2>Ownership Model</h2>
+  <p>The BFF ownership model is simple and deliberately asymmetric:</p>
+  <ul>
+    <li><strong>Frontend teams own their BFF.</strong> They control the data shape, the caching strategy, the error handling, and the deployment schedule. When the frontend needs a new field, the frontend team adds it to the BFF. No ticket to backend. No cross-team dependency.</li>
+    <li><strong>Backend teams own their services.</strong> They control the data model, the business logic, the storage, and the scalability. They never shape data for frontend concerns. Their API is generic and reusable.</li>
+    <li><strong>The BFF is the translation layer.</strong> It maps generic backend data to specific frontend needs. When either side changes, only the BFF mapping needs updating &mdash; and the frontend team controls that.</li>
+  </ul>
+
+  <div class="callout warn">
+    <strong>The Anti-Pattern: Backend Teams Shaping Data for Frontend</strong>
+    When backend teams add endpoints like <code>/products/for-product-card</code> or <code>/pricing/formatted-for-display</code>, they&rsquo;re building frontend logic into backend services. Every new frontend need creates a backend ticket. Every backend deploy risks breaking frontends. The BFF eliminates this coupling entirely.
+  </div>
+</section>
+
+<!-- ────────────────────────────────────────── -->
+<section>
+  <h2>Independent Deployment &amp; Scaling</h2>
+  <p>Each BFF is independently deployable and independently scalable:</p>
+  <ul>
+    <li><strong>Deploy independently:</strong> The Catalog BFF can deploy ten times a day without affecting the Cart BFF</li>
+    <li><strong>Scale independently:</strong> During a sale event, the Catalog BFF scales up while the Account BFF stays at normal capacity</li>
+    <li><strong>Different technology choices:</strong> One BFF can be Node.js, another can be .NET, another can be Go &mdash; the frontend team picks what works for them</li>
+    <li><strong>Different SLA requirements:</strong> The Checkout BFF can have higher availability targets than the Account BFF</li>
+  </ul>
+
+  <div class="industry-std">
+    <strong>Industry Standard: Per-Domain BFF</strong>
+    Netflix runs over 30 BFFs (one per device platform per domain). Spotify runs per-squad BFFs. Amazon runs BFFs at the team level. The pattern scales from startups to the largest platforms on the internet. The per-domain BFF is the most battle-tested approach to decoupling frontend and backend development.
+  </div>
+</section>
+
+</main>
+<div style="max-width:900px;margin:0 auto;padding:0 1.5rem;">
+  <div class="page-nav">
+    <a href="17-api-scanning.html"><span class="pn-label">&larr; Previous</span><span class="pn-title">API Contract Scanning</span></a>
+    <a href="19-managing-drift.html" class="next"><span class="pn-label">Next &rarr;</span><span class="pn-title">Managing Drift</span></a>
+  </div>
+</div>
+<footer>Medline Platform Evolution &mdash; v5 &mdash; 2026-04-05 &mdash; Technical Director Series &mdash; Confidential</footer>
+<div class="toast" id="toast">Copied!</div>
+<script src="shared.js"></script>
+</body>
+</html>

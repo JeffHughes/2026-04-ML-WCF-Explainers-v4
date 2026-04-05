@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deep Dive: The Catalog Domain &mdash; Medline Platform Evolution</title>
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<div class="progress-bar"></div>
+<nav>
+  <a href="index.html" class="logo">ML Evolution</a>
+  <div class="nav-links">
+    <a href="01-executive-summary.html">Summary</a>
+    <a href="02-current-state.html">Today</a>
+    <a href="03-why-change.html">Why</a>
+    <a href="04-migration-overview.html">Strategy</a>
+    <a href="05-copy-split-strip.html">Copy-Split</a>
+    <a href="06-domain-map.html">Domains</a>
+    <a href="07-catalog-domain.html" class="active">Catalog</a>
+    <a href="08-cart-checkout.html">Cart</a>
+    <a href="09-remaining-domains.html">Other</a>
+    <a href="10-shell-architecture.html">Shell</a>
+    <a href="11-shell-swap.html">Swap</a>
+    <a href="12-web-component-wrapping.html">Wrapping</a>
+    <a href="13-hydration-csr.html">CSR</a>
+    <a href="14-component-standards.html">Standards</a>
+    <a href="15-component-transition.html">Transition</a>
+    <a href="16-app-catalog.html">Catalog</a>
+    <a href="17-api-scanning.html">Scanning</a>
+    <a href="18-bff-pattern.html">BFF</a>
+    <a href="19-managing-drift.html">Drift</a>
+    <a href="20-core-cadence.html">Cadence</a>
+    <a href="21-testing-strategy.html">Testing</a>
+    <a href="22-blue-green-rollouts.html">Deploy</a>
+    <a href="23-migration-timeline.html">Timeline</a>
+    <a href="24-team-impact.html">Teams</a>
+    <a href="25-key-principles.html">Principles</a>
+    <a href="dev-environment.html">DevEx</a>
+  </div>
+  <button class="theme-toggle" id="themeToggle" title="Toggle theme">&#9790;</button>
+</nav>
+<div class="hero">
+  <div class="page-num">Migration Mechanics</div>
+  <h1>Deep Dive: The Catalog Domain</h1>
+  <p class="subtitle">The pilot domain extraction &mdash; what gets copied, what gets stripped, and how the Catalog BFF owns its data contract</p>
+</div>
+<main>
+
+  <!-- ════════════════════════════════════════════ -->
+  <section>
+    <h2>Why Catalog Goes First</h2>
+    <p>Catalog is the ideal pilot domain because it has the highest traffic, the clearest ownership boundaries, and the fewest cross-domain mutations. Product listing pages (PLP) and product detail pages (PDP) are overwhelmingly <strong>read-only</strong> &mdash; they display data fetched from the product API. They don&rsquo;t write to carts, they don&rsquo;t process payments, they don&rsquo;t manage user sessions. This makes Catalog the safest place to prove the Copy-Split-Strip pattern works before applying it elsewhere.</p>
+
+    <div class="callout success">
+      <strong>&#9989; Low-Risk, High-Visibility Proof Point</strong>
+      Catalog pages account for the majority of all page views. Extracting Catalog first means your highest-traffic experience gets independent deployment first &mdash; and every stakeholder can see the improvement immediately.
+    </div>
+
+    <p>Once Catalog is running independently, the pattern is proven. Every subsequent domain extraction follows the same playbook, with decreasing risk each time.</p>
+  </section>
+
+  <!-- ════════════════════════════════════════════ -->
+  <section>
+    <h2>What the Catalog Domain Owns</h2>
+    <p>After extraction, the Catalog domain has <strong>sole responsibility</strong> for the following capabilities. No other domain touches these pages or data flows:</p>
+
+    <div class="themes-grid">
+      <div class="theme-card">
+        <div class="theme-icon">&#128196;</div>
+        <h4>Product Listing Pages (PLP)</h4>
+        <p>Category browsing, grid/list views, pagination, sort options, filter facets applied to results. Every URL matching <code>/products/*</code> or <code>/category/*</code>.</p>
+      </div>
+      <div class="theme-card">
+        <div class="theme-icon">&#128269;</div>
+        <h4>Product Detail Pages (PDP)</h4>
+        <p>Individual product view with images, specifications, pricing, availability, variant selection, and related products. URLs like <code>/product/:sku</code>.</p>
+      </div>
+      <div class="theme-card">
+        <div class="theme-icon">&#128270;</div>
+        <h4>Product Search</h4>
+        <p>Search results pages, search suggestions, typeahead/autocomplete, recent searches. The search bar component is shared; the results page is owned by Catalog.</p>
+      </div>
+      <div class="theme-card">
+        <div class="theme-icon">&#128193;</div>
+        <h4>Category Navigation</h4>
+        <p>Category tree, breadcrumbs, browse-by-category menus. The taxonomy data is owned by the Catalog BFF and served as a structured endpoint.</p>
+      </div>
+      <div class="theme-card">
+        <div class="theme-icon">&#127748;</div>
+        <h4>Product Images &amp; Media</h4>
+        <p>Image gallery, zoom, 360&deg; views, product videos. All media assets served from CDN, referenced by the product data API.</p>
+      </div>
+      <div class="theme-card">
+        <div class="theme-icon">&#128640;</div>
+        <h4>Product Data API</h4>
+        <p>The Catalog BFF exposes endpoints for product search, product detail, category tree, and faceted filtering. This is the single source of truth for product information.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════ -->
+  <section>
+    <h2>Domain Boundary Diagram</h2>
+    <p>The following diagram shows exactly what the Catalog domain owns versus what it shares with other domains and what gets deleted during the strip phase:</p>
+
+    <div class="mermaid-wrap" id="d07-1">
+      <div class="mw-toolbar">
+        <button onclick="mzoom(this,1.2)">+</button>
+        <button onclick="mzoom(this,0.8)">&minus;</button>
+        <button onclick="mreset(this)">Reset</button>
+        <button onclick="mfull(this)">&#x26F6;</button>
+      </div>
+      <div class="mw-view"><div class="mermaid-inner" data-src="graph TB
+    subgraph OWNED[&quot;Catalog Domain — Owned Code&quot;]
+      PLP[Product Listing Pages]
+      PDP[Product Detail Pages]
+      SEARCH_RES[Search Results Page]
+      CAT_NAV[Category Navigation]
+      MEDIA[Product Images &amp; Media]
+      CATALOG_BFF[Catalog BFF API]
+    end
+    subgraph SHARED[&quot;Shared — Temporary Dependencies&quot;]
+      HEADER[Header Component]
+      FOOTER[Footer Component]
+      AUTH[Authentication Module]
+      ANALYTICS[Analytics Hooks]
+      API_CLIENT[HTTP API Client]
+    end
+    subgraph DELETED[&quot;Stripped — Removed from Catalog Copy&quot;]
+      CART[Cart Pages]
+      CHECKOUT[Checkout Flow]
+      ACCOUNT[Account Pages]
+      ADMIN[Admin Console]
+      CMS[CMS Pages]
+    end
+    PLP --> CATALOG_BFF
+    PDP --> CATALOG_BFF
+    SEARCH_RES --> CATALOG_BFF
+    CAT_NAV --> CATALOG_BFF
+    PLP --> HEADER
+    PLP --> FOOTER
+    PDP --> AUTH
+    PLP --> ANALYTICS
+    CATALOG_BFF --> API_CLIENT
+
+    style OWNED fill:#0d2818,stroke:#3fb950,color:#e6edf3
+    style SHARED fill:#1a2744,stroke:#58a6ff,color:#e6edf3
+    style DELETED fill:#3d1418,stroke:#f85149,color:#e6edf3"></div></div>
+      <div class="mw-caption">Catalog domain boundaries &mdash; green = owned, blue = shared (temporary), red = deleted during strip phase</div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════ -->
+  <section>
+    <h2>What Gets Deleted from the Copy</h2>
+    <p>After copying the monolith to create <code>medline-catalog</code>, the strip phase removes everything that doesn&rsquo;t belong. This is a <strong>subtractive</strong> process &mdash; you start with everything and remove what you don&rsquo;t need.</p>
+
+    <details>
+      <summary>Cart Logic &mdash; Completely Removed <span class="detail-summary">Cart pages, add-to-cart handlers, cart state management</span></summary>
+      <div class="detail-body">
+        <p>All cart-related routes (<code>/cart</code>, <code>/cart/*</code>), cart state slices, add-to-cart button handlers, and cart API clients are deleted. The Catalog domain has <strong>zero knowledge</strong> of cart state.</p>
+        <p>The &ldquo;Add to Cart&rdquo; button on PDP remains, but it fires a <strong>domain event</strong> (<code>ml:add-to-cart</code>) that the Cart domain&rsquo;s micro frontend catches. The Catalog domain doesn&rsquo;t know or care what happens next.</p>
+        <pre><code>// Catalog domain emits a custom event — that's it
+this.dispatchEvent(new CustomEvent('ml:add-to-cart', {
+  bubbles: true, composed: true,
+  detail: { sku: 'MED-12345', qty: 1 }
+}));</code></pre>
+      </div>
+    </details>
+
+    <details>
+      <summary>Checkout Flows &mdash; Completely Removed <span class="detail-summary">Multi-step checkout, payment, address validation</span></summary>
+      <div class="detail-body">
+        <p>Every checkout route (<code>/checkout/*</code>), payment gateway integration, address validation logic, order submission handlers, and confirmation page templates are removed. The Catalog service never processes a transaction.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary>Account Pages &mdash; Completely Removed <span class="detail-summary">Profile, order history, saved addresses, payment methods</span></summary>
+      <div class="detail-body">
+        <p>All account management routes (<code>/account/*</code>), profile forms, order history views, address book, and saved payment methods are deleted. Account is its own domain with its own extraction timeline.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary>Admin Console &mdash; Completely Removed <span class="detail-summary">Internal tools, inventory management, user admin</span></summary>
+      <div class="detail-body">
+        <p>Admin routes (<code>/admin/*</code>), internal dashboards, inventory management screens, and user administration tools are removed. These are a completely separate bounded context with different users (internal staff), different auth requirements, and different deployment cadence.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary>CMS Pages &mdash; Completely Removed <span class="detail-summary">Marketing pages, banners, landing pages</span></summary>
+      <div class="detail-body">
+        <p>Content marketing pages, promotional landing pages, banner management, and any CMS-driven content outside product data are removed. The Content/CMS domain owns these independently.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ════════════════════════════════════════════ -->
+  <section>
+    <h2>What Stays (Temporarily)</h2>
+    <p>Some shared code stays in the Catalog copy during Phase 1. These are <strong>temporary dependencies</strong> that get replaced as the platform matures:</p>
+
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Shared Component</th>
+          <th>Why It Stays</th>
+          <th>When It Goes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Header / Footer</td>
+          <td>Users expect consistent navigation across all pages</td>
+          <td>Replaced by shell-provided Web Components when CSR shell launches</td>
+        </tr>
+        <tr>
+          <td>Authentication Module</td>
+          <td>Every page needs auth context (logged in, session token, permissions)</td>
+          <td>Moves to shared auth library loaded via import map</td>
+        </tr>
+        <tr>
+          <td>Analytics Hooks</td>
+          <td>Page views, click tracking, and performance metrics must continue uninterrupted</td>
+          <td>Replaced by shared analytics Web Component (<code>&lt;ml-analytics&gt;</code>)</td>
+        </tr>
+        <tr>
+          <td>HTTP API Client</td>
+          <td>Shared Axios/fetch wrapper with auth token injection and retry logic</td>
+          <td>Each domain internalizes its own API client or uses the shared SDK</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout">
+      <strong>&#128161; Key Insight</strong>
+      The &ldquo;stays temporarily&rdquo; list gets shorter with every phase. By the time the CSR shell is live, the Catalog domain is fully self-contained and loads only its own code plus browser-standard shared modules from the import map.
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════ -->
+  <section>
+    <h2>The Catalog BFF (Backend-for-Frontend)</h2>
+    <p>The Catalog BFF is a lightweight API layer that sits between the Catalog micro frontend and the underlying backend services. It <strong>owns the data contract</strong> &mdash; the shape of the JSON that Catalog pages consume.</p>
+
+    <h3>Why a BFF Instead of Direct Backend Calls?</h3>
+    <ul>
+      <li><strong>Contract stability</strong> &mdash; Backend services can change their internal APIs without breaking the frontend. The BFF absorbs the translation.</li>
+      <li><strong>Aggregation</strong> &mdash; A single PDP page might need data from Product Service, Pricing Service, Inventory Service, and Media Service. The BFF combines them into one response.</li>
+      <li><strong>Performance</strong> &mdash; The BFF runs server-side, close to the backends. Multiple backend calls collapse into a single HTTP response to the browser.</li>
+      <li><strong>Security</strong> &mdash; Internal service credentials never reach the browser. The BFF authenticates the user and passes sanitized, authorized data.</li>
+    </ul>
+
+    <div class="mermaid-wrap" id="d07-2">
+      <div class="mw-toolbar">
+        <button onclick="mzoom(this,1.2)">+</button>
+        <button onclick="mzoom(this,0.8)">&minus;</button>
+        <button onclick="mreset(this)">Reset</button>
+        <button onclick="mfull(this)">&#x26F6;</button>
+      </div>
+      <div class="mw-view"><div class="mermaid-inner" data-src="graph LR
+    subgraph BROWSER[&quot;Browser&quot;]
+      PLP_FE[PLP Component]
+      PDP_FE[PDP Component]
+      SEARCH_FE[Search Component]
+    end
+    subgraph BFF[&quot;Catalog BFF&quot;]
+      PRODUCTS[/products]
+      PRODUCT_ID[/products/:id]
+      CATEGORIES[/categories]
+      SEARCH_EP[/search]
+      FACETS[/facets]
+    end
+    subgraph BACKENDS[&quot;Backend Services&quot;]
+      PRODUCT_SVC[Product Service]
+      PRICING_SVC[Pricing Service]
+      INVENTORY_SVC[Inventory Service]
+      MEDIA_SVC[Media Service]
+      SEARCH_SVC[Search Index]
+    end
+    PLP_FE -->|GET /products?cat=xyz| PRODUCTS
+    PDP_FE -->|GET /products/MED-123| PRODUCT_ID
+    SEARCH_FE -->|GET /search?q=gloves| SEARCH_EP
+    PLP_FE -->|GET /facets?cat=xyz| FACETS
+    PLP_FE -->|GET /categories| CATEGORIES
+    PRODUCTS --> PRODUCT_SVC
+    PRODUCTS --> PRICING_SVC
+    PRODUCT_ID --> PRODUCT_SVC
+    PRODUCT_ID --> PRICING_SVC
+    PRODUCT_ID --> INVENTORY_SVC
+    PRODUCT_ID --> MEDIA_SVC
+    SEARCH_EP --> SEARCH_SVC
+    FACETS --> PRODUCT_SVC
+
+    style BROWSER fill:#1a2744,stroke:#58a6ff,color:#e6edf3
+    style BFF fill:#0d2818,stroke:#3fb950,color:#e6edf3
+    style BACKENDS fill:#2a1a3a,stroke:#d2a8ff,color:#e6edf3"></div></div>
+      <div class="mw-caption">Catalog API surface &mdash; the BFF aggregates multiple backend services into a clean frontend-specific contract</div>
+    </div>
+
+    <h3>Catalog BFF API Endpoints</h3>
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Endpoint</th>
+          <th>Method</th>
+          <th>Description</th>
+          <th>Consumer</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>/products</code></td>
+          <td>GET</td>
+          <td>Paginated product listing with sort and filter support</td>
+          <td>PLP Component</td>
+        </tr>
+        <tr>
+          <td><code>/products/:id</code></td>
+          <td>GET</td>
+          <td>Full product detail including variants, pricing, media, availability</td>
+          <td>PDP Component</td>
+        </tr>
+        <tr>
+          <td><code>/categories</code></td>
+          <td>GET</td>
+          <td>Category tree for navigation menus and breadcrumbs</td>
+          <td>Category Nav, Breadcrumbs</td>
+        </tr>
+        <tr>
+          <td><code>/search</code></td>
+          <td>GET</td>
+          <td>Full-text search with highlighting and relevance scoring</td>
+          <td>Search Results</td>
+        </tr>
+        <tr>
+          <td><code>/facets</code></td>
+          <td>GET</td>
+          <td>Available filter facets for a given category or search context</td>
+          <td>PLP Filter Panel</td>
+        </tr>
+        <tr>
+          <td><code>/suggestions</code></td>
+          <td>GET</td>
+          <td>Typeahead suggestions for search autocomplete</td>
+          <td>Search Bar Component</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════════════════════════════════════ -->
+  <section>
+    <h2>File Tree: Before and After the Strip</h2>
+    <p>Here&rsquo;s a simplified view of what the Catalog service looks like before and after the strip phase. The &ldquo;before&rdquo; column is the full monolith copy; the &ldquo;after&rdquo; column is the clean Catalog domain.</p>
+
+    <details>
+      <summary>File Tree Comparison <span class="detail-summary">Before strip vs. after strip</span></summary>
+      <div class="detail-body">
+        <h4>Before Strip (Full Monolith Copy)</h4>
+        <pre><code>medline-catalog/
+├── src/
+│   ├── pages/
+│   │   ├── products/          ✅ KEEP
+│   │   ├── product/[sku]/     ✅ KEEP
+│   │   ├── category/[slug]/   ✅ KEEP
+│   │   ├── search/            ✅ KEEP
+│   │   ├── cart/              ❌ DELETE
+│   │   ├── checkout/          ❌ DELETE
+│   │   ├── account/           ❌ DELETE
+│   │   ├── admin/             ❌ DELETE
+│   │   └── cms/               ❌ DELETE
+│   ├── components/
+│   │   ├── product-card/      ✅ KEEP
+│   │   ├── product-grid/      ✅ KEEP
+│   │   ├── search-results/    ✅ KEEP
+│   │   ├── cart-widget/       ❌ DELETE
+│   │   ├── checkout-form/     ❌ DELETE
+│   │   ├── account-nav/       ❌ DELETE
+│   │   ├── header/            🟡 KEEP (temporary)
+│   │   └── footer/            🟡 KEEP (temporary)
+│   ├── services/
+│   │   ├── product-api.ts     ✅ KEEP
+│   │   ├── cart-api.ts        ❌ DELETE
+│   │   ├── checkout-api.ts    ❌ DELETE
+│   │   ├── auth.ts            🟡 KEEP (temporary)
+│   │   └── analytics.ts       🟡 KEEP (temporary)
+│   └── state/
+│       ├── product-store.ts   ✅ KEEP
+│       ├── cart-store.ts      ❌ DELETE
+│       └── user-store.ts      ❌ DELETE
+├── api/
+│   └── catalog-bff/           ✅ NEW — Catalog BFF
+└── k8s/
+    └── catalog-deployment.yaml ✅ NEW — Independent deployment</code></pre>
+
+        <h4>After Strip (Clean Catalog Domain)</h4>
+        <pre><code>medline-catalog/
+├── src/
+│   ├── pages/
+│   │   ├── products/          ← Product listing pages
+│   │   ├── product/[sku]/     ← Product detail pages
+│   │   ├── category/[slug]/   ← Category browsing
+│   │   └── search/            ← Search results
+│   ├── components/
+│   │   ├── product-card/      ← Reusable product card
+│   │   ├── product-grid/      ← Grid/list layout
+│   │   ├── search-results/    ← Search results display
+│   │   ├── header/            ← Temporary shared header
+│   │   └── footer/            ← Temporary shared footer
+│   ├── services/
+│   │   ├── product-api.ts     ← Catalog BFF client
+│   │   ├── auth.ts            ← Temporary auth module
+│   │   └── analytics.ts       ← Temporary analytics hooks
+│   └── state/
+│       └── product-store.ts   ← Catalog-only state
+├── api/
+│   └── catalog-bff/           ← Backend-for-Frontend
+└── k8s/
+    └── catalog-deployment.yaml ← Kubernetes manifests</code></pre>
+      </div>
+    </details>
+  </section>
+
+  <!-- ════════════════════════════════════════════ -->
+  <section>
+    <h2>Deployment: Same Infrastructure, Independent Service</h2>
+    <p>The extracted Catalog domain runs in the <strong>same Kubernetes cluster</strong>, uses the <strong>same container registry</strong>, and follows the <strong>same CI/CD pipeline patterns</strong> as the monolith. The only difference is that it has its own deployment pipeline.</p>
+
+    <h3>What Changes</h3>
+    <ul>
+      <li><strong>Own Kubernetes deployment</strong> &mdash; <code>medline-catalog</code> runs as a separate deployment with its own replicas, scaling rules, and health checks</li>
+      <li><strong>Own CI/CD pipeline</strong> &mdash; Catalog team merges to <code>main</code> and deploys without waiting for any other team</li>
+      <li><strong>Own monitoring</strong> &mdash; Dedicated dashboards, alerts, and SLOs for Catalog-specific metrics</li>
+      <li><strong>Traffic routing</strong> &mdash; Ingress routes <code>/products/*</code>, <code>/product/*</code>, <code>/category/*</code>, <code>/search/*</code> to the Catalog service</li>
+    </ul>
+
+    <h3>What Stays the Same</h3>
+    <ul>
+      <li>Same Kubernetes cluster and namespace conventions</li>
+      <li>Same container base images and security scanning</li>
+      <li>Same logging, tracing, and observability stack</li>
+      <li>Same DNS, SSL certificates, and CDN configuration</li>
+      <li>Same feature flag service and configuration management</li>
+    </ul>
+
+    <div class="industry-std">
+      <strong>Industry Standard: Independent Deployability</strong>
+      Independent deployment per bounded context is the defining characteristic of a micro frontend architecture. Amazon, Spotify, Zalando, and IKEA all structure their platforms this way. Each team owns their deploy pipeline end-to-end. The platform team provides the infrastructure primitives; the domain teams compose them.
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════ -->
+  <section>
+    <h2>Catalog Extraction Checklist</h2>
+    <p>Here&rsquo;s the step-by-step checklist for extracting Catalog. Each step is a discrete, verifiable task:</p>
+
+    <details>
+      <summary>Phase 1: Copy <span class="detail-summary">Create the independent Catalog service</span></summary>
+      <div class="detail-body">
+        <ol>
+          <li>Fork the monolith repository &rarr; <code>medline-catalog</code></li>
+          <li>Set up independent CI/CD pipeline for the new repository</li>
+          <li>Deploy to Kubernetes as a separate service (same code, runs identically)</li>
+          <li>Configure ingress to route <code>/catalog-preview/*</code> to the new service (internal only)</li>
+          <li>Verify: Every Catalog page renders identically in both services</li>
+        </ol>
+      </div>
+    </details>
+
+    <details>
+      <summary>Phase 2: Strip <span class="detail-summary">Remove non-Catalog code</span></summary>
+      <div class="detail-body">
+        <ol>
+          <li>Delete all cart routes, components, and state</li>
+          <li>Delete all checkout routes, components, and state</li>
+          <li>Delete all account routes, components, and state</li>
+          <li>Delete all admin routes, components, and state</li>
+          <li>Delete all CMS routes, components, and state</li>
+          <li>Run the full test suite &mdash; fix any broken imports or missing dependencies</li>
+          <li>Verify: Catalog pages still render correctly. All other routes return 404.</li>
+        </ol>
+      </div>
+    </details>
+
+    <details>
+      <summary>Phase 3: BFF <span class="detail-summary">Create the Catalog Backend-for-Frontend</span></summary>
+      <div class="detail-body">
+        <ol>
+          <li>Define the Catalog BFF API contract (OpenAPI spec)</li>
+          <li>Implement BFF endpoints: <code>/products</code>, <code>/products/:id</code>, <code>/categories</code>, <code>/search</code>, <code>/facets</code>, <code>/suggestions</code></li>
+          <li>Wire the Catalog frontend to call the BFF instead of direct backend services</li>
+          <li>Add BFF-level caching (product data changes infrequently)</li>
+          <li>Verify: All Catalog pages load data exclusively through the BFF</li>
+        </ol>
+      </div>
+    </details>
+
+    <details>
+      <summary>Phase 4: Go Live <span class="detail-summary">Route production traffic to Catalog service</span></summary>
+      <div class="detail-body">
+        <ol>
+          <li>Enable feature flag for Catalog routing (10% &rarr; 25% &rarr; 50% &rarr; 100%)</li>
+          <li>Monitor error rates, latency, and Core Web Vitals at each percentage</li>
+          <li>Confirm rollback works: flip the feature flag back, traffic returns to monolith</li>
+          <li>At 100%: remove Catalog routes from the monolith (the monolith gets smaller)</li>
+          <li>Celebrate: The first domain is independently deployed &#127881;</li>
+        </ol>
+      </div>
+    </details>
+  </section>
+
+  <!-- ════════════════════════════════════════════ -->
+  <section>
+    <h2>Risk Mitigation</h2>
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Risk</th>
+          <th>Mitigation</th>
+          <th>Rollback</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Catalog pages break after stripping</td>
+          <td>Full visual regression test suite runs before each deployment</td>
+          <td>Route traffic back to monolith via feature flag (instant)</td>
+        </tr>
+        <tr>
+          <td>BFF introduces latency</td>
+          <td>BFF runs in same cluster as backends; response time monitored via SLOs</td>
+          <td>Catalog can temporarily bypass BFF and call backends directly</td>
+        </tr>
+        <tr>
+          <td>Shared header/footer diverge between Catalog and monolith</td>
+          <td>Shared components published to CDN; both services consume the same version</td>
+          <td>Pin to known-good version; investigate drift before updating</td>
+        </tr>
+        <tr>
+          <td>Search index consistency</td>
+          <td>Catalog BFF reads from the same search index as the monolith</td>
+          <td>No change to underlying search infrastructure</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+</main>
+<div style="max-width:900px;margin:0 auto;padding:0 1.5rem;">
+  <div class="page-nav">
+    <a href="06-domain-map.html"><span class="pn-label">&larr; Previous</span><span class="pn-title">The Domain Map</span></a>
+    <a href="08-cart-checkout.html" class="next"><span class="pn-label">Next &rarr;</span><span class="pn-title">Cart, Mini-Cart, and Checkout</span></a>
+  </div>
+</div>
+<footer>Medline Platform Evolution &mdash; v5 &mdash; 2026-04-05 &mdash; Technical Director Series &mdash; Confidential</footer>
+<div class="toast" id="toast">Copied!</div>
+<script src="shared.js"></script>
+</body>
+</html>

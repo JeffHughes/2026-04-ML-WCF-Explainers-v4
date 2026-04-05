@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The 1-Year Core Update Cadence &mdash; Medline Platform Evolution</title>
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<div class="progress-bar"></div>
+<nav>
+  <a href="index.html" class="logo">ML Evolution</a>
+  <div class="nav-links">
+    <a href="01-executive-summary.html">Summary</a>
+    <a href="02-current-state.html">Today</a>
+    <a href="03-why-change.html">Why</a>
+    <a href="04-migration-overview.html">Strategy</a>
+    <a href="05-copy-split-strip.html">Copy-Split</a>
+    <a href="06-domain-map.html">Domains</a>
+    <a href="07-catalog-domain.html">Catalog</a>
+    <a href="08-cart-checkout.html">Cart</a>
+    <a href="09-remaining-domains.html">Other</a>
+    <a href="10-shell-architecture.html">Shell</a>
+    <a href="11-shell-swap.html">Swap</a>
+    <a href="12-web-component-wrapping.html">Wrapping</a>
+    <a href="13-hydration-csr.html">CSR</a>
+    <a href="14-component-standards.html">Standards</a>
+    <a href="15-component-transition.html">Transition</a>
+    <a href="16-app-catalog.html">Catalog</a>
+    <a href="17-api-scanning.html">Scanning</a>
+    <a href="18-bff-pattern.html">BFF</a>
+    <a href="19-managing-drift.html">Drift</a>
+    <a href="20-core-cadence.html" class="active">Cadence</a>
+    <a href="21-testing-strategy.html">Testing</a>
+    <a href="22-blue-green-rollouts.html">Deploy</a>
+    <a href="23-migration-timeline.html">Timeline</a>
+    <a href="24-team-impact.html">Teams</a>
+    <a href="25-key-principles.html">Principles</a>
+    <a href="dev-environment.html">DevEx</a>
+  </div>
+  <button class="theme-toggle" id="themeToggle" title="Toggle theme">&#9790;</button>
+</nav>
+<div class="hero">
+  <div class="page-num">Operations</div>
+  <h1>The 1-Year Core Update Cadence</h1>
+  <p class="subtitle">Predictable, planned, and scripted — how the yearly core component cycle eliminates surprise breaking changes and gives every team time to adopt on their terms.</p>
+</div>
+<main>
+
+<!-- ═══ Section 1: Why Cadence Matters ═══ -->
+<section>
+  <h2>Why a Predictable Cadence Matters</h2>
+  <p>In enterprise software, <strong>surprise major-version upgrades create emergencies</strong>. Teams scramble, sprints derail, and technical debt compounds when a framework vendor drops a breaking release without warning. The 1-year core update cadence eliminates that chaos entirely.</p>
+
+  <div class="callout">
+    <strong>&#128197; Core Principle</strong>
+    A predictable cadence lets teams plan. Surprise major versions create emergencies. Every core release is planned twelve months in advance, documented thoroughly, and shipped with automated migration scripts.
+  </div>
+
+  <p>Core components are the shared building blocks every domain relies on: <strong>header, footer, buttons, forms, data tables, navigation, alerts, modals, and layout primitives</strong>. These are published as W3C-standard Web Components, distributed via CDN, and versioned independently from any single domain.</p>
+
+  <ul>
+    <li><strong>One new edition per year</strong> — a WCFramework edition plus a React compatibility edition, published simultaneously</li>
+    <li><strong>Security patches ship quarterly</strong> — minor releases within the current core version that require zero domain changes</li>
+    <li><strong>Accessibility improvements bundled</strong> — WCAG updates are folded into the annual release, not shipped as surprise patches</li>
+    <li><strong>Performance optimizations included</strong> — each edition benchmarks faster than the last, with no API changes required</li>
+    <li><strong>New shared components</strong> — community-requested additions to the core library, vetted by the platform team</li>
+  </ul>
+
+  <div class="industry-std">
+    <strong>Industry Standard: Predictable Release Trains</strong>
+    Organizations like Google (Chrome), Ubuntu (LTS), and Node.js (LTS) all use time-based release cadences. Teams know exactly when to expect changes and have documented timelines for adoption. This is the same model applied to internal shared components.
+  </div>
+</section>
+
+<!-- ═══ Section 2: How It Works ═══ -->
+<section>
+  <h2>How the Annual Cycle Works</h2>
+  <p>Each year follows a structured, repeatable process. The platform team begins working on the next core edition in Q1. By Q3, the pre-release is available for domain teams to test. In Q4, the stable edition ships with full documentation and automated migration scripts.</p>
+
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="stat-num">1</div>
+      <div class="stat-label">Major release per year</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num green">4</div>
+      <div class="stat-label">Quarterly security patches</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num purple">12</div>
+      <div class="stat-label">Months advance notice</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num orange">2+</div>
+      <div class="stat-label">Years of parallel CDN support</div>
+    </div>
+  </div>
+
+  <h3>Annual Cadence Timeline</h3>
+  <div class="mermaid-wrap" id="d20-1">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">Fullscreen</button>
+    </div>
+    <div class="mw-view">
+      <div class="mermaid-inner" data-src="gantt
+  title Annual Core Component Cadence
+  dateFormat YYYY-MM
+  axisFormat %b
+  section Core v(N+1) Development
+    API design &amp; RFC            :a1, 2026-01, 2M
+    Implementation               :a2, after a1, 3M
+    Pre-release (beta)           :a3, after a2, 2M
+    Stable release               :milestone, m1, 2026-09, 0d
+  section Adoption Wave
+    Early adopters test          :b1, 2026-07, 3M
+    Change-mod scripts available :milestone, m2, 2026-09, 0d
+    General adoption window      :b2, 2026-09, 4M
+    Full adoption (optional)     :b3, 2027-01, 3M
+  section CDN Support
+    Core v(N) served (current)   :c1, 2026-01, 12M
+    Core v(N-1) served (prev)    :c2, 2026-01, 12M
+    Core v(N+1) served (new)     :c3, 2026-09, 6M"></div>
+    </div>
+    <div class="mw-caption">Fig 20.1 — Annual core release cadence with parallel CDN support for multiple versions</div>
+  </div>
+
+  <details>
+    <summary>Q1–Q2: Design &amp; Implementation <span class="detail-summary">Platform team builds</span></summary>
+    <div class="detail-body">
+      <p>The platform team publishes an <strong>RFC (Request for Comments)</strong> in January. Domain teams have 30 days to provide feedback. By March, the API surface is locked and implementation begins. All changes are backward-compatible within the same major version.</p>
+      <ul>
+        <li>RFC published to internal documentation site with full change catalog</li>
+        <li>Feedback window: 30 days, tracked in issue tracker</li>
+        <li>Breaking change threshold: zero within minor versions, documented for major</li>
+        <li>New component proposals vetted through the App Catalog governance process</li>
+      </ul>
+    </div>
+  </details>
+
+  <details>
+    <summary>Q3: Beta &amp; Early Adoption <span class="detail-summary">Domain teams test</span></summary>
+    <div class="detail-body">
+      <p>Pre-release packages are published to a <code>beta</code> CDN channel. Early adopter domains (typically Catalog and Cart) integrate and report issues. The change-mod scripts are finalized based on real migration feedback.</p>
+      <ul>
+        <li>Beta packages available via CDN at <code>/core/v{N+1}-beta/</code></li>
+        <li>Automated compatibility tests run against all registered domains</li>
+        <li>Migration script dry-run mode: shows what would change without applying</li>
+        <li>Bug reports prioritized with 48-hour response SLA</li>
+      </ul>
+    </div>
+  </details>
+
+  <details>
+    <summary>Q4+: General Adoption &amp; Gradual Rollout <span class="detail-summary">Teams adopt at their pace</span></summary>
+    <div class="detail-body">
+      <p>The stable release ships in September. Domain teams adopt on their own schedule — there is no hard deadline. Teams on last year's core continue to receive security patches. Teams two years back also continue to function; the CDN serves all supported versions.</p>
+      <ul>
+        <li>Stable packages at <code>/core/v{N+1}/</code></li>
+        <li>Change-mod scripts fully tested and documented</li>
+        <li>Adoption dashboard shows which domains are on which version</li>
+        <li>No forced migration — teams upgrade when it fits their sprint cadence</li>
+      </ul>
+    </div>
+  </details>
+</section>
+
+<!-- ═══ Section 3: Change-Mod Scripts ═══ -->
+<section>
+  <h2>Change-Mod Scripts: Automated Upgrades</h2>
+  <p>The single most important tool in the cadence process is the <strong>change-mod script</strong>. It automates the mechanical work of upgrading your domain's core component references. No manual find-and-replace. No guesswork. No missed imports.</p>
+
+  <h3>How It Works</h3>
+  <ol>
+    <li><strong>Run the script</strong> — <code>npx @core/change-mod --target v{N+1}</code></li>
+    <li><strong>Review the diff</strong> — the script generates a standard git diff showing every change</li>
+    <li><strong>Test locally</strong> — run your domain's existing test suite against the updated components</li>
+    <li><strong>Deploy</strong> — push through your normal domain deployment pipeline</li>
+  </ol>
+
+  <div class="callout success">
+    <strong>&#9989; That's It</strong>
+    Run the script → review the diff → test → deploy. Four steps. No meetings. No coordination. No release trains.
+  </div>
+
+  <h3>Change-Mod Pipeline</h3>
+  <div class="mermaid-wrap" id="d20-2">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">Fullscreen</button>
+    </div>
+    <div class="mw-view">
+      <div class="mermaid-inner" data-src="flowchart LR
+  A[Run change-mod CLI] --> B{Detect current\ncore version}
+  B --> C[Fetch migration\nmanifest from CDN]
+  C --> D[Generate diff\nfor domain]
+  D --> E[Apply changes\nto source]
+  E --> F[Run domain\ntest suite]
+  F --> G{Tests pass?}
+  G -->|Yes| H[Commit &amp; deploy\nvia domain pipeline]
+  G -->|No| I[Review failures\nfix domain-specific code]
+  I --> F
+  style A fill:#1c2333,stroke:#58a6ff,color:#e6edf3
+  style H fill:#0d2818,stroke:#3fb950,color:#e6edf3
+  style I fill:#2d1b00,stroke:#f0883e,color:#e6edf3"></div>
+    </div>
+    <div class="mw-caption">Fig 20.2 — Change-mod script pipeline: detect → fetch → diff → apply → test → deploy</div>
+  </div>
+
+  <details>
+    <summary>What the Script Actually Changes <span class="detail-summary">Technical detail</span></summary>
+    <div class="detail-body">
+      <h4>Import Path Updates</h4>
+      <p>The script updates CDN import paths from the previous core version to the new one. For example:</p>
+      <pre><code>// Before
+import '@core/v4/button.js';
+import '@core/v4/data-table.js';
+
+// After (change-mod applied)
+import '@core/v5/button.js';
+import '@core/v5/data-table.js';</code></pre>
+
+      <h4>API Signature Adjustments</h4>
+      <p>If a component's public API changed (e.g., a property was renamed or a new required attribute was added), the script updates every usage in your domain's templates and code.</p>
+
+      <h4>Deprecation Cleanup</h4>
+      <p>Components or APIs deprecated in the previous version are replaced with their documented successors. The migration manifest contains the full mapping.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>Dry-Run Mode <span class="detail-summary">Preview before applying</span></summary>
+    <div class="detail-body">
+      <p>Run <code>npx @core/change-mod --target v{N+1} --dry-run</code> to see exactly what would change without modifying any files. The output is a standard unified diff that you can review, share with your team, or pipe to a code review tool.</p>
+      <ul>
+        <li>Zero side effects — reads your source, computes the diff, writes nothing</li>
+        <li>Includes line-by-line explanations for each change</li>
+        <li>Generates a compatibility report: which tests might be affected</li>
+        <li>Can be integrated into CI as a "readiness check" before the actual migration</li>
+      </ul>
+    </div>
+  </details>
+</section>
+
+<!-- ═══ Section 4: Version Support Policy ═══ -->
+<section>
+  <h2>Version Support &amp; CDN Policy</h2>
+  <p>A common fear with shared components is: <em>"What if we're not ready to upgrade and the old version disappears?"</em> The answer is simple: <strong>it doesn't</strong>.</p>
+
+  <ul>
+    <li><strong>Current version (v<em>N</em>)</strong> — full support, security patches, bug fixes</li>
+    <li><strong>Previous version (v<em>N-1</em>)</strong> — security patches only, CDN served, fully functional</li>
+    <li><strong>Two versions back (v<em>N-2</em>)</strong> — CDN served, no active patches, still works</li>
+    <li><strong>End of life</strong> — versions older than N-2 are archived but still accessible via pinned URLs</li>
+  </ul>
+
+  <div class="callout warn">
+    <strong>&#9888;&#65039; No Surprise Removals</strong>
+    The CDN never removes a published version. Even end-of-life versions remain accessible at their pinned URL. The "end of life" designation means no further patches — not that the code disappears.
+  </div>
+
+  <h3>Comparison: Planned Cadence vs. Surprise Cycle</h3>
+  <table class="compare-table">
+    <thead>
+      <tr>
+        <th>Dimension</th>
+        <th class="good">Annual Planned Cadence</th>
+        <th class="bad">Framework Surprise Cycle</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Release frequency</td>
+        <td class="good">1 major/year, scheduled</td>
+        <td class="bad">Unpredictable, vendor-driven</td>
+      </tr>
+      <tr>
+        <td>Advance notice</td>
+        <td class="good">12 months minimum</td>
+        <td class="bad">Weeks to months</td>
+      </tr>
+      <tr>
+        <td>Migration tooling</td>
+        <td class="good">Automated change-mod scripts</td>
+        <td class="bad">Manual migration guides (if any)</td>
+      </tr>
+      <tr>
+        <td>Adoption pressure</td>
+        <td class="good">Teams choose their own timeline</td>
+        <td class="bad">Security patches tied to latest version</td>
+      </tr>
+      <tr>
+        <td>Parallel version support</td>
+        <td class="good">3 versions served simultaneously</td>
+        <td class="bad">Previous version quickly deprecated</td>
+      </tr>
+      <tr>
+        <td>Breaking changes</td>
+        <td class="good">Documented, scripted, tested</td>
+        <td class="bad">Discovered during upgrade attempts</td>
+      </tr>
+      <tr>
+        <td>Team planning</td>
+        <td class="good">Upgrades fit into sprint planning</td>
+        <td class="bad">Upgrades become emergency work</td>
+      </tr>
+      <tr>
+        <td>Enterprise longevity</td>
+        <td class="good">10-15 year component lifespans</td>
+        <td class="bad">2-3 years before full rewrite pressure</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ═══ Section 5: What's in a Core Release ═══ -->
+<section>
+  <h2>What Ships in Each Core Release</h2>
+  <p>Every annual core edition is a comprehensive package, not just a handful of bug fixes. Here's what domain teams receive:</p>
+
+  <div class="themes-grid">
+    <div class="theme-card">
+      <div class="theme-icon">&#128274;</div>
+      <h4>Security Patches</h4>
+      <p>All known CVEs addressed. Dependency audit completed. CSP-compatible output verified across every component.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#9855;</div>
+      <h4>Accessibility Updates</h4>
+      <p>WCAG 2.2 AA compliance. Screen reader testing across NVDA, JAWS, and VoiceOver. Keyboard navigation improvements.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#9889;</div>
+      <h4>Performance Optimizations</h4>
+      <p>Bundle size reductions. Render performance improvements. Lazy-loading enhancements for data-heavy components.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#128640;</div>
+      <h4>New Shared Components</h4>
+      <p>Community-requested additions vetted through the App Catalog governance process. Each new component ships with full documentation and examples.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#128736;</div>
+      <h4>Developer Experience</h4>
+      <p>Improved error messages. Better TypeScript definitions. Enhanced dev-mode warnings. Updated Storybook integration.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#128218;</div>
+      <h4>Documentation Refresh</h4>
+      <p>Every component page updated. Migration guide published. Video walkthroughs for significant changes. API changelog with before/after examples.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ Section 6: Real-World Adoption ═══ -->
+<section>
+  <h2>Real-World Adoption Patterns</h2>
+  <p>Not every domain adopts on the same day — and that's by design. Here's what the typical adoption wave looks like across the organization:</p>
+
+  <details>
+    <summary>Wave 1: Early Adopters (Month 1–2) <span class="detail-summary">Platform-adjacent teams</span></summary>
+    <div class="detail-body">
+      <p>Teams closest to the platform (Catalog, Search) adopt first. They have the most experience with change-mod scripts and provide early feedback that benefits later adopters.</p>
+      <ul>
+        <li>Typically 2–3 domains in the first wave</li>
+        <li>Feedback loop: issues found here are fixed before general availability</li>
+        <li>Adoption time: 1–2 sprints including testing</li>
+      </ul>
+    </div>
+  </details>
+
+  <details>
+    <summary>Wave 2: General Adoption (Month 2–4) <span class="detail-summary">Most domain teams</span></summary>
+    <div class="detail-body">
+      <p>The majority of domain teams adopt during this window. Change-mod scripts are battle-tested, documentation is refined, and any edge cases from Wave 1 are resolved.</p>
+      <ul>
+        <li>Typically 5–8 domains in this wave</li>
+        <li>Adoption time: 1 sprint for most domains</li>
+        <li>Support channel active for migration questions</li>
+      </ul>
+    </div>
+  </details>
+
+  <details>
+    <summary>Wave 3: Late Adopters (Month 4–8) <span class="detail-summary">Complex or low-priority domains</span></summary>
+    <div class="detail-body">
+      <p>Some domains have complex customizations or lower release frequency. They adopt later — and that's perfectly fine. The previous core version continues to receive security patches throughout this window.</p>
+      <ul>
+        <li>Typically 2–4 domains in this wave</li>
+        <li>Often coincides with other planned refactoring work</li>
+        <li>No pressure, no deadlines — just the team's own sprint cadence</li>
+      </ul>
+    </div>
+  </details>
+
+  <div class="industry-std">
+    <strong>Industry Standard: Adoption Waves</strong>
+    Google's internal component library uses the same tiered adoption model. Early adopters validate, general teams follow, and late adopters have extended windows. The key is that no one is forced — the tooling makes adoption easy enough that teams choose to upgrade.
+  </div>
+</section>
+
+</main>
+<div style="max-width:900px;margin:0 auto;padding:0 1.5rem;">
+  <div class="page-nav">
+    <a href="19-managing-drift.html"><span class="pn-label">&larr; Previous</span><span class="pn-title">Managing Drift</span></a>
+    <a href="21-testing-strategy.html" class="next"><span class="pn-label">Next &rarr;</span><span class="pn-title">Testing Strategy</span></a>
+  </div>
+</div>
+<footer>Medline Platform Evolution &mdash; v5 &mdash; 2026-04-05 &mdash; Technical Director Series &mdash; Confidential</footer>
+<div class="toast" id="toast">Copied!</div>
+<script src="shared.js"></script>
+</body>
+</html>

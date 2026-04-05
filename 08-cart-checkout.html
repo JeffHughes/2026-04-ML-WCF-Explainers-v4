@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cart, Mini-Cart, and Checkout Domains &mdash; Medline Platform Evolution</title>
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<div class="progress-bar"></div>
+<nav>
+  <a href="index.html" class="logo">ML Evolution</a>
+  <div class="nav-links">
+    <a href="01-executive-summary.html">Summary</a>
+    <a href="02-current-state.html">Today</a>
+    <a href="03-why-change.html">Why</a>
+    <a href="04-migration-overview.html">Strategy</a>
+    <a href="05-copy-split-strip.html">Copy-Split</a>
+    <a href="06-domain-map.html">Domains</a>
+    <a href="07-catalog-domain.html">Catalog</a>
+    <a href="08-cart-checkout.html" class="active">Cart</a>
+    <a href="09-remaining-domains.html">Other</a>
+    <a href="10-shell-architecture.html">Shell</a>
+    <a href="11-shell-swap.html">Swap</a>
+    <a href="12-web-component-wrapping.html">Wrapping</a>
+    <a href="13-hydration-csr.html">CSR</a>
+    <a href="14-component-standards.html">Standards</a>
+    <a href="15-component-transition.html">Transition</a>
+    <a href="16-app-catalog.html">Catalog</a>
+    <a href="17-api-scanning.html">Scanning</a>
+    <a href="18-bff-pattern.html">BFF</a>
+    <a href="19-managing-drift.html">Drift</a>
+    <a href="20-core-cadence.html">Cadence</a>
+    <a href="21-testing-strategy.html">Testing</a>
+    <a href="22-blue-green-rollouts.html">Deploy</a>
+    <a href="23-migration-timeline.html">Timeline</a>
+    <a href="24-team-impact.html">Teams</a>
+    <a href="25-key-principles.html">Principles</a>
+    <a href="dev-environment.html">DevEx</a>
+  </div>
+  <button class="theme-toggle" id="themeToggle" title="Toggle theme">&#9790;</button>
+</nav>
+<div class="hero">
+  <div class="page-num">Migration Mechanics</div>
+  <h1>Cart, Mini-Cart, and Checkout Domains</h1>
+  <p class="subtitle">Three tightly related but independently deployable domains &mdash; connected by events, separated by responsibility</p>
+</div>
+<main>
+
+  <!-- ════════════════════════════════════════════ -->
+  <section>
+    <h2>Why Three Separate Domains?</h2>
+    <p>Cart, Mini-Cart, and Checkout handle different user journeys, carry different risk profiles, and ship at different cadences. Bundling them together means a checkout bug blocks cart fixes and a mini-cart tweak risks breaking the payment flow. Separating them gives each team full autonomy.</p>
+
+    <div class="themes-grid">
+      <div class="theme-card">
+        <div class="theme-icon">&#128722;</div>
+        <h4>Cart Domain</h4>
+        <p>Full cart page, line item management, quantity changes, promotions, saved carts, bulk ordering. Changes weekly as merchandising teams adjust promo rules.</p>
+      </div>
+      <div class="theme-card">
+        <div class="theme-icon">&#128230;</div>
+        <h4>Mini-Cart Domain</h4>
+        <p>Header overlay, quick-add confirmation, item count badge, recently added items. Tiny surface area, ships independently as part of the shared header experience.</p>
+      </div>
+      <div class="theme-card">
+        <div class="theme-icon">&#128179;</div>
+        <h4>Checkout Domain</h4>
+        <p>Multi-step flow: shipping, payment, review, confirmation. Address validation, payment gateway integration, order submission. Highest-risk domain &mdash; changes require extra review and canary deployments.</p>
+      </div>
+    </div>
+
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Dimension</th>
+          <th>Cart</th>
+          <th>Mini-Cart</th>
+          <th>Checkout</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Release cadence</td>
+          <td class="neutral">Weekly</td>
+          <td class="good">As needed</td>
+          <td class="bad">Bi-weekly with canary</td>
+        </tr>
+        <tr>
+          <td>Risk profile</td>
+          <td class="neutral">Medium</td>
+          <td class="good">Low</td>
+          <td class="bad">High (payments)</td>
+        </tr>
+        <tr>
+          <td>Test requirements</td>
+          <td>Unit + integration</td>
+          <td>Unit + visual</td>
+          <td>Unit + integration + E2E + PCI compliance</td>
+        </tr>
+        <tr>
+          <td>Component count</td>
+          <td>8&ndash;12 components</td>
+          <td>2&ndash;3 components</td>
+          <td>15&ndash;20 components</td>
+        </tr>
+        <tr>
+          <td>Backend dependencies</td>
+          <td>Cart API, Pricing API</td>
+          <td>Cart state (events only)</td>
+          <td>Cart API, Payment Gateway, Address Service, Order Service</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════════════════════════════════════ -->
+  <section>
+    <h2>Cross-Domain Communication</h2>
+    <p>These three domains talk to each other through a <strong>lightweight event bus</strong> using browser-native <code>CustomEvent</code> API. No direct imports, no shared state stores, no tight coupling. Each domain publishes events and subscribes to events &mdash; that&rsquo;s the entire contract.</p>
+
+    <div class="mermaid-wrap" id="d08-1">
+      <div class="mw-toolbar">
+        <button onclick="mzoom(this,1.2)">+</button>
+        <button onclick="mzoom(this,0.8)">&minus;</button>
+        <button onclick="mreset(this)">Reset</button>
+        <button onclick="mfull(this)">&#x26F6;</button>
+      </div>
+      <div class="mw-view"><div class="mermaid-inner" data-src="graph TB
+    subgraph CATALOG[&quot;Catalog Domain&quot;]
+      PDP[Product Detail Page]
+    end
+    subgraph CART[&quot;Cart Domain&quot;]
+      CART_PAGE[Cart Page]
+      CART_STATE[Cart State Manager]
+      CART_BFF[Cart BFF]
+    end
+    subgraph MINI[&quot;Mini-Cart Domain&quot;]
+      OVERLAY[Mini-Cart Overlay]
+      BADGE[Item Count Badge]
+    end
+    subgraph CHECKOUT[&quot;Checkout Domain&quot;]
+      SHIPPING[Shipping Step]
+      PAYMENT[Payment Step]
+      REVIEW[Review Step]
+      CONFIRM[Confirmation]
+    end
+
+    PDP -->|ml:add-to-cart| CART_STATE
+    CART_STATE -->|ml:cart-updated| OVERLAY
+    CART_STATE -->|ml:cart-updated| BADGE
+    CART_PAGE -->|ml:proceed-to-checkout| SHIPPING
+    SHIPPING --> PAYMENT
+    PAYMENT --> REVIEW
+    REVIEW --> CONFIRM
+    CART_STATE --> CART_BFF
+    CONFIRM -->|ml:order-placed| CART_STATE
+
+    style CATALOG fill:#0d2818,stroke:#3fb950,color:#e6edf3
+    style CART fill:#1a2744,stroke:#58a6ff,color:#e6edf3
+    style MINI fill:#2a1a3a,stroke:#d2a8ff,color:#e6edf3
+    style CHECKOUT fill:#3d2a14,stroke:#f0883e,color:#e6edf3"></div></div>
+      <div class="mw-caption">Cart / Mini-Cart / Checkout domain interactions &mdash; all communication via browser-native CustomEvent bus</div>
+    </div>
+
+    <h3>Event Catalog</h3>
+    <p>Every cross-domain interaction is a named event with a typed payload. Here are the events that flow between Cart, Mini-Cart, and Checkout:</p>
+
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Event Name</th>
+          <th>Publisher</th>
+          <th>Subscribers</th>
+          <th>Payload</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>ml:add-to-cart</code></td>
+          <td>Catalog (PDP)</td>
+          <td>Cart</td>
+          <td><code>{ sku, qty, variant? }</code></td>
+        </tr>
+        <tr>
+          <td><code>ml:cart-updated</code></td>
+          <td>Cart</td>
+          <td>Mini-Cart, Checkout</td>
+          <td><code>{ itemCount, subtotal, items[] }</code></td>
+        </tr>
+        <tr>
+          <td><code>ml:remove-from-cart</code></td>
+          <td>Cart, Mini-Cart</td>
+          <td>Cart</td>
+          <td><code>{ lineItemId }</code></td>
+        </tr>
+        <tr>
+          <td><code>ml:proceed-to-checkout</code></td>
+          <td>Cart</td>
+          <td>Checkout</td>
+          <td><code>{ cartId }</code></td>
+        </tr>
+        <tr>
+          <td><code>ml:order-placed</code></td>
+          <td>Checkout</td>
+          <td>Cart, Mini-Cart</td>
+          <td><code>{ orderId, orderTotal }</code></td>
+        </tr>
+        <tr>
+          <td><code>ml:open-mini-cart</code></td>
+          <td>Catalog, Cart</td>
+          <td>Mini-Cart</td>
+          <td><code>{}</code> (no payload)</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout">
+      <strong>&#128161; No Shared State Store</strong>
+      Events replace shared Redux/state stores. Each domain manages its own internal state. The event bus is the only coupling. This means you can swap out the Cart domain&rsquo;s internal state management without affecting Mini-Cart or Checkout at all.
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════ -->
+  <section>
+    <h2>The Cart Domain in Detail</h2>
+    <p>The Cart domain owns the full cart experience &mdash; the page where users review their items before proceeding to checkout.</p>
+
+    <details>
+      <summary>Cart Page Components <span class="detail-summary">8&ndash;12 components that compose the cart page</span></summary>
+      <div class="detail-body">
+        <ul>
+          <li><code>&lt;ml-cart-page&gt;</code> &mdash; Root container, orchestrates the full cart view</li>
+          <li><code>&lt;ml-cart-line-item&gt;</code> &mdash; Individual product row with image, name, price, quantity controls, remove button</li>
+          <li><code>&lt;ml-cart-quantity&gt;</code> &mdash; Quantity stepper (+/&minus; buttons) with debounced API updates</li>
+          <li><code>&lt;ml-cart-summary&gt;</code> &mdash; Subtotal, estimated tax, shipping estimate, promo code display</li>
+          <li><code>&lt;ml-promo-input&gt;</code> &mdash; Promo code entry and validation</li>
+          <li><code>&lt;ml-saved-carts&gt;</code> &mdash; Save current cart for later, load a previously saved cart</li>
+          <li><code>&lt;ml-bulk-order&gt;</code> &mdash; CSV/Excel upload for bulk item additions (enterprise healthcare purchasing)</li>
+          <li><code>&lt;ml-cart-empty&gt;</code> &mdash; Empty state with recommended products and recent orders</li>
+        </ul>
+      </div>
+    </details>
+
+    <details>
+      <summary>Cart BFF Endpoints <span class="detail-summary">API surface for cart operations</span></summary>
+      <div class="detail-body">
+        <table class="compare-table">
+          <thead>
+            <tr><th>Endpoint</th><th>Method</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>/cart</code></td><td>GET</td><td>Get current cart with line items, pricing, promotions</td></tr>
+            <tr><td><code>/cart/items</code></td><td>POST</td><td>Add item to cart (sku, quantity, variant)</td></tr>
+            <tr><td><code>/cart/items/:id</code></td><td>PATCH</td><td>Update line item quantity</td></tr>
+            <tr><td><code>/cart/items/:id</code></td><td>DELETE</td><td>Remove line item</td></tr>
+            <tr><td><code>/cart/promo</code></td><td>POST</td><td>Apply promotion code</td></tr>
+            <tr><td><code>/cart/promo</code></td><td>DELETE</td><td>Remove promotion code</td></tr>
+            <tr><td><code>/cart/saved</code></td><td>GET</td><td>List saved carts</td></tr>
+            <tr><td><code>/cart/saved</code></td><td>POST</td><td>Save current cart</td></tr>
+            <tr><td><code>/cart/bulk</code></td><td>POST</td><td>Bulk add items via CSV payload</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </details>
+  </section>
+
+  <!-- ════════════════════════════════════════════ -->
+  <section>
+    <h2>The Mini-Cart Domain</h2>
+    <p>The Mini-Cart is the smallest domain &mdash; just 2&ndash;3 components. It lives in the header and shows a quick summary of the user&rsquo;s cart without navigating to the full cart page.</p>
+
+    <h3>Mini-Cart Components</h3>
+    <ul>
+      <li><code>&lt;ml-mini-cart&gt;</code> &mdash; Slide-out overlay showing last 3 items, subtotal, and &ldquo;View Cart&rdquo; / &ldquo;Checkout&rdquo; buttons</li>
+      <li><code>&lt;ml-cart-badge&gt;</code> &mdash; Item count badge displayed on the cart icon in the header</li>
+      <li><code>&lt;ml-add-confirm&gt;</code> &mdash; Quick confirmation toast when an item is added from PDP</li>
+    </ul>
+
+    <h3>Why It&rsquo;s Separate</h3>
+    <p>The Mini-Cart is part of the <strong>header experience</strong>, which is rendered by the shell on every page. It subscribes to <code>ml:cart-updated</code> events and updates reactively. It never calls the Cart BFF directly &mdash; it gets all its data from events. This means:</p>
+    <ul>
+      <li>Mini-Cart can deploy without touching the Cart domain</li>
+      <li>Cart can change its internal data model without affecting Mini-Cart</li>
+      <li>Mini-Cart works even if the Cart BFF is temporarily slow &mdash; it shows the last known state from events</li>
+    </ul>
+
+    <div class="industry-std">
+      <strong>Industry Standard: Event-Driven Micro Frontends</strong>
+      Event-driven communication between micro frontends is the pattern recommended by Martin Fowler&rsquo;s micro frontend architecture, the Thoughtworks Technology Radar, and implemented by Zalando, IKEA, and Spotify. It eliminates shared state and enables true independent deployment.
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════ -->
+  <section>
+    <h2>The Checkout Domain</h2>
+    <p>Checkout is the highest-risk domain in the platform. It handles payments, address validation, tax calculation, and order submission. Every change to Checkout goes through additional review gates and canary deployment.</p>
+
+    <h3>Checkout Flow as a State Machine</h3>
+    <p>The checkout flow is modeled as a finite state machine. Each step has explicit entry conditions, exit conditions, and error states. This makes the flow predictable, testable, and resilient:</p>
+
+    <div class="mermaid-wrap" id="d08-2">
+      <div class="mw-toolbar">
+        <button onclick="mzoom(this,1.2)">+</button>
+        <button onclick="mzoom(this,0.8)">&minus;</button>
+        <button onclick="mreset(this)">Reset</button>
+        <button onclick="mfull(this)">&#x26F6;</button>
+      </div>
+      <div class="mw-view"><div class="mermaid-inner" data-src="stateDiagram-v2
+    [*] --> CartReview: ml:proceed-to-checkout
+    CartReview --> Shipping: Cart validated
+    Shipping --> Payment: Address validated
+    Payment --> OrderReview: Payment method captured
+    OrderReview --> Processing: User confirms
+    Processing --> Confirmation: Order placed
+    Processing --> PaymentError: Gateway error
+    PaymentError --> Payment: Retry
+    Shipping --> AddressError: Validation failed
+    AddressError --> Shipping: Correct address
+    Confirmation --> [*]
+
+    note right of CartReview: Verify cart items still available
+    note right of Shipping: Address validation via API
+    note right of Payment: PCI-compliant tokenization
+    note right of Processing: Idempotent order submission"></div></div>
+      <div class="mw-caption">Checkout state machine &mdash; every transition is explicit, every error state has a recovery path</div>
+    </div>
+
+    <details>
+      <summary>Checkout Components <span class="detail-summary">15&ndash;20 components across the checkout flow</span></summary>
+      <div class="detail-body">
+        <h4>Shipping Step</h4>
+        <ul>
+          <li><code>&lt;ml-checkout-shipping&gt;</code> &mdash; Shipping step container</li>
+          <li><code>&lt;ml-address-form&gt;</code> &mdash; Address entry with autocomplete and validation</li>
+          <li><code>&lt;ml-address-book&gt;</code> &mdash; Select from saved addresses (data from Account domain)</li>
+          <li><code>&lt;ml-shipping-options&gt;</code> &mdash; Available shipping methods with estimated delivery dates</li>
+        </ul>
+        <h4>Payment Step</h4>
+        <ul>
+          <li><code>&lt;ml-checkout-payment&gt;</code> &mdash; Payment step container</li>
+          <li><code>&lt;ml-payment-form&gt;</code> &mdash; Credit card entry (PCI-compliant, tokenized)</li>
+          <li><code>&lt;ml-saved-payments&gt;</code> &mdash; Select from saved payment methods</li>
+          <li><code>&lt;ml-billing-address&gt;</code> &mdash; Billing address (defaults to shipping, can override)</li>
+          <li><code>&lt;ml-po-number&gt;</code> &mdash; Purchase order number entry (enterprise B2B feature)</li>
+        </ul>
+        <h4>Review &amp; Confirmation</h4>
+        <ul>
+          <li><code>&lt;ml-order-review&gt;</code> &mdash; Full order summary before submission</li>
+          <li><code>&lt;ml-order-items&gt;</code> &mdash; Read-only line item display</li>
+          <li><code>&lt;ml-order-totals&gt;</code> &mdash; Subtotal, tax, shipping, total breakdown</li>
+          <li><code>&lt;ml-place-order&gt;</code> &mdash; Submit button with loading state and idempotency guard</li>
+          <li><code>&lt;ml-order-confirmation&gt;</code> &mdash; Success page with order number and tracking info</li>
+        </ul>
+      </div>
+    </details>
+
+    <details>
+      <summary>Checkout BFF Endpoints <span class="detail-summary">API surface for checkout operations</span></summary>
+      <div class="detail-body">
+        <table class="compare-table">
+          <thead>
+            <tr><th>Endpoint</th><th>Method</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>/checkout/start</code></td><td>POST</td><td>Initialize checkout session from cart</td></tr>
+            <tr><td><code>/checkout/shipping</code></td><td>PUT</td><td>Set shipping address</td></tr>
+            <tr><td><code>/checkout/shipping-options</code></td><td>GET</td><td>Available shipping methods for address</td></tr>
+            <tr><td><code>/checkout/payment</code></td><td>PUT</td><td>Set payment method (tokenized)</td></tr>
+            <tr><td><code>/checkout/review</code></td><td>GET</td><td>Get order summary for review step</td></tr>
+            <tr><td><code>/checkout/place-order</code></td><td>POST</td><td>Submit order (idempotent)</td></tr>
+            <tr><td><code>/checkout/validate-address</code></td><td>POST</td><td>Validate and standardize address</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </details>
+  </section>
+
+  <!-- ════════════════════════════════════════════ -->
+  <section>
+    <h2>Handling Cross-Domain Data Dependencies</h2>
+    <p>Checkout depends on data from other domains, but it never imports their code directly. Instead, it reads from its own BFF, which aggregates the required data:</p>
+
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Data Needed</th>
+          <th>Source Domain</th>
+          <th>How Checkout Gets It</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Cart items and pricing</td>
+          <td>Cart</td>
+          <td>Checkout BFF reads cart state via internal API</td>
+        </tr>
+        <tr>
+          <td>Saved addresses</td>
+          <td>Account</td>
+          <td>Checkout BFF fetches from Account service</td>
+        </tr>
+        <tr>
+          <td>Saved payment methods</td>
+          <td>Account</td>
+          <td>Checkout BFF fetches from Account service</td>
+        </tr>
+        <tr>
+          <td>Product availability</td>
+          <td>Catalog</td>
+          <td>Checkout BFF re-validates with Inventory service</td>
+        </tr>
+        <tr>
+          <td>Shipping rates</td>
+          <td>Logistics</td>
+          <td>Checkout BFF calls Logistics rate calculator</td>
+        </tr>
+        <tr>
+          <td>Tax calculation</td>
+          <td>Tax service</td>
+          <td>Checkout BFF calls Tax calculation engine</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout">
+      <strong>&#128161; BFF as the Integration Point</strong>
+      The Checkout BFF is the <strong>only</strong> place where cross-domain data is aggregated. The frontend never makes calls to Cart, Account, or Catalog services directly. This keeps the frontend simple and testable &mdash; it talks to one API with one contract.
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════ -->
+  <section>
+    <h2>Extraction Sequence</h2>
+    <p>Cart, Mini-Cart, and Checkout are extracted in order, after Catalog proves the pattern:</p>
+
+    <details>
+      <summary>Step 1: Extract Cart <span class="detail-summary">Second domain after Catalog</span></summary>
+      <div class="detail-body">
+        <ol>
+          <li>Copy monolith &rarr; <code>medline-cart</code></li>
+          <li>Strip everything except cart pages, cart components, cart state</li>
+          <li>Build Cart BFF with cart-specific endpoints</li>
+          <li>Wire <code>ml:add-to-cart</code> event handling</li>
+          <li>Route <code>/cart</code> traffic to the new service</li>
+          <li>Verify: Cart works independently; Catalog &ldquo;Add to Cart&rdquo; events are received correctly</li>
+        </ol>
+      </div>
+    </details>
+
+    <details>
+      <summary>Step 2: Extract Mini-Cart <span class="detail-summary">Smallest extraction &mdash; header overlay only</span></summary>
+      <div class="detail-body">
+        <ol>
+          <li>Mini-Cart is just 2&ndash;3 Web Components loaded into the shell header</li>
+          <li>No separate service needed &mdash; these components are published to CDN</li>
+          <li>They subscribe to <code>ml:cart-updated</code> events and render reactively</li>
+          <li>Verify: Adding items from Catalog updates the Mini-Cart badge and overlay</li>
+        </ol>
+      </div>
+    </details>
+
+    <details>
+      <summary>Step 3: Extract Checkout <span class="detail-summary">Highest-risk domain &mdash; canary deployment</span></summary>
+      <div class="detail-body">
+        <ol>
+          <li>Copy monolith &rarr; <code>medline-checkout</code></li>
+          <li>Strip everything except checkout flow components</li>
+          <li>Build Checkout BFF with all checkout endpoints</li>
+          <li>Implement the checkout state machine</li>
+          <li>Canary deploy: 1% &rarr; 5% &rarr; 10% &rarr; 25% &rarr; 50% &rarr; 100%</li>
+          <li>Verify: Full checkout flow completes, orders are placed successfully, payment processing works</li>
+        </ol>
+      </div>
+    </details>
+
+    <div class="industry-std">
+      <strong>Industry Standard: Strangler Fig Pattern</strong>
+      Extracting domains incrementally while the monolith continues serving traffic is the Strangler Fig pattern described by Martin Fowler. You grow the new architecture around the old one, gradually routing traffic until the monolith has nothing left to serve. Every major enterprise migration at scale uses this approach.
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════ -->
+  <section>
+    <h2>Testing Cross-Domain Interactions</h2>
+    <p>The most important tests for Cart/Mini-Cart/Checkout are the <strong>integration tests</strong> that verify events flow correctly across domain boundaries:</p>
+
+    <h3>Critical Test Scenarios</h3>
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Scenario</th>
+          <th>Domains Involved</th>
+          <th>What to Verify</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Add item from PDP</td>
+          <td>Catalog &rarr; Cart &rarr; Mini-Cart</td>
+          <td>Cart state updates, Mini-Cart badge increments, overlay shows new item</td>
+        </tr>
+        <tr>
+          <td>Remove item from Mini-Cart</td>
+          <td>Mini-Cart &rarr; Cart</td>
+          <td>Cart state updates, Mini-Cart re-renders, cart page reflects removal</td>
+        </tr>
+        <tr>
+          <td>Proceed to checkout</td>
+          <td>Cart &rarr; Checkout</td>
+          <td>Checkout receives cart ID, loads cart items, begins at shipping step</td>
+        </tr>
+        <tr>
+          <td>Place order successfully</td>
+          <td>Checkout &rarr; Cart &rarr; Mini-Cart</td>
+          <td>Cart cleared, Mini-Cart shows zero items, confirmation page renders</td>
+        </tr>
+        <tr>
+          <td>Payment gateway error</td>
+          <td>Checkout (internal)</td>
+          <td>State machine transitions to PaymentError, user can retry, cart intact</td>
+        </tr>
+        <tr>
+          <td>Cart domain unavailable</td>
+          <td>Mini-Cart fallback</td>
+          <td>Mini-Cart shows &ldquo;last known state&rdquo; from cached events, no crash</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+</main>
+<div style="max-width:900px;margin:0 auto;padding:0 1.5rem;">
+  <div class="page-nav">
+    <a href="07-catalog-domain.html"><span class="pn-label">&larr; Previous</span><span class="pn-title">Deep Dive: The Catalog Domain</span></a>
+    <a href="09-remaining-domains.html" class="next"><span class="pn-label">Next &rarr;</span><span class="pn-title">Account, Search, Content, and Admin</span></a>
+  </div>
+</div>
+<footer>Medline Platform Evolution &mdash; v5 &mdash; 2026-04-05 &mdash; Technical Director Series &mdash; Confidential</footer>
+<div class="toast" id="toast">Copied!</div>
+<script src="shared.js"></script>
+</body>
+</html>

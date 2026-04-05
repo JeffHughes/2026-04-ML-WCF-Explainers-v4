@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day in the Life: Developer Experience &mdash; Medline Platform Evolution</title>
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<div class="progress-bar"></div>
+<nav>
+  <a href="index.html" class="logo">ML Evolution</a>
+  <div class="nav-links">
+    <a href="01-executive-summary.html">Summary</a>
+    <a href="02-current-state.html">Today</a>
+    <a href="03-why-change.html">Why</a>
+    <a href="04-migration-overview.html">Strategy</a>
+    <a href="05-copy-split-strip.html">Copy-Split</a>
+    <a href="06-domain-map.html">Domains</a>
+    <a href="07-catalog-domain.html">Catalog</a>
+    <a href="08-cart-checkout.html">Cart</a>
+    <a href="09-remaining-domains.html">Other</a>
+    <a href="10-shell-architecture.html">Shell</a>
+    <a href="11-shell-swap.html">Swap</a>
+    <a href="12-web-component-wrapping.html">Wrapping</a>
+    <a href="13-hydration-csr.html">CSR</a>
+    <a href="14-component-standards.html">Standards</a>
+    <a href="15-component-transition.html">Transition</a>
+    <a href="16-app-catalog.html">Catalog</a>
+    <a href="17-api-scanning.html">Scanning</a>
+    <a href="18-bff-pattern.html">BFF</a>
+    <a href="19-managing-drift.html">Drift</a>
+    <a href="20-core-cadence.html">Cadence</a>
+    <a href="21-testing-strategy.html">Testing</a>
+    <a href="22-blue-green-rollouts.html">Deploy</a>
+    <a href="23-migration-timeline.html">Timeline</a>
+    <a href="24-team-impact.html">Teams</a>
+    <a href="25-key-principles.html">Principles</a>
+    <a href="dev-environment.html" class="active">DevEx</a>
+  </div>
+  <button class="theme-toggle" id="themeToggle" title="Toggle theme">&#9790;</button>
+</nav>
+
+<div class="hero">
+  <div class="page-num">Page DEV &mdash; Developer Experience</div>
+  <h1>Day in the Life: The Developer Experience</h1>
+  <p class="subtitle">What a developer&rsquo;s morning-to-merge looks like in the evolved platform &mdash; from opening a browser to shipping production code in under 30 minutes.</p>
+</div>
+
+<main>
+
+<!-- ====================================================================== -->
+<!-- SECTION 1: The Web IDE                                                 -->
+<!-- ====================================================================== -->
+<section>
+  <h2>&#9633; The Web IDE: Zero Setup, Instant Start</h2>
+  <p>The first thing that changes in the evolved platform is <strong>where you code</strong>. There is no local setup. No &ldquo;clone the repo, install dependencies, configure environment variables, pray the build works.&rdquo; Instead, you open a URL.</p>
+  <p>The platform provides a browser-based VS Code environment &mdash; identical to <a href="https://vscode.dev" target="_blank">vscode.dev</a> / GitHub Codespaces &mdash; hosted at <code>ide.medline.com</code>. Every developer gets a cloud workspace pre-configured with:</p>
+
+  <div class="themes-grid">
+    <div class="theme-card">
+      <div class="theme-icon">&#9635;</div>
+      <h4>Pre-Cloned Repositories</h4>
+      <p>Your domain repo is already cloned. Your branch from yesterday is still there. No <code>git clone</code>, no waiting for a 2 GB monolith to download.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#9634;</div>
+      <h4>Dependencies Installed</h4>
+      <p>Node modules, build tools, type definitions &mdash; all pre-installed in the cloud workspace image. <code>npm install</code> happens once when the image is built, not every time you start.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#9641;</div>
+      <h4>Platform Plugin Pre-Loaded</h4>
+      <p>The Medline Platform Plugin is pre-installed and configured. Every shift-left check &mdash; lint, format, scan, test, validate &mdash; is active from the moment you open the editor.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#9671;</div>
+      <h4>Live Preview Available</h4>
+      <p>A built-in browser preview renders your components in isolation. Change code, save, see the result instantly. No manual server start, no port configuration.</p>
+    </div>
+  </div>
+
+  <div class="callout">
+    <strong>Why Browser-Based?</strong>
+    <p>Browser-based development eliminates the &ldquo;works on my machine&rdquo; problem entirely. Every developer works in an identical environment. Onboarding drops from 2 days of setup to 2 minutes of opening a URL. Security is centralized &mdash; source code never touches a local disk. And when a developer&rsquo;s laptop breaks, they log in from another device and continue exactly where they left off.</p>
+  </div>
+
+  <div class="industry-std">
+    <strong>Industry Standard: Cloud Development Environments</strong>
+    GitHub Codespaces, Gitpod, AWS Cloud9, and Google Cloud Shell are all production-grade cloud IDE platforms used by thousands of engineering organizations. Shopify moved 11,000 developers to cloud environments in 2022. Stripe, Uber, and Slack have all adopted similar approaches. The pattern is proven at massive scale.
+  </div>
+</section>
+
+<!-- ====================================================================== -->
+<!-- SECTION 2: The Platform Plugin (Shift-Left)                            -->
+<!-- ====================================================================== -->
+<section>
+  <h2>&#9635; The Platform Plugin: Shift-Left Everything</h2>
+  <p>The heart of the developer experience is a single VS Code extension &mdash; the <strong>Medline Platform Plugin</strong>. It handles <em>everything</em> that used to happen 20 minutes later in CI. Now it happens on save, in the editor, before the code ever leaves the developer&rsquo;s hands.</p>
+
+  <h3>What the Plugin Does on Every Save</h3>
+  <p>When a developer presses Ctrl+S, the plugin runs a pipeline of checks in parallel &mdash; all completing in under 2 seconds:</p>
+
+  <div class="themes-grid">
+    <div class="theme-card">
+      <div class="theme-icon">&#9635;</div>
+      <h4>Auto-Lint</h4>
+      <p>ESLint with domain-specific rules. Framework conventions, naming standards, import restrictions &mdash; all enforced instantly. Violations appear as inline squiggles with auto-fix suggestions.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#9634;</div>
+      <h4>Auto-Format</h4>
+      <p>Prettier runs on every save. Formatting debates are over. Tabs vs. spaces, semicolons, trailing commas &mdash; all decided once, enforced everywhere, automatically.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#9641;</div>
+      <h4>Security Scanning</h4>
+      <p>Dependency audit checks for known vulnerabilities. SAST (Static Application Security Testing) scans the saved file for injection risks, hardcoded secrets, and insecure patterns. Findings appear inline.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#9671;</div>
+      <h4>Accessibility Validation</h4>
+      <p>axe-core rules run against the component preview. Missing ARIA labels, insufficient color contrast, keyboard navigation gaps &mdash; all flagged before commit.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#9632;</div>
+      <h4>Unit Test Runner</h4>
+      <p>Affected tests run on save. Results appear inline &mdash; green checkmarks next to passing assertions, red markers on failures. No manual <code>npm test</code> required.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#9670;</div>
+      <h4>Contract Validation</h4>
+      <p>Component contracts (attributes-in/events-out) are checked against the spec in the App Catalog. API contracts (BFF responses) are validated against declared schemas. Mismatches are caught instantly.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#9645;</div>
+      <h4>Bundle Size Guard</h4>
+      <p>The plugin calculates the component&rsquo;s bundle size impact. If the component exceeds its budget (e.g., 15 KB for a product card), a warning appears immediately. No waiting for CI to tell you.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#9633;</div>
+      <h4>All Before Commit</h4>
+      <p>Every check above completes in the editor. The developer sees instant, actionable feedback. Problems are fixed in seconds, not discovered 20 minutes later in a failed CI build.</p>
+    </div>
+  </div>
+
+  <div class="mermaid-wrap" id="ddev-1">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">&#9974;</button>
+    </div>
+    <div class="mw-view">
+      <div class="mermaid-inner" data-src="graph LR
+  SAVE[&quot;Developer Saves File&quot;] --> LINT[&quot;ESLint<br/>Domain Rules&quot;]
+  SAVE --> FMT[&quot;Prettier<br/>Auto-Format&quot;]
+  SAVE --> SEC[&quot;SAST Scan<br/>Dep Audit&quot;]
+  SAVE --> A11Y[&quot;axe-core<br/>A11y Check&quot;]
+  SAVE --> TEST[&quot;Unit Tests<br/>Affected Only&quot;]
+  SAVE --> CONT[&quot;Contract<br/>Validation&quot;]
+  SAVE --> SIZE[&quot;Bundle Size<br/>Guard&quot;]
+  LINT --> RES[&quot;Inline Results<br/>&lt; 2 seconds&quot;]
+  FMT --> RES
+  SEC --> RES
+  A11Y --> RES
+  TEST --> RES
+  CONT --> RES
+  SIZE --> RES
+  style SAVE fill:#58a6ff,stroke:#58a6ff,color:#fff
+  style LINT fill:#d2a8ff,stroke:#d2a8ff,color:#fff
+  style FMT fill:#d2a8ff,stroke:#d2a8ff,color:#fff
+  style SEC fill:#f85149,stroke:#f85149,color:#fff
+  style A11Y fill:#3fb950,stroke:#3fb950,color:#fff
+  style TEST fill:#3fb950,stroke:#3fb950,color:#fff
+  style CONT fill:#f0883e,stroke:#f0883e,color:#fff
+  style SIZE fill:#f0883e,stroke:#f0883e,color:#fff
+  style RES fill:#58a6ff,stroke:#58a6ff,color:#fff"></div>
+    </div>
+    <div class="mw-caption">Figure DEV-1: Shift-left plugin pipeline &mdash; seven parallel checks execute on every save, all completing in under 2 seconds with inline results</div>
+  </div>
+
+  <div class="callout success">
+    <strong>Shift-Left = Find Problems When They&rsquo;re Cheapest to Fix</strong>
+    <p>A bug caught on save costs 30 seconds to fix. The same bug caught in CI costs 20 minutes of context-switching. The same bug caught in production costs hours of incident response. The platform plugin pushes every possible check as far left as it can go &mdash; into the editor, at save time, before the code leaves the developer&rsquo;s hands.</p>
+  </div>
+
+  <div class="industry-std">
+    <strong>Industry Standard: IDE-Integrated Quality Gates</strong>
+    Google&rsquo;s internal IDE (Cider) runs lint, format, and test on every save for 30,000+ engineers. Meta&rsquo;s VS Code extensions enforce Hack type-checking in real time. Stripe&rsquo;s developer platform runs security scanning inline. Shift-left tooling in the IDE is the industry standard for high-velocity engineering organizations.
+  </div>
+</section>
+
+<!-- ====================================================================== -->
+<!-- SECTION 3: Git Routing                                                 -->
+<!-- ====================================================================== -->
+<section>
+  <h2>&#9634; Git Routing: Smart Commits, Automatic Flow</h2>
+  <p>In the evolved platform, the plugin knows which domain repository you&rsquo;re in. When you commit, it handles everything &mdash; commit format validation, repository routing, branch management, and PR creation.</p>
+
+  <h3>Conventional Commits &mdash; Enforced, Not Requested</h3>
+  <p>Every commit message must follow the <a href="https://www.conventionalcommits.org/" target="_blank">Conventional Commits</a> specification. The plugin enforces this at commit time &mdash; not with a CI check 20 minutes later, but immediately in the editor:</p>
+  <pre><code>feat: add hover preview to product card       &larr; minor version bump
+fix: correct price rounding on bulk orders     &larr; patch version bump
+chore: update dev dependencies                 &larr; no version bump
+BREAKING CHANGE: remove legacy cart endpoint   &larr; major version bump</code></pre>
+  <p>If the commit message doesn&rsquo;t match the pattern, the commit is blocked with a helpful error explaining the required format. No ambiguity. No &ldquo;please remember to use conventional commits.&rdquo; The system enforces it.</p>
+
+  <h3>Automatic Repository Routing</h3>
+  <p>The plugin knows which domain you&rsquo;re working in based on the workspace configuration. On commit:</p>
+  <ul>
+    <li><strong>Changes are routed to the correct domain repository</strong> automatically. No manual <code>git remote add</code>, no remembering which repo owns which code.</li>
+    <li><strong>Trunk-based development</strong> with short-lived feature branches. No long-lived branches, no complex branching strategies, no merge conflicts that span weeks.</li>
+    <li><strong>PR templates are auto-filled</strong> with the contract diff (what attributes/events changed), test coverage delta, and bundle size delta. Reviewers see exactly what matters.</li>
+  </ul>
+
+  <div class="mermaid-wrap" id="ddev-2">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">&#9974;</button>
+    </div>
+    <div class="mw-view">
+      <div class="mermaid-inner" data-src="sequenceDiagram
+  participant Dev as Developer
+  participant Plugin as Platform Plugin
+  participant Git as Git Client
+  participant Repo as Domain Repository
+  participant CI as CI Pipeline
+  participant PR as Pull Request
+  Dev->>Plugin: git commit -m &quot;feat: add hover preview&quot;
+  Plugin->>Plugin: Validate conventional commit format
+  Plugin->>Plugin: Detect domain: catalog
+  Plugin->>Git: Commit to catalog-domain repo
+  Git->>Repo: Push to feature/add-hover-preview
+  Repo->>CI: Trigger CI (domain tests only)
+  CI->>CI: Run affected tests (~90 seconds)
+  CI-->>PR: Auto-create PR
+  PR->>PR: Fill template: contract diff, coverage, bundle size
+  PR-->>Dev: PR ready for review"></div>
+    </div>
+    <div class="mw-caption">Figure DEV-2: Git routing and commit flow &mdash; from developer commit to auto-created PR with contract diff, coverage delta, and bundle size delta</div>
+  </div>
+
+  <h3>What the Auto-Generated PR Contains</h3>
+  <table class="compare-table">
+    <thead>
+      <tr><th>PR Section</th><th>Content</th><th>Generated By</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Summary</strong></td><td>Commit messages formatted as a changelog</td><td>Conventional commit parser</td></tr>
+      <tr><td><strong>Contract Diff</strong></td><td>New/changed attributes, events, API endpoints</td><td>App Catalog contract scanner</td></tr>
+      <tr><td><strong>Test Coverage</strong></td><td>Coverage delta: +2.1% (87.3% &rarr; 89.4%)</td><td>Test runner coverage report</td></tr>
+      <tr><td><strong>Bundle Size</strong></td><td>Size delta: +0.8 KB (11.6 KB &rarr; 12.4 KB, budget: 15 KB)</td><td>Bundle size analyzer</td></tr>
+      <tr><td><strong>Affected Consumers</strong></td><td>List of components/pages consuming changed contracts</td><td>App Catalog dependency graph</td></tr>
+      <tr><td><strong>Security Scan</strong></td><td>No new vulnerabilities found</td><td>SAST/dependency audit</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout">
+    <strong>No Manual Branching Strategy</strong>
+    <p>Developers don&rsquo;t think about branching. They create a feature branch (auto-named from the commit), push, get a PR, and merge. Short-lived branches &mdash; hours, not days. Trunk-based development means the main branch is always deployable. No release branches. No hotfix branches. No &ldquo;which branch do I merge into?&rdquo;</p>
+  </div>
+</section>
+
+<!-- ====================================================================== -->
+<!-- SECTION 4: Semantic Versioning — Handled                               -->
+<!-- ====================================================================== -->
+<section>
+  <h2>&#9641; Semantic Versioning &mdash; Fully Automated</h2>
+  <p>No human ever manually bumps a version number. The platform handles it entirely based on conventional commit types.</p>
+
+  <h3>How It Works</h3>
+  <ol>
+    <li><strong>Commit type determines version bump:</strong> <code>feat:</code> &rarr; minor, <code>fix:</code> &rarr; patch, <code>BREAKING CHANGE:</code> &rarr; major</li>
+    <li><strong>Version is calculated at merge time, not at commit time.</strong> Multiple commits in a PR are analyzed together. The highest-impact commit type wins.</li>
+    <li><strong>CHANGELOG is auto-generated</strong> from the conventional commit messages. Grouped by type (Features, Fixes, Breaking Changes).</li>
+    <li><strong>App Catalog registry is updated automatically.</strong> The new version appears in the catalog within seconds of merge.</li>
+    <li><strong>Import maps are updated.</strong> Consumers using <code>latest</code> get the new version. Consumers pinned to a specific version are unaffected.</li>
+  </ol>
+
+  <div class="mermaid-wrap" id="ddev-3">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">&#9974;</button>
+    </div>
+    <div class="mw-view">
+      <div class="mermaid-inner" data-src="graph TD
+  MERGE[&quot;PR Merged to Main&quot;] --> ANALYZE[&quot;Analyze Commit Messages&quot;]
+  ANALYZE --> CHECK{&quot;Highest Impact?&quot;}
+  CHECK -->|&quot;BREAKING CHANGE&quot;| MAJOR[&quot;Major Bump<br/>1.2.4 &rarr; 2.0.0&quot;]
+  CHECK -->|&quot;feat:&quot;| MINOR[&quot;Minor Bump<br/>1.2.4 &rarr; 1.3.0&quot;]
+  CHECK -->|&quot;fix:&quot;| PATCH[&quot;Patch Bump<br/>1.2.4 &rarr; 1.2.5&quot;]
+  CHECK -->|&quot;chore: / docs:&quot;| NONE[&quot;No Version Bump&quot;]
+  MAJOR --> TAG[&quot;Git Tag Created&quot;]
+  MINOR --> TAG
+  PATCH --> TAG
+  TAG --> LOG[&quot;CHANGELOG Generated&quot;]
+  LOG --> REG[&quot;App Catalog Updated&quot;]
+  REG --> IMAP[&quot;Import Maps Updated&quot;]
+  IMAP --> DONE[&quot;Version Live&quot;]
+  style MERGE fill:#58a6ff,stroke:#58a6ff,color:#fff
+  style CHECK fill:#f0883e,stroke:#f0883e,color:#fff
+  style MAJOR fill:#f85149,stroke:#f85149,color:#fff
+  style MINOR fill:#d2a8ff,stroke:#d2a8ff,color:#fff
+  style PATCH fill:#3fb950,stroke:#3fb950,color:#fff
+  style REG fill:#58a6ff,stroke:#58a6ff,color:#fff
+  style DONE fill:#3fb950,stroke:#3fb950,color:#fff"></div>
+    </div>
+    <div class="mw-caption">Figure DEV-3: Semantic versioning decision tree &mdash; commit type determines version bump, everything from tagging to catalog registration is automated</div>
+  </div>
+
+  <h3>Example: What Happens at Merge</h3>
+  <pre><code>PR #247: "feat: add hover preview to product card"
+  Commits:
+    feat: add hover preview to product card
+    fix: correct tooltip positioning on small screens
+    chore: update test snapshots
+
+  Highest impact: feat: (minor)
+  Current version: 1.2.4
+  New version: 1.3.0
+
+  CHANGELOG entry:
+    ## 1.3.0 (2026-04-05)
+    ### Features
+    - Add hover preview to product card
+    ### Bug Fixes
+    - Correct tooltip positioning on small screens
+
+  App Catalog: ml-product-card@1.3.0 registered
+  Import map: updated for consumers using "latest"</code></pre>
+
+  <div class="industry-std">
+    <strong>Industry Standard: Automated Semantic Versioning</strong>
+    Tools like semantic-release, changesets, and release-please have made automated versioning the industry standard. npm, the world&rsquo;s largest package registry, was built on semantic versioning. Every major open-source project uses conventional commits and automated changelogs. This platform applies the same proven pattern to domain components.
+  </div>
+</section>
+
+<!-- ====================================================================== -->
+<!-- SECTION 5: The Inner Loop                                              -->
+<!-- ====================================================================== -->
+<section>
+  <h2>&#9671; The Inner Loop: Tight, Fast, Confident</h2>
+  <p>The <strong>inner loop</strong> is the developer&rsquo;s tight feedback cycle &mdash; the steps between writing code and pushing it. In the evolved platform, this loop is measured in seconds, not minutes.</p>
+
+  <div class="mermaid-wrap" id="ddev-4">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">&#9974;</button>
+    </div>
+    <div class="mw-view">
+      <div class="mermaid-inner" data-src="graph LR
+  CODE[&quot;Write Code&quot;] --> SAVE[&quot;Save&quot;]
+  SAVE --> LINT[&quot;Lint &amp; Format&quot;]
+  LINT --> SCAN[&quot;Security Scan&quot;]
+  SCAN --> PREVIEW[&quot;Live Preview&quot;]
+  PREVIEW --> TEST[&quot;Run Affected Tests&quot;]
+  TEST --> VALID[&quot;Contract Validation&quot;]
+  VALID --> COMMIT[&quot;Commit&quot;]
+  COMMIT --> PUSH[&quot;Push&quot;]
+  PUSH --> CI[&quot;CI Validates<br/>~90 seconds&quot;]
+  CI --> PR[&quot;PR Created&quot;]
+  PR -.->|&quot;iterate&quot;| CODE
+  style CODE fill:#58a6ff,stroke:#58a6ff,color:#fff
+  style SAVE fill:#58a6ff,stroke:#58a6ff,color:#fff
+  style LINT fill:#d2a8ff,stroke:#d2a8ff,color:#fff
+  style SCAN fill:#f85149,stroke:#f85149,color:#fff
+  style PREVIEW fill:#3fb950,stroke:#3fb950,color:#fff
+  style TEST fill:#3fb950,stroke:#3fb950,color:#fff
+  style VALID fill:#f0883e,stroke:#f0883e,color:#fff
+  style COMMIT fill:#d2a8ff,stroke:#d2a8ff,color:#fff
+  style PUSH fill:#d2a8ff,stroke:#d2a8ff,color:#fff
+  style CI fill:#f0883e,stroke:#f0883e,color:#fff
+  style PR fill:#58a6ff,stroke:#58a6ff,color:#fff"></div>
+    </div>
+    <div class="mw-caption">Figure DEV-4: The developer inner loop &mdash; from writing code to PR creation, with instant feedback at every step</div>
+  </div>
+
+  <h3>Inner Loop Timing</h3>
+  <table class="compare-table">
+    <thead>
+      <tr><th>Step</th><th>Time</th><th>Where It Runs</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Write code</td><td>Variable</td><td>Web IDE</td></tr>
+      <tr><td>Save &rarr; Lint &amp; Format</td><td>&lt; 500 ms</td><td>Plugin (in-editor)</td></tr>
+      <tr><td>Security scan</td><td>&lt; 1 second</td><td>Plugin (in-editor)</td></tr>
+      <tr><td>Live preview refresh</td><td>&lt; 1 second</td><td>Plugin (in-editor)</td></tr>
+      <tr><td>Affected tests</td><td>1&ndash;3 seconds</td><td>Plugin (in-editor)</td></tr>
+      <tr><td>Contract validation</td><td>&lt; 500 ms</td><td>Plugin (in-editor)</td></tr>
+      <tr><td>Bundle size check</td><td>&lt; 500 ms</td><td>Plugin (in-editor)</td></tr>
+      <tr><td>Commit (with validation)</td><td>&lt; 1 second</td><td>Plugin + Git</td></tr>
+      <tr><td>Push &rarr; CI</td><td>~90 seconds</td><td>CI pipeline (domain tests only)</td></tr>
+      <tr><td>PR auto-created</td><td>&lt; 10 seconds</td><td>CI pipeline</td></tr>
+    </tbody>
+  </table>
+
+  <p><strong>Total inner loop time: under 2 minutes from save to PR.</strong> In the old world, this same loop took 20&ndash;40 minutes &mdash; most of it waiting for a full monolith CI build to tell you about a lint error you could have fixed in 2 seconds.</p>
+
+  <div class="callout success">
+    <strong>Why Speed Matters</strong>
+    <p>Research from DORA (DevOps Research and Assessment) consistently shows that elite engineering teams have inner loops under 10 minutes. Our target is under 2 minutes. Faster feedback means more iterations per day, fewer context switches, and higher developer satisfaction. Speed isn&rsquo;t a luxury &mdash; it&rsquo;s the foundation of quality.</p>
+  </div>
+</section>
+
+<!-- ====================================================================== -->
+<!-- SECTION 6: The Outer Loop                                              -->
+<!-- ====================================================================== -->
+<section>
+  <h2>&#9632; The Outer Loop: Merge to Production</h2>
+  <p>The <strong>outer loop</strong> is everything that happens after a PR is approved &mdash; from merge to production. In the evolved platform, this is fully automated and takes under 10 minutes.</p>
+
+  <div class="mermaid-wrap" id="ddev-5">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">&#9974;</button>
+    </div>
+    <div class="mw-view">
+      <div class="mermaid-inner" data-src="graph LR
+  APPROVE[&quot;PR Approved&quot;] --> MERGE[&quot;Merge to Main&quot;]
+  MERGE --> VER[&quot;Auto-Version<br/>Semantic Release&quot;]
+  VER --> LOG[&quot;Auto-CHANGELOG&quot;]
+  LOG --> BUILD[&quot;Production Build&quot;]
+  BUILD --> CANARY[&quot;Canary Deploy<br/>5% Traffic&quot;]
+  CANARY --> SMOKE[&quot;Smoke Tests&quot;]
+  SMOKE --> CHECK{&quot;Pass?&quot;}
+  CHECK -->|&quot;Yes&quot;| PROD[&quot;Full Production<br/>Deploy&quot;]
+  CHECK -->|&quot;No&quot;| ROLL[&quot;Auto-Rollback&quot;]
+  PROD --> CAT[&quot;App Catalog<br/>Updated&quot;]
+  CAT --> DONE[&quot;Live &#10004;&quot;]
+  ROLL --> ALERT[&quot;Team Alerted&quot;]
+  style APPROVE fill:#3fb950,stroke:#3fb950,color:#fff
+  style MERGE fill:#58a6ff,stroke:#58a6ff,color:#fff
+  style VER fill:#d2a8ff,stroke:#d2a8ff,color:#fff
+  style CANARY fill:#f0883e,stroke:#f0883e,color:#fff
+  style CHECK fill:#f0883e,stroke:#f0883e,color:#fff
+  style PROD fill:#3fb950,stroke:#3fb950,color:#fff
+  style ROLL fill:#f85149,stroke:#f85149,color:#fff
+  style CAT fill:#58a6ff,stroke:#58a6ff,color:#fff
+  style DONE fill:#3fb950,stroke:#3fb950,color:#fff"></div>
+    </div>
+    <div class="mw-caption">Figure DEV-5: The outer loop &mdash; from PR approval to production deployment with canary testing and automatic rollback</div>
+  </div>
+
+  <h3>Outer Loop Steps</h3>
+  <ol>
+    <li><strong>PR Approved &rarr; Merge:</strong> Teammate reviews the auto-generated PR with contract diff, coverage delta, and bundle size delta. Approves. Merged to main.</li>
+    <li><strong>Auto-Version:</strong> Semantic version is calculated from conventional commits. Git tag created. No human involvement.</li>
+    <li><strong>Auto-CHANGELOG:</strong> CHANGELOG.md is generated from commit messages, grouped by type. Committed automatically.</li>
+    <li><strong>Production Build:</strong> Domain-specific build runs. Only the changed domain is built &mdash; not the entire monolith.</li>
+    <li><strong>Canary Deploy:</strong> New version is deployed to 5% of traffic. Real users validate the change with real data.</li>
+    <li><strong>Smoke Tests:</strong> Automated smoke tests verify critical paths. If any fail, the canary is rolled back automatically.</li>
+    <li><strong>Full Production Deploy:</strong> If smoke tests pass, traffic shifts to 100%. The old version remains available for instant rollback.</li>
+    <li><strong>App Catalog Updated:</strong> The new version is registered. Import maps are updated. Consumers see the new version immediately.</li>
+  </ol>
+
+  <h3>Outer Loop Timing</h3>
+  <table class="compare-table">
+    <thead>
+      <tr><th>Step</th><th>Time</th><th>Automated?</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Merge to main</td><td>&lt; 5 seconds</td><td>Yes (one-click)</td></tr>
+      <tr><td>Auto-version + CHANGELOG</td><td>&lt; 15 seconds</td><td>Yes (fully)</td></tr>
+      <tr><td>Production build</td><td>~60 seconds</td><td>Yes (fully)</td></tr>
+      <tr><td>Canary deploy</td><td>~60 seconds</td><td>Yes (fully)</td></tr>
+      <tr><td>Smoke tests</td><td>~120 seconds</td><td>Yes (fully)</td></tr>
+      <tr><td>Full production deploy</td><td>~60 seconds</td><td>Yes (fully)</td></tr>
+      <tr><td>App Catalog update</td><td>&lt; 10 seconds</td><td>Yes (fully)</td></tr>
+      <tr><td><strong>Total</strong></td><td><strong>~5 minutes</strong></td><td><strong>100% automated</strong></td></tr>
+    </tbody>
+  </table>
+
+  <div class="industry-std">
+    <strong>Industry Standard: Continuous Deployment with Canary Releases</strong>
+    Google, Netflix, Amazon, and Facebook all deploy to production multiple times per day using canary releases. The pattern is simple: deploy to a small percentage of traffic, verify with automated tests, then expand to full traffic. If anything fails, roll back instantly. This is the gold standard for safe, fast production deployments.
+  </div>
+</section>
+
+<!-- ====================================================================== -->
+<!-- SECTION 7: A Morning Walkthrough                                       -->
+<!-- ====================================================================== -->
+<section>
+  <h2>&#9670; A Morning Walkthrough</h2>
+  <p>Let&rsquo;s follow a real developer through a real morning. No abstractions. No hand-waving. Just the actual steps, the actual timing, and the actual experience.</p>
+
+  <div class="callout">
+    <strong>The Scenario</strong>
+    <p>A developer on the Catalog domain team needs to add a hover preview feature to the <code>ml-product-card</code> component. This adds a new <code>preview-url</code> attribute to the component contract.</p>
+  </div>
+
+  <h3>The Timeline</h3>
+
+  <p><strong>9:00 AM</strong> &mdash; Dev opens their browser and navigates to <code>ide.medline.com</code>. The cloud workspace loads. Yesterday&rsquo;s branch is still there &mdash; <code>feature/add-hover-preview</code>. The platform plugin is active. No setup, no waiting.</p>
+
+  <p><strong>9:02 AM</strong> &mdash; Makes a change to <code>ml-product-card.ts</code>: adds the hover preview functionality and the new <code>preview-url</code> attribute. Saves. The plugin instantly reports:</p>
+  <ul>
+    <li>&#10004; Lint: passed (0 issues)</li>
+    <li>&#10004; Format: auto-applied</li>
+    <li>&#10004; Security: no vulnerabilities</li>
+    <li>&#10004; Tests: 3 affected tests ran, all passed</li>
+    <li>&#10004; Contract: new <code>preview-url</code> attribute detected, added to contract diff</li>
+    <li>&#10004; Bundle size: 12.4 KB (under 15 KB budget)</li>
+    <li>&#10004; Accessibility: hover preview meets focus management requirements</li>
+  </ul>
+
+  <p><strong>9:15 AM</strong> &mdash; After refining the implementation and writing two additional tests, the developer commits: <code>feat: add hover preview to product card</code>. The plugin validates the conventional commit format. &#10004; Accepted.</p>
+
+  <p><strong>9:16 AM</strong> &mdash; Pushes to the remote. CI triggers &mdash; running only the Catalog domain tests, not the entire monolith. The build takes 90 seconds.</p>
+
+  <p><strong>9:20 AM</strong> &mdash; PR auto-created with the contract diff showing the new <code>preview-url</code> attribute added to <code>ml-product-card</code>. Coverage delta: +1.2%. Bundle size: 12.4 KB (within budget). A teammate on the Catalog pod reviews.</p>
+
+  <p><strong>9:30 AM</strong> &mdash; Teammate approves. Merged. Version auto-bumped from 1.2.4 to 1.3.0 (minor, because <code>feat:</code>). CHANGELOG generated. Canary deployed to 5% of traffic. Smoke tests run and pass.</p>
+
+  <p><strong>9:35 AM</strong> &mdash; Full production deploy complete. App Catalog shows <code>ml-product-card@1.3.0</code> live. Import maps updated. Done. Next task.</p>
+
+  <div class="mermaid-wrap" id="ddev-6">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">&#9974;</button>
+    </div>
+    <div class="mw-view">
+      <div class="mermaid-inner" data-src="gantt
+  title A Morning: Feature to Production
+  dateFormat HH:mm
+  axisFormat %H:%M
+  section Developer
+    Open IDE, load workspace           :done, t1, 09:00, 2m
+    Code hover preview feature         :done, t2, 09:02, 13m
+    Commit and push                    :done, t3, 09:15, 1m
+  section CI Pipeline
+    Domain tests (catalog only)        :done, t4, 09:16, 4m
+    PR auto-created                    :done, t5, 09:20, 0m
+  section Review
+    Teammate reviews PR                :done, t6, 09:20, 10m
+    PR approved and merged             :done, t7, 09:30, 0m
+  section Deploy
+    Auto-version 1.3.0                 :done, t8, 09:30, 1m
+    Canary deploy + smoke tests        :done, t9, 09:31, 3m
+    Full production deploy             :done, t10, 09:34, 1m
+    App Catalog updated                :done, t11, 09:35, 0m"></div>
+    </div>
+    <div class="mw-caption">Figure DEV-6: Morning walkthrough timeline &mdash; from opening the IDE at 9:00 AM to production deployment at 9:35 AM</div>
+  </div>
+
+  <div class="callout success">
+    <strong>35 Minutes: IDE to Production</strong>
+    <p>Feature ideation to production in 35 minutes. Most of that time was spent writing code and waiting for a teammate to review. The platform handled everything else: setup, validation, testing, versioning, deployment, and catalog registration. This is what evolution looks like for the developer.</p>
+  </div>
+</section>
+
+<!-- ====================================================================== -->
+<!-- SECTION 8: Old World vs New World                                      -->
+<!-- ====================================================================== -->
+<section>
+  <h2>&#9656; Old World vs New World</h2>
+  <p>The contrast between the current developer experience and the evolved platform is stark. Every pain point in the old world has a specific, automated solution in the new world.</p>
+
+  <table class="compare-table">
+    <thead>
+      <tr><th>Aspect</th><th class="bad">Old World</th><th class="good">New World</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Environment Setup</strong></td>
+        <td>Local setup takes 2 days: clone monolith, install dependencies, configure environment, troubleshoot build issues, pray it works</td>
+        <td>Open a URL. Start coding. Workspace is pre-configured with repo, dependencies, and plugin. 2 minutes.</td>
+      </tr>
+      <tr>
+        <td><strong>Feedback Speed</strong></td>
+        <td>Lint, test, and scan results arrive 20&ndash;40 minutes later from CI. Developer has context-switched to another task. Fixing the issue requires re-loading mental context.</td>
+        <td>Instant feedback on save. Lint, format, scan, test, validate &mdash; all in under 2 seconds, inline in the editor. Fix it now while the context is fresh.</td>
+      </tr>
+      <tr>
+        <td><strong>Version Management</strong></td>
+        <td>Manual version bumps. Developers forget. Version numbers are inconsistent. CHANGELOG is written by hand (or not at all). Half the entries say &ldquo;misc fixes.&rdquo;</td>
+        <td>Fully automated. Commit type determines version bump. CHANGELOG generated from conventional commits. App Catalog updated automatically. No human involvement.</td>
+      </tr>
+      <tr>
+        <td><strong>Deployment Scope</strong></td>
+        <td>Deploy the entire monolith. A one-line CSS fix triggers a full 45-minute build and deploy cycle affecting all 84 MFEs.</td>
+        <td>Deploy one domain in 5 minutes. Only the changed domain is built, tested, and deployed. Other domains are untouched.</td>
+      </tr>
+      <tr>
+        <td><strong>Release Coordination</strong></td>
+        <td>Coordinate with 6+ teams for a release. Release trains. Merge freezes. &ldquo;Is your PR in?&rdquo; Slack threads. Release managers herding cats.</td>
+        <td>Pod deploys independently. No release trains. No merge freezes. No coordination with other teams. Your domain, your schedule.</td>
+      </tr>
+      <tr>
+        <td><strong>Commit Standards</strong></td>
+        <td>Commit messages like &ldquo;fix stuff&rdquo;, &ldquo;WIP&rdquo;, &ldquo;asdf&rdquo;, &ldquo;please work.&rdquo; No structure. No traceability. Good luck generating a changelog.</td>
+        <td>Conventional commits enforced by the plugin. Every commit is structured, meaningful, and directly feeds automated versioning and changelogs.</td>
+      </tr>
+      <tr>
+        <td><strong>Security Scanning</strong></td>
+        <td>Security scans run in CI (if configured). Vulnerabilities discovered days or weeks after the code was written. Remediation is expensive.</td>
+        <td>SAST and dependency audit on every save. Vulnerabilities caught in seconds. Developer fixes them immediately while the code is fresh in their mind.</td>
+      </tr>
+      <tr>
+        <td><strong>Contract Validation</strong></td>
+        <td>No contracts. API changes discovered when something breaks in production. &ldquo;Who changed the response shape?&rdquo; turns into a 2-hour investigation.</td>
+        <td>Component and API contracts validated on save and in CI. Breaking changes blocked before merge. Affected consumers identified automatically.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout success">
+    <strong>This Isn&rsquo;t Hypothetical</strong>
+    <p>Every capability described on this page &mdash; cloud IDE, shift-left plugin, automated versioning, canary deployments &mdash; is built on proven, industry-standard tooling used by thousands of engineering organizations. The evolution isn&rsquo;t inventing new technology. It&rsquo;s adopting best practices that elite teams already use and assembling them into a cohesive developer platform.</p>
+  </div>
+</section>
+
+<!-- ====================================================================== -->
+<!-- SECTION 9: The Full Pipeline Visualization                             -->
+<!-- ====================================================================== -->
+<section>
+  <h2>&#9633; The Full Pipeline: Inner Loop + Outer Loop</h2>
+  <p>Here is the complete picture &mdash; both loops together, from the moment a developer writes code to the moment it&rsquo;s live in production and registered in the App Catalog.</p>
+
+  <div class="mermaid-wrap" id="ddev-7">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">&#9974;</button>
+    </div>
+    <div class="mw-view">
+      <div class="mermaid-inner" data-src="graph LR
+  subgraph Inner[&quot;Inner Loop (Developer)&quot;]
+    direction LR
+    A[Write Code] --> B[Save]
+    B --> C[Plugin Checks<br/>Lint, Format, Scan<br/>Test, Contract, Size]
+    C --> D[Preview]
+    D --> E[Commit]
+    E --> F[Push]
+  end
+  subgraph CI[&quot;CI Pipeline&quot;]
+    direction LR
+    G[Domain Tests] --> H[Contract Scan]
+    H --> I[Auto-Create PR]
+  end
+  subgraph Review[&quot;Code Review&quot;]
+    direction LR
+    J[Teammate Reviews<br/>Contract Diff<br/>Coverage Delta<br/>Bundle Size] --> K[Approve]
+  end
+  subgraph Outer[&quot;Outer Loop (Automated)&quot;]
+    direction LR
+    L[Merge] --> M[Auto-Version]
+    M --> N[Auto-CHANGELOG]
+    N --> O[Build]
+    O --> P[Canary Deploy]
+    P --> Q[Smoke Tests]
+    Q --> R[Production]
+    R --> S[App Catalog<br/>Updated]
+  end
+  F --> G
+  I --> J
+  K --> L
+  style A fill:#58a6ff,stroke:#58a6ff,color:#fff
+  style C fill:#d2a8ff,stroke:#d2a8ff,color:#fff
+  style G fill:#f0883e,stroke:#f0883e,color:#fff
+  style J fill:#58a6ff,stroke:#58a6ff,color:#fff
+  style M fill:#d2a8ff,stroke:#d2a8ff,color:#fff
+  style P fill:#f0883e,stroke:#f0883e,color:#fff
+  style R fill:#3fb950,stroke:#3fb950,color:#fff
+  style S fill:#3fb950,stroke:#3fb950,color:#fff"></div>
+    </div>
+    <div class="mw-caption">Figure DEV-7: The complete CI/CD pipeline &mdash; inner loop (developer), CI pipeline, code review, and outer loop (automated merge to production)</div>
+  </div>
+
+  <h3>Key Principles</h3>
+  <div class="themes-grid">
+    <div class="theme-card">
+      <div class="theme-icon">&#9635;</div>
+      <h4>Shift Left</h4>
+      <p>Every check that can run in the editor, runs in the editor. CI validates &mdash; it doesn&rsquo;t discover. By the time code reaches CI, the developer already knows it&rsquo;s clean.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#9634;</div>
+      <h4>Domain Isolation</h4>
+      <p>CI runs only domain-specific tests. Deploys only the changed domain. No monolith build. No cross-team coordination. Fast, focused, independent.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#9641;</div>
+      <h4>Full Automation</h4>
+      <p>From version bump to CHANGELOG to canary deploy to App Catalog update &mdash; every step after merge is fully automated. Zero manual intervention.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#9671;</div>
+      <h4>Safe Deployments</h4>
+      <p>Canary releases catch issues before they affect all users. Automatic rollback on smoke test failure. Blue-green infrastructure means instant rollback is always available.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ====================================================================== -->
+<!-- SECTION 10: Developer Satisfaction                                       -->
+<!-- ====================================================================== -->
+<section>
+  <h2>&#9670; The Developer Experience Payoff</h2>
+  <p>All of this &mdash; cloud IDE, shift-left plugin, automated versioning, canary deploys &mdash; serves a single goal: <strong>developers spend their time writing features, not fighting tooling.</strong></p>
+
+  <h3>What Developers Gain</h3>
+  <ul>
+    <li><strong>No environment setup:</strong> New developers are productive on day one, not day three.</li>
+    <li><strong>Instant feedback:</strong> Know immediately if your code is correct, secure, accessible, and within budget.</li>
+    <li><strong>No version management:</strong> Commit types drive versioning. Changelogs write themselves. Catalog updates happen automatically.</li>
+    <li><strong>No deployment coordination:</strong> Your pod owns your domain. Deploy when you&rsquo;re ready. No waiting for other teams.</li>
+    <li><strong>Confidence:</strong> Every save validates your code against lint rules, security policies, accessibility standards, and contract specifications. By the time you push, you <em>know</em> it&rsquo;s right.</li>
+    <li><strong>Speed:</strong> 35 minutes from feature start to production. Multiple deployments per day. Iteration velocity that compounds over weeks and months.</li>
+  </ul>
+
+  <details>
+    <summary>Deep Dive: DORA Metrics Impact <span class="detail-summary">How this maps to elite engineering performance</span></summary>
+    <div class="detail-body">
+      <p>The DORA (DevOps Research and Assessment) framework identifies four key metrics that distinguish elite engineering teams:</p>
+      <ul>
+        <li><strong>Deployment Frequency:</strong> Elite = multiple times per day. Our target: each pod deploys independently, multiple times per day.</li>
+        <li><strong>Lead Time for Changes:</strong> Elite = less than one hour. Our target: 35 minutes from code to production.</li>
+        <li><strong>Mean Time to Recovery (MTTR):</strong> Elite = less than one hour. Our target: instant rollback via blue-green + canary.</li>
+        <li><strong>Change Failure Rate:</strong> Elite = 0&ndash;15%. Our target: shift-left validation catches issues before deployment; canary catches the rest.</li>
+      </ul>
+      <p>The evolved developer experience is specifically designed to hit elite-level performance on all four DORA metrics.</p>
+    </div>
+  </details>
+
+  <div class="industry-std">
+    <strong>Industry Standard: Developer Experience as Competitive Advantage</strong>
+    Spotify, Shopify, Netflix, and Stripe all invest heavily in developer experience platforms because faster developers ship better products faster. Spotify&rsquo;s Backstage, Shopify&rsquo;s Spin, and Netflix&rsquo;s developer productivity team all aim for the same outcome: remove friction, automate everything, let developers focus on business value.
+  </div>
+
+  <div class="callout">
+    <strong>The Bottom Line</strong>
+    <p>The evolved developer experience isn&rsquo;t about adding more tools. It&rsquo;s about removing friction. Every step that used to require human coordination &mdash; setup, formatting, versioning, deployment, catalog registration &mdash; is automated. The developer&rsquo;s job is to write good code. The platform&rsquo;s job is to handle everything else.</p>
+  </div>
+</section>
+
+</main>
+
+<div style="max-width:900px;margin:0 auto;padding:0 1.5rem;">
+  <div class="page-nav">
+    <a href="25-key-principles.html"><span class="pn-label">&larr; Previous</span><span class="pn-title">Key Principles</span></a>
+    <a href="index.html" class="next"><span class="pn-label">Next &rarr;</span><span class="pn-title">Series Index</span></a>
+  </div>
+</div>
+
+<footer>Medline Platform Evolution &mdash; v5 &mdash; 2026-04-05 &mdash; Technical Director Series &mdash; Confidential</footer>
+<div class="toast" id="toast">Copied!</div>
+<script src="shared.js"></script>
+</body>
+</html>

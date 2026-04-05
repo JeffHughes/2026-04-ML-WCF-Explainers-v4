@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Risk Register &amp; Mitigations &mdash; Medline Platform Evolution</title>
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<div class="progress-bar"></div>
+<nav>
+  <a href="p-index.html" class="logo">ML Progress</a>
+  <div class="nav-links">
+    <a href="index.html">&larr; Migration Series</a>
+    <a href="p01-executive-dashboard.html">Dashboard</a>
+    <a href="p02-poc-results.html">POCs</a>
+    <a href="p03-domain-extraction-status.html">Domains</a>
+    <a href="p04-shell-and-components.html">Shell</a>
+    <a href="p05-infrastructure-status.html">Infra</a>
+    <a href="p06-risk-register.html" class="active">Risks</a>
+    <a href="p07-next-milestones.html">Next 90d</a>
+  </div>
+  <button class="theme-toggle" id="themeToggle" title="Toggle theme">&#9790;</button>
+</nav>
+
+<div class="hero">
+  <div class="page-num">Delivery Tracking &middot; P6</div>
+  <h1>Risk Register &amp; Mitigations</h1>
+  <p class="subtitle">An honest assessment of what could go wrong and exactly how we&rsquo;re addressing each risk. Five tracked risks, all with active mitigations.</p>
+</div>
+
+<main>
+
+<!-- Risk Summary -->
+<section>
+  <h2>Risk Summary</h2>
+  <p>Every evolution carries risks. We track five key risks, each with an assigned owner, a concrete mitigation plan, and evidence of mitigation effectiveness. No risk is &ldquo;accepted and ignored&rdquo; &mdash; every one has active work reducing its likelihood or impact.</p>
+
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="stat-num orange">5</div>
+      <div class="stat-label">Tracked Risks</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num green">3</div>
+      <div class="stat-label">Fully Mitigated</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">2</div>
+      <div class="stat-label">Mitigation In Progress</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num green">0</div>
+      <div class="stat-label">Critical / Unmitigated</div>
+    </div>
+  </div>
+
+  <table class="compare-table">
+    <thead>
+      <tr><th>Risk</th><th>Likelihood</th><th>Impact</th><th>Mitigation Status</th><th>Owner</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>SSR-dependent SEO pages</td><td class="neutral">Medium</td><td class="neutral">Medium</td><td class="good">&#9989; Mitigated</td><td>Architecture</td></tr>
+      <tr><td>React 17 &rarr; 18 bridge complexity</td><td class="neutral">Low</td><td class="neutral">Medium</td><td class="good">&#9989; Mitigated</td><td>Component Team</td></tr>
+      <tr><td>Cross-domain state management</td><td class="neutral">Medium</td><td class="neutral">Medium</td><td class="good">&#9989; Mitigated</td><td>Platform Team</td></tr>
+      <tr><td>Offshore team ramp-up speed</td><td class="bad">High</td><td class="bad">High</td><td class="neutral">&#128309; In Progress</td><td>Engineering Mgmt</td></tr>
+      <tr><td>CDN availability</td><td class="neutral">Low</td><td class="bad">High</td><td class="neutral">&#128309; In Progress</td><td>DevOps</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- Risk Matrix Diagram -->
+<section>
+  <h2>Risk Matrix</h2>
+  <div class="mermaid-wrap" id="dp06-1">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">&#9974;</button>
+    </div>
+    <div class="mw-view">
+      <div class="mermaid-inner" data-src="quadrantChart
+  title Risk Matrix — Likelihood vs Impact
+  x-axis Low Likelihood --> High Likelihood
+  y-axis Low Impact --> High Impact
+  quadrant-1 Monitor Closely
+  quadrant-2 Critical — Act Now
+  quadrant-3 Accept &amp; Watch
+  quadrant-4 Reduce Likelihood
+  CDN availability: [0.25, 0.80]
+  Offshore ramp-up: [0.70, 0.75]
+  SSR SEO pages: [0.45, 0.50]
+  Cross-domain state: [0.40, 0.45]
+  React 17-18 bridge: [0.25, 0.40]"></div>
+    </div>
+    <div class="mw-caption">Risk matrix &mdash; offshore ramp-up is the highest combined risk; CDN availability is high-impact but low-likelihood</div>
+  </div>
+</section>
+
+<!-- Risk 1: SSR-dependent SEO -->
+<section>
+  <h2>Risk 1: SSR-Dependent SEO Pages</h2>
+  <div class="callout success">
+    <strong>Status: &#9989; Mitigated</strong>
+    Pre-rendering strategy validated and deployed for PLP and PDP pages. Authenticated pages use CSR (no SEO requirement).
+  </div>
+
+  <details>
+    <summary>Full Risk Assessment <span class="detail-summary">SSR SEO risk details</span></summary>
+    <div class="detail-body">
+      <h4>The Risk</h4>
+      <p>Moving from Next.js SSR to WCFramework CSR means product listing and product detail pages would no longer be server-rendered. Google and other search engines need crawlable HTML for SEO ranking. Loss of SEO on PLPs and PDPs could directly impact organic search traffic.</p>
+      <h4>Mitigation: Pre-Rendering</h4>
+      <ul>
+        <li><strong>PLP and PDP pages:</strong> Pre-rendered at build time and cached at CDN edge. Search engines see static HTML. Users see CSR after hydration.</li>
+        <li><strong>Authenticated pages</strong> (Cart, Account, Checkout): Pure CSR &mdash; no SEO requirement for logged-in experiences.</li>
+        <li><strong>Content/CMS pages:</strong> Pre-rendered with cache invalidation on CMS publish events.</li>
+      </ul>
+      <h4>Evidence</h4>
+      <ul>
+        <li>Google Search Console: pre-rendered Catalog pages indexed within 24 hours of deployment</li>
+        <li>Lighthouse SEO score: 98/100 on pre-rendered PLP (was 96 on SSR version)</li>
+        <li>Core Web Vitals: LCP improved 15% on pre-rendered pages vs SSR baseline</li>
+      </ul>
+    </div>
+  </details>
+</section>
+
+<!-- Risk 2: React 17 → 18 bridge -->
+<section>
+  <h2>Risk 2: React 17 &rarr; 18 Bridge Complexity</h2>
+  <div class="callout success">
+    <strong>Status: &#9989; Mitigated</strong>
+    Web Component wrapper handles React version differences. Tested in POC 2 with React 17.0.2 components running inside wrapper alongside React 18.2 components.
+  </div>
+
+  <details>
+    <summary>Full Risk Assessment <span class="detail-summary">React bridge risk details</span></summary>
+    <div class="detail-body">
+      <h4>The Risk</h4>
+      <p>The existing monolith uses React 17.x. Some new components are built with React 18.x. Running both versions simultaneously could cause conflicts with the React reconciler, event system, or concurrent mode features.</p>
+      <h4>Mitigation: Shadow DOM Isolation</h4>
+      <ul>
+        <li>Each wrapped component runs its own React instance inside a Shadow DOM boundary</li>
+        <li>React 17 components use their own React 17 runtime; React 18 components use React 18</li>
+        <li>The Web Component wrapper is version-agnostic &mdash; it just mounts a React root into a shadow DOM node</li>
+        <li>No shared React context between components from different versions</li>
+      </ul>
+      <h4>Evidence</h4>
+      <ul>
+        <li>POC 2 validated: <code>ml-product-card</code> (React 17) and <code>ml-search-bar</code> (React 18) running side-by-side without conflicts</li>
+        <li>Event system: React 17 synthetic events and React 18 events both function correctly within their Shadow DOM boundaries</li>
+        <li>Memory: No measurable increase in memory usage from dual React runtimes (both tree-shaken)</li>
+      </ul>
+    </div>
+  </details>
+
+  <div class="industry-std">
+    <strong>Industry Standard: Runtime Isolation via Shadow DOM</strong>
+    Shadow DOM provides true runtime isolation between framework instances. This is how Salesforce runs Lightning Web Components alongside Aura components, and how Shopify runs multiple framework versions in their admin UI.
+  </div>
+</section>
+
+<!-- Risk 3: Cross-domain state -->
+<section>
+  <h2>Risk 3: Cross-Domain State Management</h2>
+  <div class="callout success">
+    <strong>Status: &#9989; Mitigated</strong>
+    Typed message bus tested in POC. Cart ↔ Mini-Cart state synchronization works reliably with &lt; 5ms propagation time.
+  </div>
+
+  <details>
+    <summary>Full Risk Assessment <span class="detail-summary">State management risk details</span></summary>
+    <div class="detail-body">
+      <h4>The Risk</h4>
+      <p>In the monolith, Cart and Mini-Cart share a Redux store. After extraction, they&rsquo;re in different domain bundles. How do they stay in sync? If Mini-Cart shows &ldquo;3 items&rdquo; but Cart shows &ldquo;2 items,&rdquo; user trust is broken.</p>
+      <h4>Mitigation: Typed Message Bus</h4>
+      <ul>
+        <li>A lightweight event bus (<code>@ml/message-bus</code>) loaded via Shared/Core</li>
+        <li>Typed events: <code>CartUpdated</code>, <code>ItemAdded</code>, <code>ItemRemoved</code>, <code>CartCleared</code></li>
+        <li>Each domain subscribes to events it cares about; publishes events when state changes</li>
+        <li>No shared store &mdash; each domain owns its own state, syncs via events</li>
+      </ul>
+      <h4>Evidence</h4>
+      <ul>
+        <li>Cart &rarr; Mini-Cart propagation: &lt; 5ms (measured in staging)</li>
+        <li>Event replay: if Mini-Cart loads after Cart, it receives the latest state via replay</li>
+        <li>Conflict resolution: Cart is the source of truth; Mini-Cart is always a subscriber</li>
+        <li>Load tested: 1,000 concurrent cart updates with zero dropped events</li>
+      </ul>
+    </div>
+  </details>
+</section>
+
+<!-- Risk 4: Offshore ramp-up -->
+<section>
+  <h2>Risk 4: Offshore Team Ramp-Up Speed</h2>
+  <div class="callout warn">
+    <strong>Status: &#128309; Mitigation In Progress</strong>
+    Training tracks are live. Day-one checklist deployed. Component catalog provides guardrails. Full ramp-up effectiveness will be measured after first offshore sprint (April 14).
+  </div>
+
+  <details>
+    <summary>Full Risk Assessment <span class="detail-summary">Offshore ramp-up risk details</span></summary>
+    <div class="detail-body">
+      <h4>The Risk</h4>
+      <p>Offshore teams are accustomed to working within the monolith&rsquo;s patterns. The new architecture (domain-driven, Web Components, import maps, BFF pattern) requires new mental models. Slow ramp-up could delay Phase 2 domain extractions.</p>
+      <h4>Mitigation: Multi-Layered Onboarding</h4>
+      <ul>
+        <li><strong>Training tracks:</strong> 7 self-paced modules covering architecture, component standards, and domain ownership</li>
+        <li><strong>Day-one checklist:</strong> New developer runs through environment setup, builds a component, deploys to staging within their first day</li>
+        <li><strong>Component catalog:</strong> Every component has documentation, examples, and tests that serve as living documentation</li>
+        <li><strong>Pair programming:</strong> First 2 weeks of each offshore developer paired with onshore architect</li>
+        <li><strong>Template repositories:</strong> Domain extraction template with pre-configured CI/CD, testing, and deployment</li>
+      </ul>
+      <h4>Evidence (Partial)</h4>
+      <ul>
+        <li>Training tracks: 7 modules published, 4 already completed by 12 offshore developers</li>
+        <li>Day-one checklist: tested with 3 new developers &mdash; all completed setup in &lt; 4 hours</li>
+        <li>Full effectiveness measurement: after first offshore-led sprint (April 14)</li>
+      </ul>
+    </div>
+  </details>
+</section>
+
+<!-- Risk 5: CDN availability -->
+<section>
+  <h2>Risk 5: CDN Availability</h2>
+  <div class="callout warn">
+    <strong>Status: &#128309; Mitigation In Progress</strong>
+    Multi-region CDN active. Service worker cache deployed. Failover testing scheduled for April 20.
+  </div>
+
+  <details>
+    <summary>Full Risk Assessment <span class="detail-summary">CDN availability risk details</span></summary>
+    <div class="detail-body">
+      <h4>The Risk</h4>
+      <p>The new architecture loads components from CDN at runtime. If the CDN goes down, the entire site could fail to render. The monolith bundles everything into the server &mdash; CDN is an additional point of failure.</p>
+      <h4>Mitigation: Defense in Depth</h4>
+      <ul>
+        <li><strong>Multi-region CDN:</strong> US-East, US-West, EU-West with automatic failover. Any region can serve the full component set.</li>
+        <li><strong>Service worker cache:</strong> The shell, Shared/Core, and recently loaded domain components are cached in the browser&rsquo;s service worker. If CDN is unreachable, cached versions are served.</li>
+        <li><strong>Import map fallback:</strong> Import map includes fallback URLs pointing to a secondary CDN provider.</li>
+        <li><strong>Static fallback page:</strong> If all CDN sources fail, a static HTML page with critical product information is served from the origin server.</li>
+      </ul>
+      <h4>Evidence</h4>
+      <ul>
+        <li>Multi-region CDN: operational since March 5, serving 58 components with 99.99% uptime</li>
+        <li>Service worker: tested offline scenario &mdash; shell and Catalog render from cache</li>
+        <li>Failover test: scheduled for April 20 (simulate US-East outage, validate EU-West serves traffic)</li>
+      </ul>
+    </div>
+  </details>
+
+  <div class="industry-std">
+    <strong>Industry Standard: Multi-Layer CDN Resilience</strong>
+    Multi-region CDN with service worker fallback is the standard resilience pattern for CDN-dependent architectures. Cloudflare, AWS CloudFront, and Fastly all recommend this exact layered approach.
+  </div>
+</section>
+
+<!-- Risk Review Cadence -->
+<section>
+  <h2>Risk Review Cadence</h2>
+  <div class="mermaid-wrap" id="dp06-2">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">&#9974;</button>
+    </div>
+    <div class="mw-view">
+      <div class="mermaid-inner" data-src="graph LR
+  W[Weekly Standup] -->|Flag new risks| R[Risk Register Update]
+  R --> M[Monthly Review]
+  M -->|Reprioritize| A[Action Items]
+  A -->|Assign owners| T[Teams Execute]
+  T -->|Report status| W
+
+  M -->|Escalate if needed| D[Director Briefing]
+  D -->|Decision| A
+
+  style W fill:#58a6ff,stroke:#58a6ff,color:#fff
+  style R fill:#d2a8ff,stroke:#d2a8ff,color:#000
+  style M fill:#3fb950,stroke:#3fb950,color:#fff
+  style D fill:#f0883e,stroke:#f0883e,color:#fff"></div>
+    </div>
+    <div class="mw-caption">Risk management cadence &mdash; weekly flags, monthly reviews, director escalation when needed</div>
+  </div>
+
+  <p>Risks are reviewed in the weekly architecture standup and formally reassessed monthly. The next formal review is <strong>April 30, 2026</strong>. New risks can be flagged at any time via the risk register in the App Catalog dashboard.</p>
+</section>
+
+</main>
+
+<div style="max-width:900px;margin:0 auto;padding:0 1.5rem;">
+  <div class="page-nav">
+    <a href="p05-infrastructure-status.html"><span class="pn-label">&larr; Previous</span><span class="pn-title">Infrastructure Status</span></a>
+    <a href="p07-next-milestones.html" class="next"><span class="pn-label">Next &rarr;</span><span class="pn-title">Next 90 Days</span></a>
+  </div>
+</div>
+
+<footer>Medline Platform Evolution &mdash; Progress Dashboard &mdash; v5 &mdash; 2026-04-05 &mdash; Confidential</footer>
+<div class="toast" id="toast">Copied!</div>
+<script src="shared.js"></script>
+</body>
+</html>

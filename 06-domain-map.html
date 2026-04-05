@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Domain Map &mdash; Medline Platform Evolution</title>
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<div class="progress-bar"></div>
+<nav>
+  <a href="index.html" class="logo">ML Evolution</a>
+  <div class="nav-links">
+    <a href="01-executive-summary.html">Summary</a>
+    <a href="02-current-state.html">Today</a>
+    <a href="03-why-change.html">Why</a>
+    <a href="04-migration-overview.html">Strategy</a>
+    <a href="05-copy-split-strip.html">Copy-Split</a>
+    <a href="06-domain-map.html" class="active">Domains</a>
+    <a href="07-catalog-domain.html">Catalog</a>
+    <a href="08-cart-checkout.html">Cart</a>
+    <a href="09-remaining-domains.html">Other</a>
+    <a href="10-shell-architecture.html">Shell</a>
+    <a href="11-shell-swap.html">Swap</a>
+    <a href="12-web-component-wrapping.html">Wrapping</a>
+    <a href="13-hydration-csr.html">CSR</a>
+    <a href="14-component-standards.html">Standards</a>
+    <a href="15-component-transition.html">Transition</a>
+    <a href="16-app-catalog.html">Catalog</a>
+    <a href="17-api-scanning.html">Scanning</a>
+    <a href="18-bff-pattern.html">BFF</a>
+    <a href="19-managing-drift.html">Drift</a>
+    <a href="20-core-cadence.html">Cadence</a>
+    <a href="21-testing-strategy.html">Testing</a>
+    <a href="22-blue-green-rollouts.html">Deploy</a>
+    <a href="23-migration-timeline.html">Timeline</a>
+    <a href="24-team-impact.html">Teams</a>
+    <a href="25-key-principles.html">Principles</a>
+    <a href="dev-environment.html">DevEx</a>
+  </div>
+  <button class="theme-toggle" id="themeToggle" title="Toggle theme">&#9790;</button>
+</nav>
+
+<div class="hero">
+  <div class="page-num">Migration Mechanics</div>
+  <h1>The Domain Map: Your E-Commerce Verticals</h1>
+  <p class="subtitle">Every domain defined with clear boundaries, ownership surfaces, and API contracts. The blueprint for decomposition.</p>
+</div>
+
+<main>
+
+<!-- What Is a Domain -->
+<section>
+  <h2>What Is a Domain?</h2>
+  <p>In Domain-Driven Design, a <strong>domain</strong> is a bounded context&mdash;a self-contained area of business functionality with clear boundaries, its own data, and its own rules. Domains communicate with each other through well-defined contracts, never by reaching into each other's internals.</p>
+  <p>For our e-commerce platform, we've identified 8 primary domains. Each domain maps to a business capability that can be owned, developed, tested, and deployed independently.</p>
+
+  <div class="industry-std">
+    <strong>Domain-Driven Design (Eric Evans, 2003)</strong>
+    Bounded contexts are the foundational building block of Domain-Driven Design, the industry-standard approach to decomposing complex systems. The principle: each bounded context has a clearly defined boundary, owns its data, and communicates with other contexts only through explicit contracts. This eliminates the implicit coupling that creates monolithic behavior.
+  </div>
+</section>
+
+<!-- Domain Overview Diagram -->
+<section>
+  <h2>The Domain Map</h2>
+  <p>This diagram shows all 8 primary domains as independent bounded contexts. The arrows represent the data contracts between domains&mdash;these are the <em>only</em> allowed communication paths.</p>
+
+  <div class="mermaid-wrap" id="d06-1">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">Fullscreen</button>
+    </div>
+    <div class="mw-view">
+      <div class="mermaid-inner" data-src="graph TB
+  subgraph Core[&quot;Shared / Core Domain&quot;]
+    AUTH[Authentication]
+    HDR[Header + Nav]
+    FTR[Footer]
+    ANALYTICS[Analytics]
+  end
+  subgraph Catalog[&quot;Catalog Domain&quot;]
+    PLP[Product Listing]
+    PDP[Product Detail]
+    BROWSE[Category Browse]
+  end
+  subgraph Search[&quot;Search &amp; Navigation&quot;]
+    BAR[Search Bar]
+    FACET[Filters &amp; Facets]
+    BC[Breadcrumbs]
+  end
+  subgraph Cart[&quot;Cart &amp; Mini-Cart&quot;]
+    BASKET[Basket]
+    MINI[Mini-Cart]
+    PROMO[Promotions]
+  end
+  subgraph Checkout[&quot;Checkout Domain&quot;]
+    SHIP[Shipping]
+    PAY[Payment]
+    CONFIRM[Confirmation]
+  end
+  subgraph Account[&quot;Account Domain&quot;]
+    PROF[Profile]
+    ORDERS[Order History]
+    ADDR[Addresses]
+    PREFS[Preferences]
+  end
+  subgraph Content[&quot;Content Domain&quot;]
+    CMS[CMS Pages]
+    BANNER[Banners]
+    LANDING[Landing Pages]
+  end
+  subgraph Admin[&quot;Admin Domain&quot;]
+    OM[Order Management]
+    INV[Inventory]
+    CM[Content Mgmt]
+  end
+  Search -->|search results| Catalog
+  Catalog -->|add to cart API| Cart
+  Cart -->|begin checkout| Checkout
+  Checkout -->|order created| Account
+  Core -->|auth token| Catalog
+  Core -->|auth token| Cart
+  Core -->|auth token| Checkout
+  Core -->|auth token| Account
+  Content -->|banners| Catalog
+  Admin -->|inventory data| Catalog
+  style Core fill:#58a6ff,stroke:#58a6ff,color:#fff
+  style Catalog fill:#3fb950,stroke:#3fb950,color:#fff
+  style Search fill:#d2a8ff,stroke:#d2a8ff,color:#000
+  style Cart fill:#f0883e,stroke:#f0883e,color:#fff
+  style Checkout fill:#f85149,stroke:#f85149,color:#fff
+  style Account fill:#58a6ff,stroke:#58a6ff,color:#fff
+  style Content fill:#d2a8ff,stroke:#d2a8ff,color:#000
+  style Admin fill:#8b949e,stroke:#8b949e,color:#fff"></div>
+    </div>
+    <div class="mw-caption">Figure 6-1: Domain map showing all 8 bounded contexts and their data flow contracts</div>
+  </div>
+</section>
+
+<!-- Data Flow Diagram -->
+<section>
+  <h2>Data Flow Between Domains</h2>
+  <p>The critical design principle: domains share <strong>data contracts</strong>, not <strong>data stores</strong>. Each domain owns its database (or its slice of the database). When Domain A needs data from Domain B, it calls Domain B's API. It never reads Domain B's database directly.</p>
+
+  <div class="mermaid-wrap" id="d06-2">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">Fullscreen</button>
+    </div>
+    <div class="mw-view">
+      <div class="mermaid-inner" data-src="graph LR
+  subgraph Shared[&quot;Shared Contracts&quot;]
+    direction TB
+    EV[Browser Custom Events\nUI notifications]
+    API[REST/GraphQL APIs\nData contracts]
+    TOK[Auth Tokens\nIdentity propagation]
+  end
+  CAT[Catalog\nBFF] -->|product data| API
+  CART[Cart\nBFF] -->|cart state| API
+  CHK[Checkout\nBFF] -->|order data| API
+  ACCT[Account\nBFF] -->|user data| API
+  SRCH[Search\nBFF] -->|search index| API
+  CAT -.add-to-cart event.-> EV
+  CART -.cart-updated event.-> EV
+  CHK -.order-placed event.-> EV
+  API --> CAT
+  API --> CART
+  API --> CHK
+  API --> ACCT
+  TOK --> CAT
+  TOK --> CART
+  TOK --> CHK
+  TOK --> ACCT
+  style Shared fill:#1c2333,stroke:#58a6ff,color:#e6edf3
+  style EV fill:#d2a8ff,stroke:#d2a8ff,color:#000
+  style API fill:#3fb950,stroke:#3fb950,color:#fff
+  style TOK fill:#f0883e,stroke:#f0883e,color:#fff"></div>
+    </div>
+    <div class="mw-caption">Figure 6-2: Data flow — domains communicate through APIs and browser events, never through shared databases or state</div>
+  </div>
+</section>
+
+<!-- Individual Domain Details -->
+<section>
+  <h2>Domain Details</h2>
+
+  <!-- Catalog Domain -->
+  <details>
+    <summary>Catalog Domain <span class="detail-summary">PLP, PDP, search results, category browse</span></summary>
+    <div class="detail-body">
+      <h4>What It Owns</h4>
+      <ul>
+        <li><strong>Product Listing Pages (PLP):</strong> Grid/list views of products, sorting, pagination</li>
+        <li><strong>Product Detail Pages (PDP):</strong> Individual product pages with images, descriptions, specifications, reviews</li>
+        <li><strong>Category Browsing:</strong> Category tree navigation, category landing pages</li>
+        <li><strong>Product Data:</strong> Product information, pricing display, availability status, product images</li>
+      </ul>
+
+      <h4>Routes It Owns</h4>
+      <pre><code>/products/*          - All product listing routes
+/product/:id         - Product detail pages
+/categories/*        - Category browsing
+/brands/*            - Brand landing pages
+/collections/*       - Curated collections</code></pre>
+
+      <h4>API Surface (What It Exposes)</h4>
+      <table class="compare-table">
+        <thead><tr><th>Endpoint</th><th>Method</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>/api/catalog/products</code></td><td>GET</td><td>Product listing with filters</td></tr>
+          <tr><td><code>/api/catalog/products/:id</code></td><td>GET</td><td>Single product detail</td></tr>
+          <tr><td><code>/api/catalog/categories</code></td><td>GET</td><td>Category tree</td></tr>
+          <tr><td><code>/api/catalog/search</code></td><td>GET</td><td>Product search (delegates to Search domain)</td></tr>
+        </tbody>
+      </table>
+
+      <h4>API Surface (What It Consumes)</h4>
+      <table class="compare-table">
+        <thead><tr><th>From Domain</th><th>Endpoint</th><th>Purpose</th></tr></thead>
+        <tbody>
+          <tr><td>Search</td><td><code>/api/search/query</code></td><td>Full-text search results</td></tr>
+          <tr><td>Content</td><td><code>/api/content/banners</code></td><td>Promotional banners on PLPs</td></tr>
+          <tr><td>Core</td><td><code>/api/auth/validate</code></td><td>Authentication token validation</td></tr>
+        </tbody>
+      </table>
+
+      <h4>Browser Events (Published)</h4>
+      <ul>
+        <li><code>catalog:product-viewed</code> &mdash; Fired when a user views a product (consumed by Analytics)</li>
+        <li><code>catalog:add-to-cart</code> &mdash; Fired when user clicks "Add to Cart" (consumed by Cart domain)</li>
+      </ul>
+
+      <h4>Extraction Priority</h4>
+      <div class="callout success">
+        <strong>Recommended First Extraction</strong>
+        The Catalog domain has the clearest boundaries, the most independent routes, and the highest traffic volume. It's the ideal candidate for the first copy-split-strip extraction.
+      </div>
+    </div>
+  </details>
+
+  <!-- Cart Domain -->
+  <details>
+    <summary>Cart &amp; Mini-Cart Domain <span class="detail-summary">Basket, promotions, quantity management</span></summary>
+    <div class="detail-body">
+      <h4>What It Owns</h4>
+      <ul>
+        <li><strong>Shopping Basket:</strong> Full cart page with line items, quantities, totals</li>
+        <li><strong>Mini-Cart:</strong> Slide-out or dropdown cart preview shown across all pages</li>
+        <li><strong>Promotions Engine:</strong> Coupon codes, automatic discounts, bundle pricing</li>
+        <li><strong>Quantity Management:</strong> Add, remove, update quantities, stock validation</li>
+        <li><strong>Cart Persistence:</strong> Guest cart (cookie/localStorage), authenticated cart (server-side)</li>
+      </ul>
+
+      <h4>Routes It Owns</h4>
+      <pre><code>/cart                - Full cart page
+/cart/mini           - Mini-cart widget endpoint</code></pre>
+
+      <h4>API Surface (What It Exposes)</h4>
+      <table class="compare-table">
+        <thead><tr><th>Endpoint</th><th>Method</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>/api/cart</code></td><td>GET</td><td>Current cart state</td></tr>
+          <tr><td><code>/api/cart/items</code></td><td>POST</td><td>Add item to cart</td></tr>
+          <tr><td><code>/api/cart/items/:id</code></td><td>PUT</td><td>Update quantity</td></tr>
+          <tr><td><code>/api/cart/items/:id</code></td><td>DELETE</td><td>Remove item</td></tr>
+          <tr><td><code>/api/cart/promotions</code></td><td>POST</td><td>Apply promotion code</td></tr>
+        </tbody>
+      </table>
+
+      <h4>API Surface (What It Consumes)</h4>
+      <table class="compare-table">
+        <thead><tr><th>From Domain</th><th>Endpoint</th><th>Purpose</th></tr></thead>
+        <tbody>
+          <tr><td>Catalog</td><td><code>/api/catalog/products/:id</code></td><td>Product details for cart display</td></tr>
+          <tr><td>Core</td><td><code>/api/auth/validate</code></td><td>Authentication for persistent carts</td></tr>
+        </tbody>
+      </table>
+
+      <h4>Browser Events</h4>
+      <ul>
+        <li><code>cart:updated</code> &mdash; Fired when cart contents change (consumed by Mini-Cart, Header badge)</li>
+        <li><code>cart:checkout-started</code> &mdash; Fired when user proceeds to checkout (consumed by Checkout domain)</li>
+      </ul>
+
+      <h4>Special Considerations</h4>
+      <p>The Cart domain is the most <strong>stateful</strong> domain. It maintains server-side cart state for authenticated users and client-side state for guests. The mini-cart component appears on every page, which means it needs to be loaded as a shared Web Component that other domains can render.</p>
+    </div>
+  </details>
+
+  <!-- Checkout Domain -->
+  <details>
+    <summary>Checkout Domain <span class="detail-summary">Shipping, payment, order confirmation</span></summary>
+    <div class="detail-body">
+      <h4>What It Owns</h4>
+      <ul>
+        <li><strong>Shipping Step:</strong> Address selection, shipping method selection, delivery estimates</li>
+        <li><strong>Payment Step:</strong> Payment method selection, card entry, payment processing integration</li>
+        <li><strong>Order Confirmation:</strong> Order summary, confirmation number, email trigger</li>
+        <li><strong>Checkout State Machine:</strong> Multi-step flow with validation at each step</li>
+      </ul>
+
+      <h4>Routes It Owns</h4>
+      <pre><code>/checkout            - Checkout flow entry
+/checkout/shipping   - Shipping step
+/checkout/payment    - Payment step
+/checkout/confirm    - Order confirmation
+/checkout/success    - Post-order success page</code></pre>
+
+      <h4>API Surface (What It Exposes)</h4>
+      <table class="compare-table">
+        <thead><tr><th>Endpoint</th><th>Method</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>/api/checkout/start</code></td><td>POST</td><td>Initialize checkout from cart</td></tr>
+          <tr><td><code>/api/checkout/shipping</code></td><td>POST</td><td>Set shipping details</td></tr>
+          <tr><td><code>/api/checkout/payment</code></td><td>POST</td><td>Process payment</td></tr>
+          <tr><td><code>/api/checkout/confirm</code></td><td>POST</td><td>Confirm and place order</td></tr>
+        </tbody>
+      </table>
+
+      <h4>API Surface (What It Consumes)</h4>
+      <table class="compare-table">
+        <thead><tr><th>From Domain</th><th>Endpoint</th><th>Purpose</th></tr></thead>
+        <tbody>
+          <tr><td>Cart</td><td><code>/api/cart</code></td><td>Cart state for order creation</td></tr>
+          <tr><td>Account</td><td><code>/api/account/addresses</code></td><td>Saved addresses for shipping</td></tr>
+          <tr><td>Core</td><td><code>/api/auth/validate</code></td><td>Authentication</td></tr>
+        </tbody>
+      </table>
+
+      <h4>Browser Events</h4>
+      <ul>
+        <li><code>checkout:order-placed</code> &mdash; Fired when order is confirmed (consumed by Account, Analytics)</li>
+        <li><code>checkout:step-completed</code> &mdash; Fired at each step for analytics tracking</li>
+      </ul>
+
+      <h4>Special Considerations</h4>
+      <p>Checkout is the most <strong>security-sensitive</strong> domain. Payment processing integrations (Stripe, Adyen, etc.) run within this domain's boundary. PCI compliance requirements apply only to this domain, not the entire platform. This is a major advantage of domain isolation.</p>
+    </div>
+  </details>
+
+  <!-- Account Domain -->
+  <details>
+    <summary>Account Domain <span class="detail-summary">Profile, orders, addresses, preferences</span></summary>
+    <div class="detail-body">
+      <h4>What It Owns</h4>
+      <ul>
+        <li><strong>User Profile:</strong> Name, email, phone, account settings</li>
+        <li><strong>Order History:</strong> Past orders, order detail, reorder functionality</li>
+        <li><strong>Addresses:</strong> Saved shipping/billing addresses, address book management</li>
+        <li><strong>Preferences:</strong> Communication preferences, notification settings, display settings</li>
+        <li><strong>Wish Lists:</strong> Saved items, shared lists</li>
+      </ul>
+
+      <h4>Routes It Owns</h4>
+      <pre><code>/account             - Account dashboard
+/account/profile     - Profile settings
+/account/orders      - Order history
+/account/orders/:id  - Order detail
+/account/addresses   - Address book
+/account/preferences - Communication preferences
+/account/wishlists   - Wish lists</code></pre>
+
+      <h4>API Surface (What It Exposes)</h4>
+      <table class="compare-table">
+        <thead><tr><th>Endpoint</th><th>Method</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>/api/account/profile</code></td><td>GET/PUT</td><td>User profile data</td></tr>
+          <tr><td><code>/api/account/orders</code></td><td>GET</td><td>Order history list</td></tr>
+          <tr><td><code>/api/account/orders/:id</code></td><td>GET</td><td>Order detail</td></tr>
+          <tr><td><code>/api/account/addresses</code></td><td>GET/POST/PUT/DELETE</td><td>Address management</td></tr>
+        </tbody>
+      </table>
+
+      <h4>API Surface (What It Consumes)</h4>
+      <table class="compare-table">
+        <thead><tr><th>From Domain</th><th>Endpoint</th><th>Purpose</th></tr></thead>
+        <tbody>
+          <tr><td>Core</td><td><code>/api/auth/validate</code></td><td>Authentication</td></tr>
+          <tr><td>Catalog</td><td><code>/api/catalog/products/:id</code></td><td>Product info for order display</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </details>
+
+  <!-- Search Domain -->
+  <details>
+    <summary>Search &amp; Navigation Domain <span class="detail-summary">Search bar, filters, facets, breadcrumbs</span></summary>
+    <div class="detail-body">
+      <h4>What It Owns</h4>
+      <ul>
+        <li><strong>Search Bar:</strong> Autocomplete, suggestions, recent searches</li>
+        <li><strong>Search Results:</strong> Ranked results, relevance scoring, spell correction</li>
+        <li><strong>Filters &amp; Facets:</strong> Dynamic filters based on search results, faceted navigation</li>
+        <li><strong>Breadcrumbs:</strong> Navigation trail for category/search paths</li>
+        <li><strong>Search Index:</strong> Product index, category index, content index</li>
+      </ul>
+
+      <h4>Routes It Owns</h4>
+      <pre><code>/search              - Search results page
+/search/suggest      - Autocomplete endpoint</code></pre>
+
+      <h4>API Surface (What It Exposes)</h4>
+      <table class="compare-table">
+        <thead><tr><th>Endpoint</th><th>Method</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>/api/search/query</code></td><td>GET</td><td>Full-text search</td></tr>
+          <tr><td><code>/api/search/suggest</code></td><td>GET</td><td>Autocomplete suggestions</td></tr>
+          <tr><td><code>/api/search/facets</code></td><td>GET</td><td>Available facets for a query</td></tr>
+        </tbody>
+      </table>
+
+      <h4>Special Considerations</h4>
+      <p>The Search domain's components (search bar, breadcrumbs) appear on nearly every page. Like the mini-cart, these are loaded as shared Web Components. The search index is typically backed by Elasticsearch or Algolia&mdash;a separate infrastructure from the main database.</p>
+    </div>
+  </details>
+
+  <!-- Content Domain -->
+  <details>
+    <summary>Content Domain <span class="detail-summary">CMS pages, banners, promotional landing pages</span></summary>
+    <div class="detail-body">
+      <h4>What It Owns</h4>
+      <ul>
+        <li><strong>CMS Pages:</strong> Static content pages (about, help, policies)</li>
+        <li><strong>Banners:</strong> Promotional banners, hero images, seasonal campaigns</li>
+        <li><strong>Landing Pages:</strong> Campaign-specific landing pages, marketing pages</li>
+        <li><strong>Content API:</strong> Headless CMS integration for content delivery</li>
+      </ul>
+
+      <h4>Routes It Owns</h4>
+      <pre><code>/pages/*             - CMS-managed pages
+/campaigns/*         - Campaign landing pages
+/help/*              - Help center pages</code></pre>
+
+      <h4>API Surface (What It Exposes)</h4>
+      <table class="compare-table">
+        <thead><tr><th>Endpoint</th><th>Method</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>/api/content/pages/:slug</code></td><td>GET</td><td>CMS page content</td></tr>
+          <tr><td><code>/api/content/banners</code></td><td>GET</td><td>Active banners for a location</td></tr>
+          <tr><td><code>/api/content/campaigns/:id</code></td><td>GET</td><td>Campaign page data</td></tr>
+        </tbody>
+      </table>
+
+      <h4>Special Considerations</h4>
+      <p>Content pages are the best candidates for static generation or prerendering. They change infrequently and don't require real-time data. After the shell swap to CSR, content pages can be served as pre-rendered HTML from the CDN for optimal performance and SEO.</p>
+    </div>
+  </details>
+
+  <!-- Admin Domain -->
+  <details>
+    <summary>Admin Domain <span class="detail-summary">Order management, inventory, content management</span></summary>
+    <div class="detail-body">
+      <h4>What It Owns</h4>
+      <ul>
+        <li><strong>Order Management:</strong> Order processing, status updates, fulfillment</li>
+        <li><strong>Inventory Management:</strong> Stock levels, warehouse allocation, reorder triggers</li>
+        <li><strong>Content Management:</strong> CMS editor, banner scheduler, campaign builder</li>
+        <li><strong>User Management:</strong> Admin users, roles, permissions</li>
+      </ul>
+
+      <h4>Routes It Owns</h4>
+      <pre><code>/admin               - Admin dashboard
+/admin/orders        - Order management
+/admin/inventory     - Inventory management
+/admin/content       - Content editor
+/admin/users         - User management</code></pre>
+
+      <h4>Special Considerations</h4>
+      <p>The Admin domain is typically the <strong>last</strong> to be extracted because it has the widest data access requirements and the smallest user base (internal staff only). It's also the lowest risk to leave in the monolith longest because admin traffic is minimal compared to customer-facing traffic.</p>
+    </div>
+  </details>
+
+  <!-- Shared/Core Domain -->
+  <details>
+    <summary>Shared / Core Domain <span class="detail-summary">Header, footer, authentication, analytics</span></summary>
+    <div class="detail-body">
+      <h4>What It Owns</h4>
+      <ul>
+        <li><strong>Header &amp; Navigation:</strong> Global header, main navigation menu, user menu</li>
+        <li><strong>Footer:</strong> Global footer, site links, legal links</li>
+        <li><strong>Authentication:</strong> Login, logout, session management, token refresh</li>
+        <li><strong>Analytics:</strong> Page tracking, event tracking, analytics integration</li>
+        <li><strong>Error Handling:</strong> 404 pages, error boundaries, fallback UI</li>
+        <li><strong>Design Tokens:</strong> Colors, typography, spacing, shared CSS custom properties</li>
+      </ul>
+
+      <h4>How Other Domains Consume Core</h4>
+      <p>The Core domain publishes its components as Web Components:</p>
+      <pre><code>&lt;ml-header&gt;&lt;/ml-header&gt;
+&lt;ml-footer&gt;&lt;/ml-footer&gt;
+&lt;ml-auth-guard&gt;&lt;/ml-auth-guard&gt;
+&lt;ml-analytics-tracker&gt;&lt;/ml-analytics-tracker&gt;</code></pre>
+      <p>Each domain's shell loads these Web Components. They're versioned and published to the App Catalog. Domains can pin to a specific version of Core components, ensuring updates are controlled.</p>
+
+      <h4>API Surface (What It Exposes)</h4>
+      <table class="compare-table">
+        <thead><tr><th>Endpoint</th><th>Method</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>/api/auth/login</code></td><td>POST</td><td>Authenticate user</td></tr>
+          <tr><td><code>/api/auth/validate</code></td><td>GET</td><td>Validate auth token</td></tr>
+          <tr><td><code>/api/auth/refresh</code></td><td>POST</td><td>Refresh auth token</td></tr>
+          <tr><td><code>/api/analytics/event</code></td><td>POST</td><td>Track analytics event</td></tr>
+        </tbody>
+      </table>
+
+      <h4>Extraction Order</h4>
+      <p>The Core domain is extracted <strong>early</strong> (typically second, after Catalog) because its components are consumed by every other domain. Having Core as an independent, versioned package makes all subsequent domain extractions cleaner.</p>
+    </div>
+  </details>
+</section>
+
+<!-- Domain Boundaries Summary -->
+<section>
+  <h2>Domain Boundaries at a Glance</h2>
+  <table class="compare-table">
+    <thead>
+      <tr><th>Domain</th><th>Key Pages</th><th>APIs Exposed</th><th>Depends On</th><th>Extraction Order</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Catalog</strong></td><td>PLP, PDP, Categories</td><td>Products, Categories, Search</td><td>Search, Content, Core</td><td class="good">1st</td></tr>
+      <tr><td><strong>Core</strong></td><td>Header, Footer</td><td>Auth, Analytics</td><td>None</td><td class="good">2nd</td></tr>
+      <tr><td><strong>Search</strong></td><td>Search Results</td><td>Query, Suggest, Facets</td><td>Core</td><td class="neutral">3rd</td></tr>
+      <tr><td><strong>Cart</strong></td><td>Cart Page</td><td>Cart CRUD, Promotions</td><td>Catalog, Core</td><td class="neutral">4th</td></tr>
+      <tr><td><strong>Account</strong></td><td>Profile, Orders</td><td>Profile, Orders, Addresses</td><td>Catalog, Core</td><td class="neutral">5th</td></tr>
+      <tr><td><strong>Checkout</strong></td><td>Shipping, Payment</td><td>Checkout Flow</td><td>Cart, Account, Core</td><td class="neutral">6th</td></tr>
+      <tr><td><strong>Content</strong></td><td>CMS Pages, Banners</td><td>Pages, Banners, Campaigns</td><td>Core</td><td class="neutral">7th</td></tr>
+      <tr><td><strong>Admin</strong></td><td>Admin Dashboard</td><td>Management APIs</td><td>All domains</td><td class="bad">Last</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- Key Principles -->
+<section>
+  <h2>Domain Boundary Principles</h2>
+  <div class="themes-grid">
+    <div class="theme-card">
+      <div class="theme-icon">🔒</div>
+      <h4>Own Your Data</h4>
+      <p>Each domain owns its data store. No domain reads another domain's database. All cross-domain data access goes through APIs. This is non-negotiable.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">📄</div>
+      <h4>Contract-First Communication</h4>
+      <p>Before two domains can communicate, they define a contract: endpoint, request shape, response shape, error codes. The contract is versioned and tracked in the App Catalog.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">💥</div>
+      <h4>Independent Failure</h4>
+      <p>If the Catalog domain goes down, Cart still works. If Search is slow, Account is unaffected. Each domain's failure boundary is its own process.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">🚀</div>
+      <h4>Independent Deployment</h4>
+      <p>Each domain deploys on its own schedule. No waiting for other teams. No coordinated release trains. Your domain ships when your tests pass.</p>
+    </div>
+  </div>
+
+  <div class="callout">
+    <strong>The Boundary Test</strong>
+    If you can't deploy your domain without coordinating with another domain, the boundary is wrong. Go back and redraw it. True domain independence means true deployment independence.
+  </div>
+</section>
+
+<!-- Next Steps -->
+<section>
+  <h2>Next: Deep Dives</h2>
+  <p>The next three pages dive deep into specific domain extractions:</p>
+  <ul>
+    <li><strong><a href="07-catalog-domain.html">Page 7: Catalog Domain Deep Dive</a></strong> &mdash; The first extraction walkthrough with real file trees, route maps, and deployment configs</li>
+    <li><strong><a href="08-cart-checkout.html">Page 8: Cart &amp; Checkout</a></strong> &mdash; How the most stateful domains get extracted safely</li>
+    <li><strong><a href="09-remaining-domains.html">Page 9: Remaining Domains</a></strong> &mdash; Patterns for Account, Search, Content, and Admin</li>
+  </ul>
+</section>
+
+</main>
+
+<div style="max-width:900px;margin:0 auto;padding:0 1.5rem;">
+  <div class="page-nav">
+    <a href="05-copy-split-strip.html"><span class="pn-label">&larr; Previous</span><span class="pn-title">Copy, Split, Strip</span></a>
+    <a href="07-catalog-domain.html" class="next"><span class="pn-label">Next &rarr;</span><span class="pn-title">Catalog Domain Deep Dive</span></a>
+  </div>
+</div>
+
+<footer>Medline Platform Evolution &mdash; v5 &mdash; 2026-04-05 &mdash; Technical Director Series &mdash; Confidential</footer>
+<div class="toast" id="toast">Copied!</div>
+<script src="shared.js"></script>
+</body>
+</html>

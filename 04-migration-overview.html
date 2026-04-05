@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Migration Strategy &mdash; Medline Platform Evolution</title>
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<div class="progress-bar"></div>
+<nav>
+  <a href="index.html" class="logo">ML Evolution</a>
+  <div class="nav-links">
+    <a href="01-executive-summary.html">Summary</a>
+    <a href="02-current-state.html">Today</a>
+    <a href="03-why-change.html">Why</a>
+    <a href="04-migration-overview.html" class="active">Strategy</a>
+    <a href="05-copy-split-strip.html">Copy-Split</a>
+    <a href="06-domain-map.html">Domains</a>
+    <a href="07-catalog-domain.html">Catalog</a>
+    <a href="08-cart-checkout.html">Cart</a>
+    <a href="09-remaining-domains.html">Other</a>
+    <a href="10-shell-architecture.html">Shell</a>
+    <a href="11-shell-swap.html">Swap</a>
+    <a href="12-web-component-wrapping.html">Wrapping</a>
+    <a href="13-hydration-csr.html">CSR</a>
+    <a href="14-component-standards.html">Standards</a>
+    <a href="15-component-transition.html">Transition</a>
+    <a href="16-app-catalog.html">Catalog</a>
+    <a href="17-api-scanning.html">Scanning</a>
+    <a href="18-bff-pattern.html">BFF</a>
+    <a href="19-managing-drift.html">Drift</a>
+    <a href="20-core-cadence.html">Cadence</a>
+    <a href="21-testing-strategy.html">Testing</a>
+    <a href="22-blue-green-rollouts.html">Deploy</a>
+    <a href="23-migration-timeline.html">Timeline</a>
+    <a href="24-team-impact.html">Teams</a>
+    <a href="25-key-principles.html">Principles</a>
+    <a href="dev-environment.html">DevEx</a>
+  </div>
+  <button class="theme-toggle" id="themeToggle" title="Toggle theme">&#9790;</button>
+</nav>
+
+<div class="hero">
+  <div class="page-num">Migration Mechanics</div>
+  <h1>The Migration Strategy</h1>
+  <p class="subtitle">Strangler fig pattern, four phases, zero downtime. Each phase delivers value independently&mdash;you can stop at any point and still be better off.</p>
+</div>
+
+<main>
+
+<!-- The Strangler Fig Pattern -->
+<section>
+  <h2>The Strangler Fig Pattern</h2>
+  <p>The strangler fig is a tropical tree that grows around an existing tree. Over time, the fig's roots replace the host tree's structure. The host tree eventually decomposes, leaving the fig standing in its place. At no point did anyone cut down the host tree. At no point was there a gap where no tree existed.</p>
+  <p>This is exactly how we migrate the platform. The old system keeps running while the new system grows around it. Traffic gradually shifts from old to new. When the new system has fully replaced the old, the old system is turned off&mdash;not because it broke, but because nobody needs it anymore.</p>
+
+  <div class="industry-std">
+    <strong>Industry-Standard Migration Pattern</strong>
+    The Strangler Fig pattern was named by Martin Fowler in 2004 and has become the de facto standard for enterprise system migration. It has been successfully applied at Amazon (monolith to microservices), the UK Government Digital Service (legacy to cloud), BBC (monolith to distributed services), and hundreds of other large-scale organizations. The core principle: <em>never turn off the old system until the new system is proven</em>.
+  </div>
+
+  <div class="mermaid-wrap" id="d04-1">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">Fullscreen</button>
+    </div>
+    <div class="mw-view">
+      <div class="mermaid-inner" data-src="graph TB
+  subgraph Phase0[&quot;Starting Point&quot;]
+    OLD[Monolith serves 100% traffic]
+  end
+  subgraph Phase1[&quot;Phase 1: Extract&quot;]
+    O1[Monolith serves most traffic]
+    N1[Domain A serves its own traffic]
+    O1 -.-> N1
+  end
+  subgraph Phase2[&quot;Phase 2: Expand&quot;]
+    O2[Monolith serves shrinking traffic]
+    N2A[Domain A]
+    N2B[Domain B]
+    N2C[Domain C]
+    O2 -.-> N2A
+    O2 -.-> N2B
+    O2 -.-> N2C
+  end
+  subgraph Phase3[&quot;Phase 3: Replace&quot;]
+    N3[All domains serve all traffic]
+    OLD3[Monolith standby only]
+    N3 -.backup.-> OLD3
+  end
+  subgraph Phase4[&quot;Phase 4: Retire&quot;]
+    DONE[All domains independent\nMonolith decommissioned]
+  end
+  Phase0 --> Phase1
+  Phase1 --> Phase2
+  Phase2 --> Phase3
+  Phase3 --> Phase4
+  style OLD fill:#f85149,stroke:#f85149,color:#fff
+  style O1 fill:#f0883e,stroke:#f0883e,color:#fff
+  style O2 fill:#f0883e,stroke:#f0883e,color:#fff
+  style OLD3 fill:#8b949e,stroke:#8b949e,color:#fff
+  style DONE fill:#3fb950,stroke:#3fb950,color:#fff
+  style N1 fill:#58a6ff,stroke:#58a6ff,color:#fff
+  style N2A fill:#58a6ff,stroke:#58a6ff,color:#fff
+  style N2B fill:#58a6ff,stroke:#58a6ff,color:#fff
+  style N2C fill:#58a6ff,stroke:#58a6ff,color:#fff
+  style N3 fill:#3fb950,stroke:#3fb950,color:#fff"></div>
+    </div>
+    <div class="mw-caption">Figure 4-1: Strangler Fig pattern — the monolith gradually loses traffic as independent domains take over</div>
+  </div>
+</section>
+
+<!-- The Four Phases -->
+<section>
+  <h2>The Four Phases</h2>
+  <p>Our migration is organized into four distinct phases. Each phase has a clear entry criteria, exit criteria, and value delivery. Critically, <strong>each phase is independently valuable</strong>. If you stop after Phase 1, you've gained independent deployment. If you stop after Phase 2, you've also gained a standards-based shell. There is no phase that requires all subsequent phases to be valuable.</p>
+
+  <div class="mermaid-wrap" id="d04-2">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">Fullscreen</button>
+    </div>
+    <div class="mw-view">
+      <div class="mermaid-inner" data-src="graph LR
+  P1[Phase 1\nDomain Extraction\nCopy-Split-Strip] --> P2[Phase 2\nShell Swap\nWeb Components]
+  P2 --> P3[Phase 3\nApp Catalog\nGovernance + Scanning]
+  P3 --> P4[Phase 4\nComponent Evolution\nWCFramework Transition]
+  P1V[✓ Independent Deploy\n✓ Independent Test\n✓ Smaller Blast Radius] -.-> P1
+  P2V[✓ No SSR Tax\n✓ No Framework Lock-in\n✓ CSR + BFF] -.-> P2
+  P3V[✓ Full Visibility\n✓ Automated Scanning\n✓ Update Governance] -.-> P3
+  P4V[✓ Standards Components\n✓ Design System\n✓ 1-Year Cadence] -.-> P4
+  style P1 fill:#58a6ff,stroke:#58a6ff,color:#fff
+  style P2 fill:#d2a8ff,stroke:#d2a8ff,color:#000
+  style P3 fill:#f0883e,stroke:#f0883e,color:#fff
+  style P4 fill:#3fb950,stroke:#3fb950,color:#fff
+  style P1V fill:#161b22,stroke:#58a6ff,color:#e6edf3
+  style P2V fill:#161b22,stroke:#d2a8ff,color:#e6edf3
+  style P3V fill:#161b22,stroke:#f0883e,color:#e6edf3
+  style P4V fill:#161b22,stroke:#3fb950,color:#e6edf3"></div>
+    </div>
+    <div class="mw-caption">Figure 4-2: Four-phase overview — each phase delivers independent value and has its own success criteria</div>
+  </div>
+</section>
+
+<!-- Phase 1 Detail -->
+<section>
+  <h2>Phase 1: Domain Extraction (Copy-Split-Strip)</h2>
+
+  <details>
+    <summary>What Happens in Phase 1 <span class="detail-summary">The safest migration step</span></summary>
+    <div class="detail-body">
+      <h4>The Process</h4>
+      <p>For each identified domain (see <a href="06-domain-map.html">Page 6: Domain Map</a>):</p>
+      <ol>
+        <li><strong>Copy</strong> the entire monolith repository into a new domain-specific repository</li>
+        <li><strong>Split</strong> by identifying which files, routes, and components belong to this domain</li>
+        <li><strong>Strip</strong> everything that doesn't belong. Delete unused MFEs, unused routes, unused components.</li>
+        <li><strong>Deploy</strong> the domain exactly as the monolith deploys&mdash;same K8s config, same SSR, same infrastructure</li>
+        <li><strong>Verify</strong> by running the domain's existing tests. They pass because the code is identical.</li>
+        <li><strong>Route</strong> traffic for this domain's URLs from the monolith to the new domain service</li>
+      </ol>
+
+      <h4>Why It's Safe</h4>
+      <p>The extracted domain runs the <em>exact same code</em> as the monolith. It was tested in the monolith. It works in the monolith. It will work as a standalone service because it is literally the same binary with fewer routes.</p>
+
+      <h4>What You Get</h4>
+      <ul>
+        <li>Independent Git repository per domain</li>
+        <li>Independent build pipeline (5-minute builds instead of 25-minute builds)</li>
+        <li>Independent test suite (domain tests only, 3-5 minutes instead of 45+)</li>
+        <li>Independent deployment (deploy when <em>your</em> tests pass)</li>
+        <li>Smaller blast radius (a bug in Catalog doesn't affect Cart)</li>
+      </ul>
+
+      <div class="callout success">
+        <strong>Phase 1 Value Proposition</strong>
+        Even if you stop after Phase 1 and never do anything else, you've transformed a monolithic deployment pipeline into independent domain pipelines. Teams ship faster, test faster, and fail smaller.
+      </div>
+    </div>
+  </details>
+</section>
+
+<!-- Phase 2 Detail -->
+<section>
+  <h2>Phase 2: Shell Swap</h2>
+
+  <details>
+    <summary>What Happens in Phase 2 <span class="detail-summary">Standards-based orchestration</span></summary>
+    <div class="detail-body">
+      <h4>The Process</h4>
+      <ol>
+        <li><strong>Build</strong> a new thin shell using W3C Web Components. This shell is a lightweight orchestrator that loads domain micro frontends via <code>&lt;custom-element&gt;</code> tags.</li>
+        <li><strong>Wrap</strong> each existing domain's entry point in a Web Component container. The internal React code doesn't change&mdash;it just mounts inside a shadow DOM boundary.</li>
+        <li><strong>Deploy</strong> the new shell alongside the old Next.js shell. Both serve the same content.</li>
+        <li><strong>Test</strong> the new shell with synthetic traffic, then gradually shift real traffic using feature flags or weighted routing.</li>
+        <li><strong>Retire</strong> the Next.js shell once the Web Component shell serves 100% of traffic.</li>
+      </ol>
+
+      <h4>Why Web Components</h4>
+      <ul>
+        <li><strong>Browser-native:</strong> No framework runtime needed. Custom Elements and Shadow DOM are built into every browser.</li>
+        <li><strong>Framework-agnostic:</strong> Web Components can host React, WCFramework, vanilla JS, or any future framework. The shell doesn't care what's inside each component.</li>
+        <li><strong>Stable API:</strong> The Web Component spec has been stable since 2018. No breaking version upgrades. No migration scripts needed for the shell.</li>
+        <li><strong>Isolation:</strong> Shadow DOM provides style and DOM isolation between domains. One domain's CSS can't leak into another.</li>
+      </ul>
+
+      <h4>What You Get</h4>
+      <ul>
+        <li>No more SSR runtime (CSR from CDN + BFF backends)</li>
+        <li>No framework lock-in for the orchestration layer</li>
+        <li>Style isolation between domains via Shadow DOM</li>
+        <li>Simpler infrastructure (static files + API services)</li>
+      </ul>
+    </div>
+  </details>
+</section>
+
+<!-- Phase 3 Detail -->
+<section>
+  <h2>Phase 3: App Catalog &amp; Governance</h2>
+
+  <details>
+    <summary>What Happens in Phase 3 <span class="detail-summary">Automated visibility and control</span></summary>
+    <div class="detail-body">
+      <h4>The Process</h4>
+      <ol>
+        <li><strong>Deploy</strong> the App Catalog registry&mdash;a service that tracks every domain, every micro frontend, every component, and every API endpoint across the platform.</li>
+        <li><strong>Register</strong> each domain with the catalog: its version, its dependencies, its API surface, its component inventory.</li>
+        <li><strong>Enable scanning:</strong> Automated CI hooks that report to the catalog on every deployment. The catalog knows what's running everywhere, in real-time.</li>
+        <li><strong>Set policies:</strong> Define rules for version freshness, security compliance, accessibility standards, and performance budgets. The catalog enforces them automatically.</li>
+      </ol>
+
+      <h4>What You Get</h4>
+      <ul>
+        <li>Single pane of glass showing every deployed micro frontend and its status</li>
+        <li>Automated detection of outdated dependencies, security vulnerabilities, and breaking API changes</li>
+        <li>Component inventory: what exists, who owns it, what version, where it's used</li>
+        <li>Governance without meetings: policies are automated, not manual reviews</li>
+      </ul>
+    </div>
+  </details>
+</section>
+
+<!-- Phase 4 Detail -->
+<section>
+  <h2>Phase 4: Component Evolution</h2>
+
+  <details>
+    <summary>What Happens in Phase 4 <span class="detail-summary">Incremental component migration</span></summary>
+    <div class="detail-body">
+      <h4>The Process</h4>
+      <ol>
+        <li><strong>Identify</strong> components for migration using the App Catalog's component inventory. Start with the most widely-used, most duplicated components.</li>
+        <li><strong>Build</strong> the WCFramework version of each component following the standards-based component model (see <a href="14-component-standards.html">Page 14</a>).</li>
+        <li><strong>Deploy</strong> the new component alongside the old one. Feature flags control which version renders.</li>
+        <li><strong>Validate</strong> with A/B testing, accessibility audits, and performance benchmarks.</li>
+        <li><strong>Retire</strong> the React version once the WCFramework version is validated.</li>
+      </ol>
+
+      <h4>Why WCFramework</h4>
+      <p>WCFramework is a standards-based component framework built on W3C Web Components. It provides the developer ergonomics teams need (templating, data binding, dependency injection) while compiling to native Custom Elements. The output is browser-standard code, not framework-specific bundles.</p>
+
+      <h4>The 1-Year Core Cadence</h4>
+      <p>Once on WCFramework, core updates follow a predictable 1-year cycle:</p>
+      <ul>
+        <li><strong>January:</strong> New core version released with automated migration schematics</li>
+        <li><strong>February&ndash;March:</strong> Teams run the migration scripts and validate in staging</li>
+        <li><strong>April:</strong> Domain-by-domain rollout to production</li>
+        <li><strong>May&ndash;December:</strong> Feature development on the stable core</li>
+      </ul>
+
+      <div class="callout success">
+        <strong>Phase 4 Value Proposition</strong>
+        Components are now standards-based, cataloged, scanned, and on a predictable update cadence. The platform is future-proof because it's built on browser standards, not framework-specific patterns.
+      </div>
+    </div>
+  </details>
+</section>
+
+<!-- Zero Downtime Guarantees -->
+<section>
+  <h2>Zero Downtime Guarantees</h2>
+  <p>At no point in this four-phase migration does the platform go offline. Here's why:</p>
+
+  <table class="compare-table">
+    <thead>
+      <tr><th>Phase</th><th>Old System</th><th>New System</th><th>Traffic Handling</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Phase 1</strong></td><td class="good">Running</td><td class="good">Running alongside</td><td>Route-level switching; fallback to monolith</td></tr>
+      <tr><td><strong>Phase 2</strong></td><td class="good">Running</td><td class="good">Running alongside</td><td>Weighted routing; gradual traffic shift</td></tr>
+      <tr><td><strong>Phase 3</strong></td><td class="neutral">N/A</td><td class="good">Read-only registry</td><td>No traffic impact; catalog is observability only</td></tr>
+      <tr><td><strong>Phase 4</strong></td><td class="good">React components</td><td class="good">WCFramework components</td><td>Feature-flag per component; instant rollback</td></tr>
+    </tbody>
+  </table>
+
+  <div class="industry-std">
+    <strong>Zero Downtime Is Non-Negotiable</strong>
+    Enterprise migration that requires downtime is not migration&mdash;it's a gamble. The strangler fig pattern guarantees zero downtime by design. Both old and new systems run simultaneously. Traffic shifts gradually. Rollback is always one routing change away.
+  </div>
+</section>
+
+<!-- Stop At Any Phase -->
+<section>
+  <h2>Stop at Any Phase</h2>
+  <p>One of the most powerful aspects of this strategy is that <strong>each phase delivers value independently</strong>. You don't need to commit to all four phases upfront. You can evaluate results at each phase boundary and decide whether to continue.</p>
+
+  <details>
+    <summary>What if we stop after Phase 1? <span class="detail-summary">Domain extraction only</span></summary>
+    <div class="detail-body">
+      <p>You have independent domain repositories, independent build pipelines, and independent deployment. Teams deploy on their own schedule. Build times drop from 25 minutes to 5. Test times drop from 45 minutes to 5. The blast radius for any failure shrinks from "entire platform" to "one domain."</p>
+      <p><strong>What you don't get:</strong> SSR is still in play. The shell is still Next.js. Components are still React. You're on the upgrade treadmill for the framework, but at least each domain can upgrade independently.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>What if we stop after Phase 2? <span class="detail-summary">Domain extraction + shell swap</span></summary>
+    <div class="detail-body">
+      <p>Everything from Phase 1, plus: SSR is eliminated. The shell is standards-based Web Components. Infrastructure is simpler (CDN + BFF). You have no framework lock-in at the shell level.</p>
+      <p><strong>What you don't get:</strong> No automated governance. No component catalog. Components are still React (wrapped in Web Components). The 1-year cadence hasn't started yet.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>What if we stop after Phase 3? <span class="detail-summary">Full visibility but React components</span></summary>
+    <div class="detail-body">
+      <p>Everything from Phases 1-2, plus: full visibility into what's deployed everywhere. Automated scanning catches problems. Governance policies are automated. You know exactly what components exist, who owns them, and what version they're on.</p>
+      <p><strong>What you don't get:</strong> Components are still React. The 1-year core cadence hasn't started. You're still on the React upgrade treadmill for individual components (though each domain manages this independently now).</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>What if we complete all four phases? <span class="detail-summary">Full evolution</span></summary>
+    <div class="detail-body">
+      <p>Independent domains. Standards-based shell. Full governance and visibility. Standards-based components on a predictable 1-year update cadence. Automated migration scripts. No framework lock-in at any level. The platform is built on browser standards and can evolve for the next decade without another major migration.</p>
+      <p>This is the target state. Every architectural choice compounds in your favor over time instead of against you.</p>
+    </div>
+  </details>
+</section>
+
+<!-- Next Steps -->
+<section>
+  <h2>Next: The Mechanics</h2>
+  <p>Now that you understand the strategy, the next two pages dive into the mechanics:</p>
+  <ul>
+    <li><strong><a href="05-copy-split-strip.html">Page 5: Copy, Split, Strip</a></strong> &mdash; The detailed step-by-step process for extracting a domain from the monolith</li>
+    <li><strong><a href="06-domain-map.html">Page 6: The Domain Map</a></strong> &mdash; All the domains defined, with their boundaries and API surfaces</li>
+  </ul>
+</section>
+
+</main>
+
+<div style="max-width:900px;margin:0 auto;padding:0 1.5rem;">
+  <div class="page-nav">
+    <a href="03-why-change.html"><span class="pn-label">&larr; Previous</span><span class="pn-title">The Next Evolution</span></a>
+    <a href="05-copy-split-strip.html" class="next"><span class="pn-label">Next &rarr;</span><span class="pn-title">Copy, Split, Strip</span></a>
+  </div>
+</div>
+
+<footer>Medline Platform Evolution &mdash; v5 &mdash; 2026-04-05 &mdash; Technical Director Series &mdash; Confidential</footer>
+<div class="toast" id="toast">Copied!</div>
+<script src="shared.js"></script>
+</body>
+</html>

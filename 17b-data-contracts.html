@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Standardized Data Contracts &mdash; Medline Platform Evolution</title>
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<div class="progress-bar"></div>
+<nav>
+  <a href="index.html" class="logo">ML Evolution</a>
+  <div class="nav-links">
+    <a href="01-executive-summary.html">Summary</a>
+    <a href="02-current-state.html">Today</a>
+    <a href="03-why-change.html">Why</a>
+    <a href="04-migration-overview.html">Strategy</a>
+    <a href="05-copy-split-strip.html">Copy-Split</a>
+    <a href="06-domain-map.html">Domains</a>
+    <a href="07-catalog-domain.html">Catalog</a>
+    <a href="08-cart-checkout.html">Cart</a>
+    <a href="09-remaining-domains.html">Other</a>
+    <a href="10-shell-architecture.html">Shell</a>
+    <a href="11-shell-swap.html">Swap</a>
+    <a href="12-web-component-wrapping.html">Wrapping</a>
+    <a href="13-hydration-csr.html">CSR</a>
+    <a href="14-component-standards.html">Standards</a>
+    <a href="15-component-transition.html">Transition</a>
+    <a href="16-app-catalog.html">Catalog</a>
+    <a href="17-api-scanning.html">Scanning</a>
+    <a href="17b-data-contracts.html" class="active">Contracts</a>
+    <a href="18-bff-pattern.html">BFF</a>
+    <a href="19-managing-drift.html">Drift</a>
+    <a href="20-core-cadence.html">Cadence</a>
+    <a href="21-testing-strategy.html">Testing</a>
+    <a href="22-blue-green-rollouts.html">Deploy</a>
+    <a href="23-migration-timeline.html">Timeline</a>
+    <a href="24-team-impact.html">Teams</a>
+    <a href="25-key-principles.html">Principles</a>
+    <a href="dev-environment.html">DevEx</a>
+  </div>
+  <button class="theme-toggle" id="themeToggle" title="Toggle theme">&#9790;</button>
+</nav>
+
+<div class="hero">
+  <div class="page-num">Page 17b &mdash; Deep Dive</div>
+  <h1>Standardized Data Contracts</h1>
+  <p class="subtitle">How every API, every event, and every component interface is defined, versioned, and enforced &mdash; automatically.</p>
+</div>
+
+<main>
+
+<!-- ────────────────────────────────────────── -->
+<!-- SECTION 1: What Is a Data Contract? -->
+<!-- ────────────────────────────────────────── -->
+<section>
+  <h2>&#9633; What Is a Data Contract?</h2>
+  <p>A data contract is a <strong>formal agreement about the shape of data</strong> that flows between two systems. Nothing more, nothing less. No ambiguity, no assumptions, no &ldquo;I think the response looks like this.&rdquo;</p>
+  <p>A contract says: <em>&ldquo;I will send you an object with these fields, these types, and these constraints.&rdquo;</em></p>
+  <p>A contract also says: <em>&ldquo;If I change this shape, I will tell you in advance and give you time to adapt.&rdquo;</em></p>
+  <p>In this architecture, every piece of data that crosses a boundary &mdash; between a BFF and a frontend, between domains on the message bus, between a parent page and a child component &mdash; is governed by a typed, versioned, machine-readable contract.</p>
+
+  <h3>Three Types of Contracts</h3>
+  <p>The platform defines three distinct contract types, each governing a different communication boundary:</p>
+  <ol>
+    <li><strong>API Contracts</strong> &mdash; BFF &#9658; Frontend: HTTP request/response shapes (URL, method, body schema, error shapes)</li>
+    <li><strong>Event Contracts</strong> &mdash; Domain &#9658; Message Bus: event name + payload schema for cross-domain communication</li>
+    <li><strong>Component Contracts</strong> &mdash; Parent &#9658; Component: attributes, properties, events, and slots exposed by every <code>ML-</code> component</li>
+  </ol>
+
+  <div class="mermaid-wrap" id="d17b-1">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">&#9974;</button>
+    </div>
+    <div class="mw-view">
+      <div class="mermaid-inner" data-src="graph LR
+  subgraph API[&quot;API Contract&quot;]
+    BFF[BFF Service] -->|JSON Response Schema| FE[Frontend App]
+  end
+  subgraph EVT[&quot;Event Contract&quot;]
+    PUB[Publishing Domain] -->|Event Payload Schema| BUS[Message Bus]
+    BUS -->|Validated Payload| SUB[Subscribing Domain]
+  end
+  subgraph CMP[&quot;Component Contract&quot;]
+    PAR[Parent Page] -->|Attributes + Properties| WC[ML- Component]
+    WC -->|Custom Events| PAR
+  end
+  style BFF fill:#58a6ff,stroke:#58a6ff,color:#fff
+  style FE fill:#58a6ff,stroke:#58a6ff,color:#fff
+  style PUB fill:#d2a8ff,stroke:#d2a8ff,color:#fff
+  style BUS fill:#d2a8ff,stroke:#d2a8ff,color:#fff
+  style SUB fill:#d2a8ff,stroke:#d2a8ff,color:#fff
+  style PAR fill:#3fb950,stroke:#3fb950,color:#fff
+  style WC fill:#3fb950,stroke:#3fb950,color:#fff"></div>
+    </div>
+    <div class="mw-caption">Figure 17b-1: The three contract types governing every data boundary in the platform</div>
+  </div>
+
+  <div class="industry-std">
+    <strong>Industry Standard: Contract-First Development</strong>
+    Contract-first development is the industry standard for distributed systems. OpenAPI, AsyncAPI, GraphQL schemas, and Protocol Buffers all embody this principle &mdash; define the shape before writing the implementation. Every major cloud provider (AWS, Azure, GCP) enforces contract-first patterns in their service mesh architectures.
+  </div>
+</section>
+
+<!-- ────────────────────────────────────────── -->
+<!-- SECTION 2: Why Contracts Matter at Scale -->
+<!-- ────────────────────────────────────────── -->
+<section>
+  <h2>&#9635; Why Contracts Matter at Scale</h2>
+  <p>With 8&ndash;12 independent domain applications, each with its own BFF, its own events, and its own component library &mdash; contracts are the <strong>only thing preventing chaos</strong>.</p>
+
+  <h3>Without Contracts</h3>
+  <p>Team A changes their API response shape on Wednesday. Team B&rsquo;s frontend, which depends on that shape, deploys on Thursday. The page breaks in production. Team B spends Friday debugging. Team A didn&rsquo;t even know Team B was consuming that endpoint.</p>
+
+  <h3>With Contracts</h3>
+  <p>Team A&rsquo;s change is detected <strong>before deployment</strong>. The App Catalog identifies all consumers of that endpoint. Team B is notified automatically. A migration plan is agreed upon. The breaking change ships only after all consumers have adapted.</p>
+
+  <div class="callout success">
+    <strong>Contracts Replace Coordination</strong>
+    Instead of meetings about what changed, the system tells you. Instead of Slack threads asking &ldquo;did you update the response?&rdquo; the contract diff shows you exactly what moved. Contracts turn human coordination into machine enforcement.
+  </div>
+
+  <p>At the scale of this platform &mdash; dozens of BFF endpoints, hundreds of events, thousands of component instances &mdash; human coordination simply does not scale. Contracts do.</p>
+
+  <div class="industry-std">
+    <strong>Industry Standard: Schema Registries in Distributed Systems</strong>
+    Every major event-driven architecture (Apache Kafka with Confluent Schema Registry, AWS EventBridge with schema discovery, Azure Event Grid with schema validation) uses centralized schema registries to enforce contract compliance at runtime. This architecture applies the same principle across APIs, events, and components.
+  </div>
+</section>
+
+<!-- ────────────────────────────────────────── -->
+<!-- SECTION 3: API Contracts: BFF to Frontend -->
+<!-- ────────────────────────────────────────── -->
+<section>
+  <h2>&#9634; API Contracts: BFF to Frontend</h2>
+  <p>Every BFF endpoint exposes a typed contract &mdash; an OpenAPI/Swagger specification that is the single source of truth for that endpoint&rsquo;s behavior.</p>
+
+  <h3>What an API Contract Defines</h3>
+  <ul>
+    <li><strong>URL pattern</strong> &mdash; e.g., <code>GET /api/catalog/products/{id}</code></li>
+    <li><strong>HTTP method</strong> &mdash; GET, POST, PUT, DELETE, PATCH</li>
+    <li><strong>Request body schema</strong> &mdash; typed fields, required vs. optional, constraints</li>
+    <li><strong>Response body schema</strong> &mdash; exact shape of success and error payloads</li>
+    <li><strong>Error shapes</strong> &mdash; standardized error envelope with code, message, and field-level details</li>
+    <li><strong>Headers &amp; authentication</strong> &mdash; required auth tokens, content types, cache directives</li>
+  </ul>
+
+  <h3>How API Contracts Flow</h3>
+  <p>Contracts are <strong>auto-generated from the BFF code</strong> &mdash; there are no manually-written API docs to fall out of sync. The pipeline extracts the contract, registers it in the App Catalog, and generates typed client code for the frontend.</p>
+
+  <div class="mermaid-wrap" id="d17b-2">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">&#9974;</button>
+    </div>
+    <div class="mw-view">
+      <div class="mermaid-inner" data-src="graph TD
+  A[BFF Source Code] -->|Build Step| B[Contract Generation]
+  B -->|OpenAPI Spec| C[App Catalog Registry]
+  C -->|Diff vs Previous| D{Breaking Change?}
+  D -->|No| E[Register New Version]
+  D -->|Yes| F[Block PR + Notify Consumers]
+  E -->|Generate| G[Typed Frontend Client]
+  G -->|Consumed By| H[WCFramework Components]
+  F -->|Migration Window| I[Consumer Adaptation]
+  I -->|All Consumers Ready| E
+  style A fill:#58a6ff,stroke:#58a6ff,color:#fff
+  style C fill:#d2a8ff,stroke:#d2a8ff,color:#fff
+  style D fill:#f0883e,stroke:#f0883e,color:#fff
+  style F fill:#f85149,stroke:#f85149,color:#fff
+  style H fill:#3fb950,stroke:#3fb950,color:#fff"></div>
+    </div>
+    <div class="mw-caption">Figure 17b-2: API contract lifecycle &mdash; from BFF code to frontend consumption with breaking change detection</div>
+  </div>
+
+  <details>
+    <summary>Deep Dive: Breaking Change Detection <span class="detail-summary">What counts as a breaking change</span></summary>
+    <div class="detail-body">
+      <p>The contract diff engine compares the current contract against the previously registered version and flags the following as breaking changes:</p>
+      <ul>
+        <li><strong>Removed field</strong> &mdash; A field that existed in the response is no longer present</li>
+        <li><strong>Type change</strong> &mdash; A field changed from <code>string</code> to <code>number</code>, or from <code>object</code> to <code>array</code></li>
+        <li><strong>New required field in request</strong> &mdash; Consumers must now send a field they didn&rsquo;t before</li>
+        <li><strong>Narrowed enum</strong> &mdash; Enum values were removed, breaking consumers that send those values</li>
+        <li><strong>URL pattern change</strong> &mdash; Endpoint path or method changed</li>
+        <li><strong>Status code change</strong> &mdash; A success response moved from 200 to 201, or error codes changed</li>
+      </ul>
+      <p>Non-breaking changes (new optional fields, new endpoints, wider enums) are registered automatically and do not block PRs.</p>
+    </div>
+  </details>
+</section>
+
+<!-- ────────────────────────────────────────── -->
+<!-- SECTION 4: Event Contracts -->
+<!-- ────────────────────────────────────────── -->
+<section>
+  <h2>&#9670; Event Contracts: Cross-Domain Communication</h2>
+  <p>When a domain publishes an event &mdash; <code>cart-item-added</code>, <code>order-submitted</code>, <code>product-price-changed</code> &mdash; that event has a typed schema that every subscriber can rely on.</p>
+
+  <h3>What an Event Contract Defines</h3>
+  <ul>
+    <li><strong>Event name</strong> &mdash; a namespaced identifier, e.g., <code>cart.item-added</code></li>
+    <li><strong>Payload schema</strong> &mdash; typed fields with required vs. optional markers</li>
+    <li><strong>Metadata</strong> &mdash; timestamp, correlation ID, source domain, schema version</li>
+    <li><strong>Publishing domain</strong> &mdash; which domain owns and emits this event</li>
+    <li><strong>Known subscribers</strong> &mdash; which domains have declared consumption of this event</li>
+  </ul>
+
+  <h3>Declaration Requirements</h3>
+  <p>Publishing domains <strong>must</strong> declare every event they emit. Subscribing domains <strong>must</strong> declare every event they consume. This bidirectional declaration creates a dependency graph the App Catalog uses for impact analysis.</p>
+
+  <h3>Versioning Events</h3>
+  <p>When an event payload needs a breaking change, the publisher creates a new version: <code>cart.item-added-v2</code>. The old version continues to be published during the migration window. Subscribers upgrade on their own schedule. Once all subscribers have migrated, the old version is retired.</p>
+
+  <div class="mermaid-wrap" id="d17b-3">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">&#9974;</button>
+    </div>
+    <div class="mw-view">
+      <div class="mermaid-inner" data-src="graph LR
+  PUB[Publishing Domain] -->|Emit Event| VAL{Schema Validation}
+  VAL -->|Valid| REG[Schema Registry]
+  REG -->|Route| BUS[Message Bus]
+  BUS -->|Deliver| SUB1[Subscriber A]
+  BUS -->|Deliver| SUB2[Subscriber B]
+  BUS -->|Deliver| SUB3[Subscriber C]
+  VAL -->|Invalid Payload| REJ[Rejected + Alert]
+  SUB1 -->|Validate| CHK1{Payload Match?}
+  CHK1 -->|Yes| PROC1[Process Event]
+  CHK1 -->|No| DLQ1[Dead Letter Queue]
+  style PUB fill:#d2a8ff,stroke:#d2a8ff,color:#fff
+  style VAL fill:#f0883e,stroke:#f0883e,color:#fff
+  style REG fill:#58a6ff,stroke:#58a6ff,color:#fff
+  style BUS fill:#58a6ff,stroke:#58a6ff,color:#fff
+  style REJ fill:#f85149,stroke:#f85149,color:#fff
+  style PROC1 fill:#3fb950,stroke:#3fb950,color:#fff
+  style DLQ1 fill:#f85149,stroke:#f85149,color:#fff"></div>
+    </div>
+    <div class="mw-caption">Figure 17b-3: Event contract flow &mdash; schema validation at publish, delivery via message bus, consumer-side validation with dead letter queue for mismatches</div>
+  </div>
+
+  <div class="industry-std">
+    <strong>Industry Standard: AsyncAPI and Schema Registries</strong>
+    AsyncAPI is the OpenAPI equivalent for event-driven architectures. Combined with schema registries (Confluent, AWS Glue, Apicurio), it provides machine-readable event contract definitions that enable automated validation, code generation, and documentation &mdash; exactly the pattern this platform implements.
+  </div>
+</section>
+
+<!-- ────────────────────────────────────────── -->
+<!-- SECTION 5: Component Contracts -->
+<!-- ────────────────────────────────────────── -->
+<section>
+  <h2>&#9671; Component Contracts: The ML- Interface</h2>
+  <p>Every <code>ML-</code> Web Component exposes a typed interface &mdash; this interface <strong>is</strong> the contract between the component author and every consumer on the platform.</p>
+
+  <h3>What a Component Contract Defines</h3>
+  <ul>
+    <li><strong>Attributes</strong> &mdash; HTML attributes the component accepts (e.g., <code>product-id</code>, <code>variant</code>)</li>
+    <li><strong>Properties</strong> &mdash; JavaScript properties for richer data passing (objects, arrays)</li>
+    <li><strong>Events</strong> &mdash; Custom events the component dispatches (e.g., <code>ml-cart-updated</code>), with typed <code>detail</code> payloads</li>
+    <li><strong>Slots</strong> &mdash; Named slots for content projection (e.g., <code>&lt;slot name="header"&gt;</code>)</li>
+    <li><strong>CSS Custom Properties</strong> &mdash; Theming hooks exposed by the component (e.g., <code>--ml-card-radius</code>)</li>
+  </ul>
+
+  <h3>Documented and Discoverable</h3>
+  <p>Every component contract is registered in the App Catalog with live examples, usage documentation, and version history. When a developer needs <code>&lt;ml-product-card&gt;</code>, they find the exact interface, every accepted attribute, every dispatched event, and working code samples &mdash; all in one place.</p>
+
+  <h3>Breaking Change Detection</h3>
+  <p>The catalog detects breaking changes in component contracts: removing an attribute, changing an event&rsquo;s <code>detail</code> payload shape, renaming a slot, or removing a CSS custom property. Consumers pin to component versions via the import map. Upgrades are opt-in &mdash; no team is forced onto a new version until they&rsquo;re ready.</p>
+
+  <div class="mermaid-wrap" id="d17b-4">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">&#9974;</button>
+    </div>
+    <div class="mw-view">
+      <div class="mermaid-inner" data-src="graph TD
+  subgraph Inputs[&quot;Inputs (Consumer to Component)&quot;]
+    ATTR[HTML Attributes]
+    PROP[JS Properties]
+    SLOT[Slotted Content]
+    CSS[CSS Custom Properties]
+  end
+  subgraph Component[&quot;ML- Web Component&quot;]
+    WC[Shadow DOM Boundary]
+  end
+  subgraph Outputs[&quot;Outputs (Component to Consumer)&quot;]
+    EVT[Custom Events]
+    RENDER[Rendered UI]
+  end
+  ATTR --> WC
+  PROP --> WC
+  SLOT --> WC
+  CSS --> WC
+  WC --> EVT
+  WC --> RENDER
+  CAT[App Catalog] -.tracks version.-> WC
+  CAT -.detects breaking changes.-> WC
+  style WC fill:#3fb950,stroke:#3fb950,color:#fff
+  style CAT fill:#58a6ff,stroke:#58a6ff,color:#fff
+  style EVT fill:#d2a8ff,stroke:#d2a8ff,color:#fff"></div>
+    </div>
+    <div class="mw-caption">Figure 17b-4: Component contract &mdash; inputs (attributes, properties, slots, CSS) flow into the component; outputs (events, rendered UI) flow back to consumers</div>
+  </div>
+
+  <div class="industry-std">
+    <strong>Industry Standard: Web Component Interface Documentation</strong>
+    The Custom Elements Manifest (CEM) specification provides a standard JSON format for documenting Web Component interfaces &mdash; attributes, properties, events, slots, and CSS custom properties. Tools like Storybook, API Viewer, and VS Code extensions consume CEM files to provide auto-complete, documentation, and validation. This platform uses CEM as the foundation for component contracts in the App Catalog.
+  </div>
+</section>
+
+<!-- ────────────────────────────────────────── -->
+<!-- SECTION 6: Contract Versioning -->
+<!-- ────────────────────────────────────────── -->
+<section>
+  <h2>&#9641; Contract Versioning</h2>
+  <p>All three contract types &mdash; API, event, and component &mdash; follow the same versioning strategy: <strong>semantic versioning</strong> (MAJOR.MINOR.PATCH).</p>
+
+  <h3>Version Bump Rules</h3>
+  <ul>
+    <li><strong>MAJOR</strong> &mdash; Breaking changes: removed field, type change, renamed endpoint, removed attribute, narrowed enum</li>
+    <li><strong>MINOR</strong> &mdash; Additive changes: new optional field, new endpoint, new event, new component attribute, wider enum</li>
+    <li><strong>PATCH</strong> &mdash; Non-functional changes: documentation updates, bug fixes that don&rsquo;t change the shape, performance improvements</li>
+  </ul>
+
+  <h3>Catalog Enforcement</h3>
+  <p>The App Catalog enforces versioning rules automatically:</p>
+  <ul>
+    <li><strong>MAJOR bumps</strong> require consumer notification and a migration window before the old version is retired</li>
+    <li><strong>MINOR bumps</strong> are safe to adopt &mdash; consumers can upgrade at their convenience</li>
+    <li><strong>PATCH bumps</strong> are transparent &mdash; applied automatically without consumer action</li>
+  </ul>
+
+  <h3>Change-Mod Scripts</h3>
+  <p>When a MAJOR bump occurs, the publishing team provides change-mod scripts &mdash; automated codemods that update consumer code to adapt to the new contract shape. This reduces the migration burden from &ldquo;read the changelog and refactor manually&rdquo; to &ldquo;run the script and verify.&rdquo;</p>
+
+  <table class="compare-table">
+    <thead>
+      <tr>
+        <th>Change Type</th>
+        <th>Version Bump</th>
+        <th>Consumer Impact</th>
+        <th>Automation</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Remove field from response</td>
+        <td class="bad">MAJOR</td>
+        <td>Consumers referencing removed field will break</td>
+        <td class="good">Change-mod script provided</td>
+      </tr>
+      <tr>
+        <td>Change field type (string &#9658; number)</td>
+        <td class="bad">MAJOR</td>
+        <td>Consumers parsing the field will fail</td>
+        <td class="good">Change-mod script provided</td>
+      </tr>
+      <tr>
+        <td>Rename endpoint URL</td>
+        <td class="bad">MAJOR</td>
+        <td>All consumers must update their calls</td>
+        <td class="good">Change-mod script provided</td>
+      </tr>
+      <tr>
+        <td>Add new optional field</td>
+        <td class="good">MINOR</td>
+        <td>None &mdash; existing consumers unaffected</td>
+        <td class="neutral">No action needed</td>
+      </tr>
+      <tr>
+        <td>Add new endpoint</td>
+        <td class="good">MINOR</td>
+        <td>None &mdash; consumers opt in when ready</td>
+        <td class="neutral">No action needed</td>
+      </tr>
+      <tr>
+        <td>Fix documentation typo</td>
+        <td class="good">PATCH</td>
+        <td>None &mdash; invisible to consumers</td>
+        <td class="neutral">Automatic</td>
+      </tr>
+      <tr>
+        <td>Remove component attribute</td>
+        <td class="bad">MAJOR</td>
+        <td>Templates using the attribute will break</td>
+        <td class="good">Change-mod script provided</td>
+      </tr>
+      <tr>
+        <td>Add new optional event</td>
+        <td class="good">MINOR</td>
+        <td>None &mdash; consumers subscribe when ready</td>
+        <td class="neutral">No action needed</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ────────────────────────────────────────── -->
+<!-- SECTION 7: Automated Enforcement -->
+<!-- ────────────────────────────────────────── -->
+<section>
+  <h2>&#9632; Automated Enforcement</h2>
+  <p>The contract system enforces compliance automatically &mdash; no meetings, no review boards, no &ldquo;did you check with the other team?&rdquo; conversations. The system does the checking.</p>
+
+  <h3>Enforcement Layers</h3>
+  <ul>
+    <li><strong>CI Pipeline Gate</strong> &mdash; Every pull request runs contract validation. If your change breaks a consumer, the PR is blocked with a clear message showing which consumers are affected and what broke.</li>
+    <li><strong>Deployment Gate</strong> &mdash; The App Catalog checks all contracts before allowing a deployment to production. Even if a PR slips through, the deployment pipeline catches it.</li>
+    <li><strong>Consumer Notification</strong> &mdash; When a contract changes (even non-breaking), affected domains receive automated notifications via their configured channels (pipeline alerts, team dashboards).</li>
+    <li><strong>Migration Window</strong> &mdash; Breaking changes get a configurable migration window (default: 2 sprints). During this window, both the old and new contract versions are active. After the window closes, the old version is retired.</li>
+    <li><strong>Runtime Validation</strong> &mdash; Event payloads are validated at publish time. Malformed events are rejected before they reach the message bus, preventing corrupt data from cascading through the system.</li>
+  </ul>
+
+  <div class="callout success">
+    <strong>&ldquo;The Best Governance Is Invisible&rdquo;</strong>
+    The best governance is the kind that happens automatically without anyone thinking about it. Developers write code, push PRs, and the system enforces the rules. No governance committees. No approval workflows. No bottlenecks. Just automated, consistent enforcement.
+  </div>
+
+  <div class="mermaid-wrap" id="d17b-5">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">&#9974;</button>
+    </div>
+    <div class="mw-view">
+      <div class="mermaid-inner" data-src="graph TD
+  A[Developer Pushes Code] --> B[CI Pipeline]
+  B --> C[Contract Extraction]
+  C --> D[Diff vs Previous Version]
+  D --> E{Breaking Change?}
+  E -->|No| F[Register New Version]
+  F --> G[Deploy to Production]
+  E -->|Yes| H[Block PR]
+  H --> I[Notify Affected Consumers]
+  I --> J[Migration Window Opens]
+  J --> K[Consumers Adapt]
+  K --> L[All Consumers Ready?]
+  L -->|No| K
+  L -->|Yes| M[Old Version Retired]
+  M --> F
+  style A fill:#58a6ff,stroke:#58a6ff,color:#fff
+  style E fill:#f0883e,stroke:#f0883e,color:#fff
+  style F fill:#3fb950,stroke:#3fb950,color:#fff
+  style G fill:#3fb950,stroke:#3fb950,color:#fff
+  style H fill:#f85149,stroke:#f85149,color:#fff
+  style M fill:#d2a8ff,stroke:#d2a8ff,color:#fff"></div>
+    </div>
+    <div class="mw-caption">Figure 17b-5: Automated enforcement pipeline &mdash; from code push to contract validation, breaking change detection, consumer notification, migration window, and version retirement</div>
+  </div>
+
+  <div class="industry-std">
+    <strong>Industry Standard: Consumer-Driven Contract Testing</strong>
+    Automated contract testing (Pact, Spring Cloud Contract, Specmatic) is the industry standard for service integration in microservice architectures. These tools verify that providers honor the contracts consumers depend on &mdash; before deployment, not after incidents. This platform extends the same principle to events and components, not just HTTP APIs.
+  </div>
+</section>
+
+<!-- ────────────────────────────────────────── -->
+<!-- SECTION 8: What Gets Tracked -->
+<!-- ────────────────────────────────────────── -->
+<section>
+  <h2>&#9642; What Gets Tracked</h2>
+  <p>The contract system isn&rsquo;t limited to request/response shapes. It covers every artifact that crosses a domain boundary, every shared definition, and every versioned asset on the platform.</p>
+
+  <table class="compare-table">
+    <thead>
+      <tr>
+        <th>Contract Type</th>
+        <th>What&rsquo;s Tracked</th>
+        <th>How It&rsquo;s Validated</th>
+        <th>Where It&rsquo;s Stored</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>API Endpoints</strong></td>
+        <td>URL, method, request/response schemas, error shapes, auth requirements</td>
+        <td>OpenAPI diff on every PR; breaking changes block merge</td>
+        <td>App Catalog &mdash; API Registry</td>
+      </tr>
+      <tr>
+        <td><strong>Event Schemas</strong></td>
+        <td>Event name, payload fields, types, required/optional markers, metadata</td>
+        <td>AsyncAPI schema validation at publish time; registry diff on PR</td>
+        <td>App Catalog &mdash; Event Registry</td>
+      </tr>
+      <tr>
+        <td><strong>Component Interfaces</strong></td>
+        <td>Attributes, properties, events, slots, CSS custom properties</td>
+        <td>Custom Elements Manifest diff; attribute removal detection</td>
+        <td>App Catalog &mdash; Component Registry</td>
+      </tr>
+      <tr>
+        <td><strong>Shared Type Definitions</strong></td>
+        <td>Common types used across domains (Address, Money, ProductRef, etc.)</td>
+        <td>Type-level diff; field changes trigger consumer impact analysis</td>
+        <td>App Catalog &mdash; Shared Types Registry</td>
+      </tr>
+      <tr>
+        <td><strong>CDN Asset Versions</strong></td>
+        <td>Bundle URLs, content hashes, dependency maps, load order</td>
+        <td>Hash verification on deploy; stale reference detection</td>
+        <td>App Catalog &mdash; Asset Registry</td>
+      </tr>
+      <tr>
+        <td><strong>Import Map Entries</strong></td>
+        <td>Module specifier &#9658; URL mappings, version pins, scoped overrides</td>
+        <td>Consistency check: all referenced URLs must resolve; no orphaned entries</td>
+        <td>App Catalog &mdash; Import Map Registry</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="industry-std">
+    <strong>Industry Standard: Machine-Readable Contract Registries</strong>
+    A machine-readable contract registry is the foundation of automated governance for distributed systems. Netflix (Conductor), Uber (Schemaless), and Airbnb (Knowledge Graph) all maintain centralized registries that catalog every service contract, enabling automated impact analysis, dependency visualization, and safe refactoring at scale.
+  </div>
+
+  <details>
+    <summary>Deep Dive: Dependency Graph Visualization <span class="detail-summary">How the catalog maps contract dependencies</span></summary>
+    <div class="detail-body">
+      <p>The App Catalog builds a live dependency graph from contract registrations:</p>
+      <ul>
+        <li><strong>API dependencies:</strong> Which frontends call which BFF endpoints</li>
+        <li><strong>Event dependencies:</strong> Which domains publish which events, and which domains subscribe</li>
+        <li><strong>Component dependencies:</strong> Which pages render which components, and at which versions</li>
+        <li><strong>Shared type dependencies:</strong> Which contracts reference which shared type definitions</li>
+      </ul>
+      <p>This graph powers impact analysis: when any contract changes, the catalog traverses the dependency graph to identify every affected consumer. No manual tracking. No stale spreadsheets. Just a live, always-current map of who depends on what.</p>
+      <p>The graph is queryable: &ldquo;Show me everything that depends on <code>ProductSummary</code> v2&rdquo; returns every API endpoint, every event, and every component that references that type &mdash; across all domains.</p>
+    </div>
+  </details>
+</section>
+
+<!-- ────────────────────────────────────────── -->
+<!-- SECTION 9: Putting It All Together -->
+<!-- ────────────────────────────────────────── -->
+<section>
+  <h2>&#9633; The Contract-Governed Platform</h2>
+  <p>Data contracts are not a separate system bolted onto the architecture. They are <strong>woven into every layer</strong> &mdash; from the moment a developer writes a BFF endpoint to the moment a component renders in the browser.</p>
+
+  <div class="themes-grid">
+    <div class="theme-card">
+      <div class="theme-icon">&#9635;</div>
+      <h4>Typed Everywhere</h4>
+      <p>Every boundary has a typed contract. BFF endpoints, message bus events, component interfaces, shared types. No untyped data crosses a domain boundary.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#9634;</div>
+      <h4>Versioned Always</h4>
+      <p>Every contract has a version. Changes are tracked, diffed, and categorized. Consumers choose when to upgrade. No surprises.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#9632;</div>
+      <h4>Enforced Automatically</h4>
+      <p>CI gates, deployment checks, and runtime validation ensure contract compliance without human intervention. The system enforces the rules.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#9670;</div>
+      <h4>Visible Centrally</h4>
+      <p>The App Catalog provides a single pane of glass: every contract, every version, every consumer, every dependency. One place to see the entire data landscape.</p>
+    </div>
+  </div>
+
+  <p>The result is a platform where 8&ndash;12 independent domain teams can ship on their own schedule, confident that their changes won&rsquo;t break anyone else &mdash; because the contracts guarantee it.</p>
+
+  <div class="callout">
+    <strong>Next: The BFF Pattern</strong>
+    Data contracts define the <em>shape</em> of communication. The BFF pattern defines the <em>strategy</em> &mdash; how each domain exposes exactly the data its frontend needs, nothing more. <a href="18-bff-pattern.html">Continue to the BFF pattern &rarr;</a>
+  </div>
+</section>
+
+</main>
+
+<div style="max-width:900px;margin:0 auto;padding:0 1.5rem;">
+  <div class="page-nav">
+    <a href="17-api-scanning.html"><span class="pn-label">&larr; Previous</span><span class="pn-title">API Contract Scanning</span></a>
+    <a href="18-bff-pattern.html" class="next"><span class="pn-label">Next &rarr;</span><span class="pn-title">The BFF Pattern</span></a>
+  </div>
+</div>
+
+<footer>Medline Platform Evolution &mdash; v5 &mdash; 2026-04-05 &mdash; Technical Director Series &mdash; Confidential</footer>
+<div class="toast" id="toast">Copied!</div>
+<script src="shared.js"></script>
+</body>
+</html>

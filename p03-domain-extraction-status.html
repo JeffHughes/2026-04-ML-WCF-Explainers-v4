@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Domain Extraction: What's Done, What's Next &mdash; Medline Platform Evolution</title>
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<div class="progress-bar"></div>
+<nav>
+  <a href="p-index.html" class="logo">ML Progress</a>
+  <div class="nav-links">
+    <a href="index.html">&larr; Migration Series</a>
+    <a href="p01-executive-dashboard.html">Dashboard</a>
+    <a href="p02-poc-results.html">POCs</a>
+    <a href="p03-domain-extraction-status.html" class="active">Domains</a>
+    <a href="p04-shell-and-components.html">Shell</a>
+    <a href="p05-infrastructure-status.html">Infra</a>
+    <a href="p06-risk-register.html">Risks</a>
+    <a href="p07-next-milestones.html">Next 90d</a>
+  </div>
+  <button class="theme-toggle" id="themeToggle" title="Toggle theme">&#9790;</button>
+</nav>
+
+<div class="hero">
+  <div class="page-num">Delivery Tracking &middot; P3</div>
+  <h1>Domain Extraction: What&rsquo;s Done, What&rsquo;s Next</h1>
+  <p class="subtitle">Status of every domain extraction &mdash; from the Catalog that&rsquo;s already running independently to the Admin domain planned for Q4.</p>
+</div>
+
+<main>
+
+<!-- Domain Progress Overview -->
+<section>
+  <h2>Extraction Progress Overview</h2>
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="stat-num green">2</div>
+      <div class="stat-label">Domains Extracted</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">2</div>
+      <div class="stat-label">In Progress</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num purple">5</div>
+      <div class="stat-label">Planned</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num orange">0</div>
+      <div class="stat-label">Blocked</div>
+    </div>
+  </div>
+
+  <table class="compare-table">
+    <thead>
+      <tr><th>Domain</th><th>Status</th><th>Progress</th><th>Target</th><th>Notes</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Catalog</td><td class="good">&#9989; Extracted</td><td class="good">100%</td><td>Feb 14</td><td>Running independently in K8s since Feb 12</td></tr>
+      <tr><td>Shared/Core</td><td class="good">&#9989; Extracted</td><td class="good">100%</td><td>Feb 21</td><td>Header, footer, auth on CDN since Feb 20</td></tr>
+      <tr><td>Cart</td><td class="neutral">&#128309; In Progress</td><td class="neutral">80%</td><td>Apr 11</td><td>State management tested, payment hooks remaining</td></tr>
+      <tr><td>Search</td><td class="neutral">&#128309; In Progress</td><td class="neutral">60%</td><td>Apr 25</td><td>Typeahead &amp; PLP decoupled, facets in progress</td></tr>
+      <tr><td>Mini-Cart</td><td>&#9898; Planned</td><td>0%</td><td>May 22</td><td>Depends on Cart completion, Q2 start</td></tr>
+      <tr><td>Checkout</td><td>&#9898; Planned</td><td>0%</td><td>Jun 12</td><td>Payment &amp; address flows, Q2 start</td></tr>
+      <tr><td>Account</td><td>&#9898; Planned</td><td>0%</td><td>Jul 24</td><td>Auth, profile, order history &mdash; Q3</td></tr>
+      <tr><td>Content/CMS</td><td>&#9898; Planned</td><td>0%</td><td>Aug 14</td><td>Static content, banners, SEO pages &mdash; Q3</td></tr>
+      <tr><td>Admin</td><td>&#9898; Planned</td><td>0%</td><td>Q4</td><td>Internal tooling, lowest customer impact</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- Completed: Catalog -->
+<section>
+  <h2>&#9989; Catalog &mdash; Extracted &amp; Running</h2>
+  <p>The Catalog domain was the first extraction and served as the template for all subsequent domains. It has been running independently in K8s since February 12, 2026.</p>
+
+  <details>
+    <summary>What Was Extracted <span class="detail-summary">Catalog domain details</span></summary>
+    <div class="detail-body">
+      <h4>Scope</h4>
+      <ul>
+        <li>Product Listing Pages (PLP) &mdash; category browse, search results grid</li>
+        <li>Product Detail Pages (PDP) &mdash; product info, images, specs, reviews</li>
+        <li>Catalog BFF &mdash; 8 API endpoints serving product data</li>
+        <li>14 React components specific to catalog functionality</li>
+      </ul>
+      <h4>What Remained in Monolith</h4>
+      <ul>
+        <li>Cart integration points &mdash; &ldquo;Add to Cart&rdquo; button uses message bus to Cart domain</li>
+        <li>Search typeahead &mdash; owned by Search domain, Catalog consumes results</li>
+      </ul>
+      <h4>Results</h4>
+      <ul>
+        <li>347 unit tests passing, 28 integration tests passing</li>
+        <li>Bundle size reduced 12% from monolith baseline</li>
+        <li>Deploy time: 4 minutes (was 18 minutes in monolith)</li>
+        <li>Zero production incidents since extraction</li>
+      </ul>
+    </div>
+  </details>
+
+  <div class="industry-std">
+    <strong>Industry Standard: First Domain as Template</strong>
+    The first domain extraction creates the playbook for all others: Helm charts, CI/CD pipeline configs, monitoring dashboards, and runbooks. Every subsequent extraction follows this proven template.
+  </div>
+</section>
+
+<!-- Completed: Shared/Core -->
+<section>
+  <h2>&#9989; Shared/Core &mdash; Isolated &amp; Published</h2>
+  <p>The Shared/Core layer &mdash; header, footer, authentication, and cross-cutting utilities &mdash; was isolated and published to the CDN as independently loaded modules.</p>
+
+  <details>
+    <summary>What Was Isolated <span class="detail-summary">Shared/Core details</span></summary>
+    <div class="detail-body">
+      <h4>Scope</h4>
+      <ul>
+        <li><code>ml-header</code> &mdash; Global navigation header with user context</li>
+        <li><code>ml-footer</code> &mdash; Site footer with legal links and site map</li>
+        <li><code>ml-auth-provider</code> &mdash; Authentication context and token management</li>
+        <li><code>ml-breadcrumb</code> &mdash; Navigation breadcrumbs</li>
+        <li>12 utility functions (formatting, validation, analytics hooks)</li>
+      </ul>
+      <h4>How It Works</h4>
+      <p>Shared/Core is loaded once via the import map and consumed by all domains. It does not have its own deployment pipeline &mdash; it deploys to CDN on merge to main, and domains pick up the latest version automatically via import map resolution.</p>
+    </div>
+  </details>
+</section>
+
+<!-- In Progress: Cart -->
+<section>
+  <h2>&#128309; Cart &mdash; 80% Complete</h2>
+  <p>The Cart domain extraction is in its final stage. Core cart state management, item CRUD operations, and promotion calculations are decoupled. Payment integration hooks and Mini-Cart coordination remain.</p>
+
+  <details>
+    <summary>What&rsquo;s Done vs. What Remains <span class="detail-summary">Cart extraction details</span></summary>
+    <div class="detail-body">
+      <h4>&#9989; Completed</h4>
+      <ul>
+        <li>Cart repository created from monolith copy</li>
+        <li>Non-Cart code stripped (routes, components, API handlers)</li>
+        <li>Cart BFF running with 6 endpoints operational</li>
+        <li>Cart state management decoupled from monolith global store</li>
+        <li>Promotion engine extracted with all 23 promotion rules</li>
+        <li>Message bus integration for Cart &harr; Mini-Cart communication</li>
+        <li>182 unit tests passing, 14 integration tests passing</li>
+      </ul>
+      <h4>&#128309; Remaining</h4>
+      <ul>
+        <li>Payment gateway integration hooks (Stripe, PayPal callbacks) &mdash; <em>estimated 3 days</em></li>
+        <li>Saved cart / wishlist persistence layer &mdash; <em>estimated 2 days</em></li>
+        <li>K8s deployment validation and load testing &mdash; <em>estimated 1 day</em></li>
+      </ul>
+      <h4>Blockers</h4>
+      <p>None. The remaining work has no external dependencies.</p>
+    </div>
+  </details>
+</section>
+
+<!-- In Progress: Search -->
+<section>
+  <h2>&#128309; Search &mdash; 60% Complete</h2>
+  <p>Search extraction is progressing well. Typeahead and basic PLP search are decoupled. Faceted search and personalization hooks are the next focus areas.</p>
+
+  <details>
+    <summary>What&rsquo;s Done vs. What Remains <span class="detail-summary">Search extraction details</span></summary>
+    <div class="detail-body">
+      <h4>&#9989; Completed</h4>
+      <ul>
+        <li>Search repository created from monolith copy</li>
+        <li>Non-Search code stripped</li>
+        <li>Search BFF created with 3 of 5 endpoints operational</li>
+        <li>Typeahead search fully decoupled and tested</li>
+        <li>PLP search results rendering independently</li>
+        <li>94 unit tests passing</li>
+      </ul>
+      <h4>&#128309; Remaining</h4>
+      <ul>
+        <li>Faceted search filters (category, brand, price range) &mdash; <em>estimated 5 days</em></li>
+        <li>Personalization hooks (recently viewed, purchase history weighting) &mdash; <em>estimated 3 days</em></li>
+        <li>Search BFF endpoints 4 &amp; 5 (autocomplete suggestions, search analytics) &mdash; <em>estimated 2 days</em></li>
+        <li>K8s deployment and performance validation &mdash; <em>estimated 2 days</em></li>
+      </ul>
+      <h4>Blockers</h4>
+      <p>Personalization requires Account BFF data (POC 3 found this dependency). Workaround: Search BFF will call Account BFF directly via internal service mesh until Account is fully extracted.</p>
+    </div>
+  </details>
+</section>
+
+<!-- Planned Domains -->
+<section>
+  <h2>&#9898; Planned Domains</h2>
+  <div class="themes-grid">
+    <div class="theme-card">
+      <div class="theme-icon">&#128722;</div>
+      <h4>Mini-Cart &mdash; Q2</h4>
+      <p>Flyout cart overlay with item count badge. Depends on Cart extraction. Lightweight &mdash; estimated 2&ndash;3 weeks. Communicates via message bus.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#128179;</div>
+      <h4>Checkout &mdash; Q2</h4>
+      <p>Multi-step checkout flow: shipping, payment, review, confirmation. Heaviest state management. Depends on Cart + Account. Estimated 4&ndash;5 weeks.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#128100;</div>
+      <h4>Account &mdash; Q3</h4>
+      <p>User profile, order history, saved addresses, authentication flows. Foundational for Checkout personalization. Estimated 4 weeks.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#128196;</div>
+      <h4>Content/CMS &mdash; Q3</h4>
+      <p>Static content pages, promotional banners, landing pages. SEO-critical &mdash; uses pre-rendering strategy. Estimated 3&ndash;4 weeks.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#9881;&#65039;</div>
+      <h4>Admin &mdash; Q4</h4>
+      <p>Internal admin tools, product management, order management. No customer impact &mdash; lowest priority. Estimated 4&ndash;5 weeks.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Extraction Progress Chart -->
+<section>
+  <h2>Extraction Progress Chart</h2>
+  <div class="mermaid-wrap" id="dp03-1">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">&#9974;</button>
+    </div>
+    <div class="mw-view">
+      <div class="mermaid-inner" data-src="gantt
+  title Domain Extraction Schedule
+  dateFormat YYYY-MM-DD
+  axisFormat %b
+
+  section Completed
+  Catalog               :done, cat, 2026-01-27, 2026-02-14
+  Shared/Core           :done, core, 2026-02-03, 2026-02-21
+
+  section In Progress
+  Cart                  :active, cart, 2026-03-02, 2026-04-11
+  Search                :active, search, 2026-03-16, 2026-04-25
+
+  section Planned Q2
+  Mini-Cart             :mc, 2026-04-27, 2026-05-22
+  Checkout              :co, 2026-05-04, 2026-06-12
+
+  section Planned Q3-Q4
+  Account               :acc, 2026-06-15, 2026-07-24
+  Content/CMS           :cms, 2026-07-06, 2026-08-14
+  Admin                 :adm, 2026-09-01, 2026-10-17"></div>
+    </div>
+    <div class="mw-caption">Domain extraction schedule &mdash; each domain follows the proven copy-split-strip template</div>
+  </div>
+</section>
+
+<!-- Dependency Map -->
+<section>
+  <h2>Extraction Order Rationale</h2>
+  <p>Domains are extracted in dependency order &mdash; foundational domains first, dependent domains after. This minimizes cross-domain coordination during extraction.</p>
+
+  <div class="mermaid-wrap" id="dp03-2">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">&#9974;</button>
+    </div>
+    <div class="mw-view">
+      <div class="mermaid-inner" data-src="graph TD
+  CORE[Shared/Core] --> CAT[Catalog]
+  CORE --> CART[Cart]
+  CORE --> SEARCH[Search]
+  CORE --> ACC[Account]
+  CART --> MC[Mini-Cart]
+  CART --> CO[Checkout]
+  ACC --> CO
+  SEARCH --> CAT
+  ACC --> SEARCH
+  CORE --> CMS[Content/CMS]
+  CORE --> ADM[Admin]
+
+  style CORE fill:#3fb950,stroke:#3fb950,color:#fff
+  style CAT fill:#3fb950,stroke:#3fb950,color:#fff
+  style CART fill:#58a6ff,stroke:#58a6ff,color:#fff
+  style SEARCH fill:#58a6ff,stroke:#58a6ff,color:#fff
+  style MC fill:#8b949e,stroke:#8b949e,color:#fff
+  style CO fill:#8b949e,stroke:#8b949e,color:#fff
+  style ACC fill:#8b949e,stroke:#8b949e,color:#fff
+  style CMS fill:#8b949e,stroke:#8b949e,color:#fff
+  style ADM fill:#8b949e,stroke:#8b949e,color:#fff"></div>
+    </div>
+    <div class="mw-caption">Domain dependency map &mdash; green = extracted, blue = in progress, gray = planned</div>
+  </div>
+
+  <div class="industry-std">
+    <strong>Industry Standard: Dependency-Ordered Extraction</strong>
+    Extracting foundational domains first (Shared/Core, Catalog) creates stable interfaces that dependent domains can rely on. This is the same topological-sort approach used by every major monolith decomposition playbook.
+  </div>
+</section>
+
+</main>
+
+<div style="max-width:900px;margin:0 auto;padding:0 1.5rem;">
+  <div class="page-nav">
+    <a href="p02-poc-results.html"><span class="pn-label">&larr; Previous</span><span class="pn-title">POC Results</span></a>
+    <a href="p04-shell-and-components.html" class="next"><span class="pn-label">Next &rarr;</span><span class="pn-title">Shell &amp; Components</span></a>
+  </div>
+</div>
+
+<footer>Medline Platform Evolution &mdash; Progress Dashboard &mdash; v5 &mdash; 2026-04-05 &mdash; Confidential</footer>
+<div class="toast" id="toast">Copied!</div>
+<script src="shared.js"></script>
+</body>
+</html>

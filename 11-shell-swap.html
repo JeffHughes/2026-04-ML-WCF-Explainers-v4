@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Shell Swap: Next.js to WCFramework &mdash; Medline Platform Evolution</title>
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<div class="progress-bar"></div>
+<nav>
+  <a href="index.html" class="logo">ML Evolution</a>
+  <div class="nav-links">
+    <a href="01-executive-summary.html">Summary</a>
+    <a href="02-current-state.html">Today</a>
+    <a href="03-why-change.html">Why</a>
+    <a href="04-migration-overview.html">Strategy</a>
+    <a href="05-copy-split-strip.html">Copy-Split</a>
+    <a href="06-domain-map.html">Domains</a>
+    <a href="07-catalog-domain.html">Catalog</a>
+    <a href="08-cart-checkout.html">Cart</a>
+    <a href="09-remaining-domains.html">Other</a>
+    <a href="10-shell-architecture.html">Shell</a>
+    <a href="11-shell-swap.html" class="active">Swap</a>
+    <a href="12-web-component-wrapping.html">Wrapping</a>
+    <a href="13-hydration-csr.html">CSR</a>
+    <a href="14-component-standards.html">Standards</a>
+    <a href="15-component-transition.html">Transition</a>
+    <a href="16-app-catalog.html">Catalog</a>
+    <a href="17-api-scanning.html">Scanning</a>
+    <a href="18-bff-pattern.html">BFF</a>
+    <a href="19-managing-drift.html">Drift</a>
+    <a href="20-core-cadence.html">Cadence</a>
+    <a href="21-testing-strategy.html">Testing</a>
+    <a href="22-blue-green-rollouts.html">Deploy</a>
+    <a href="23-migration-timeline.html">Timeline</a>
+    <a href="24-team-impact.html">Teams</a>
+    <a href="25-key-principles.html">Principles</a>
+    <a href="dev-environment.html">DevEx</a>
+  </div>
+  <button class="theme-toggle" id="themeToggle" title="Toggle theme">&#9790;</button>
+</nav>
+<div class="hero">
+  <div class="page-num">New Architecture</div>
+  <h1>The Shell Swap: Next.js to WCFramework</h1>
+  <p class="subtitle">How to replace the legacy SSR shell with a standards-based CSR shell &mdash; without downtime, without risk, with instant rollback</p>
+</div>
+<main>
+
+  <!-- ════════════════════════════════════════════ -->
+  <section>
+    <h2>The Four-Phase Shell Swap</h2>
+    <p>The shell swap is not a &ldquo;big bang&rdquo; migration. It happens in four controlled phases, each independently verifiable and reversible. At no point is there a moment where &ldquo;everything switches at once.&rdquo;</p>
+
+    <div class="mermaid-wrap" id="d11-1">
+      <div class="mw-toolbar">
+        <button onclick="mzoom(this,1.2)">+</button>
+        <button onclick="mzoom(this,0.8)">&minus;</button>
+        <button onclick="mreset(this)">Reset</button>
+        <button onclick="mfull(this)">&#x26F6;</button>
+      </div>
+      <div class="mw-view"><div class="mermaid-inner" data-src="graph LR
+    subgraph P1[&quot;Phase 1: Domains Extracted&quot;]
+      OLD1[Next.js SSR Shell]
+      D1A[Catalog SSR Copy]
+      D1B[Cart SSR Copy]
+      D1C[Other SSR Copies]
+    end
+    subgraph P2[&quot;Phase 2: New Shell Deployed&quot;]
+      OLD2[Next.js Shell — primary]
+      NEW2[WCFramework CSR Shell — preview]
+      D2A[Catalog Module]
+      D2B[Cart Module]
+    end
+    subgraph P3[&quot;Phase 3: React MFEs Wrapped&quot;]
+      NEW3[WCFramework CSR Shell]
+      WC3A[Catalog as Web Component]
+      WC3B[Cart as Web Component]
+      WC3C[Checkout as Web Component]
+    end
+    subgraph P4[&quot;Phase 4: Traffic Shifted&quot;]
+      NEW4[WCFramework CSR Shell — 100%]
+      OLD4[Next.js Shell — decommissioned]
+    end
+
+    P1 -->|Deploy new shell alongside| P2
+    P2 -->|Wrap existing MFEs| P3
+    P3 -->|Gradual traffic shift| P4
+
+    style P1 fill:#3d1418,stroke:#f85149,color:#e6edf3
+    style P2 fill:#3d2a14,stroke:#f0883e,color:#e6edf3
+    style P3 fill:#1a2744,stroke:#58a6ff,color:#e6edf3
+    style P4 fill:#0d2818,stroke:#3fb950,color:#e6edf3"></div></div>
+      <div class="mw-caption">Four-phase shell swap &mdash; from legacy SSR to standards-based CSR, each phase independently reversible</div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════ -->
+  <section>
+    <h2>Phase 1: Domains Are Extracted</h2>
+    <p>Before the shell swap begins, domains have already been extracted using the Copy-Split-Strip pattern (pages 5&ndash;9). Each domain runs as its own service with its own SSR shell &mdash; still Next.js, still React, but independently deployed.</p>
+
+    <h3>What This Looks Like</h3>
+    <ul>
+      <li>Catalog runs at <code>medline-catalog</code> serving <code>/products/*</code>, <code>/product/*</code>, <code>/category/*</code></li>
+      <li>Cart runs at <code>medline-cart</code> serving <code>/cart</code></li>
+      <li>Each service has its own Next.js instance doing SSR</li>
+      <li>An ingress controller routes traffic to the right service based on URL path</li>
+      <li>Users don&rsquo;t notice any difference &mdash; the experience looks identical</li>
+    </ul>
+
+    <div class="callout">
+      <strong>&#128161; Why Not Jump Straight to CSR?</strong>
+      Because you need to <strong>prove domain independence first</strong>. If domains can&rsquo;t deploy independently with their existing SSR shells, they certainly can&rsquo;t do it with a new CSR shell. Phase 1 validates the domain boundaries before introducing a new rendering model.
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════ -->
+  <section>
+    <h2>Phase 2: New Shell Deployed Alongside</h2>
+    <p>The new WCFramework CSR shell is deployed as a separate service. It&rsquo;s not replacing anything yet &mdash; it runs alongside the old shell, accessible via a feature flag, an internal-only URL, or a specific cookie.</p>
+
+    <h3>Deployment Setup</h3>
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Aspect</th>
+          <th>Old Shell (Next.js SSR)</th>
+          <th>New Shell (WCFramework CSR)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>URL</td>
+          <td><code>www.medline.com/*</code></td>
+          <td><code>preview.medline.com/*</code> (or feature flag)</td>
+        </tr>
+        <tr>
+          <td>Rendering</td>
+          <td>Server-side via Node.js</td>
+          <td>Client-side via static HTML + JS from CDN</td>
+        </tr>
+        <tr>
+          <td>Domain modules</td>
+          <td>React MFEs loaded via Module Federation</td>
+          <td>Same React MFEs wrapped as Web Components</td>
+        </tr>
+        <tr>
+          <td>Infrastructure</td>
+          <td>K8s pods running Node.js SSR servers</td>
+          <td>Static files on CDN (no server)</td>
+        </tr>
+        <tr>
+          <td>Who sees it</td>
+          <td>All production users</td>
+          <td>Internal testers only</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>During Phase 2, the new shell is thoroughly tested by internal teams. Every page is compared side-by-side with the old shell. Visual regression tests run against both. Performance metrics are compared. Only when confidence is high does the team move to Phase 3.</p>
+  </section>
+
+  <!-- ════════════════════════════════════════════ -->
+  <section>
+    <h2>Phase 3: React MFEs Wrapped as Web Components</h2>
+    <p>This is where the magic happens. Existing React micro frontends are wrapped in thin Web Component adapters (detailed on the next page). From the new shell&rsquo;s perspective, every domain is just a custom element: <code>&lt;ml-catalog-plp&gt;</code>, <code>&lt;ml-cart-page&gt;</code>, <code>&lt;ml-checkout-flow&gt;</code>.</p>
+
+    <h3>What Changes for Domain Teams</h3>
+    <ul>
+      <li><strong>Add a Web Component wrapper</strong> &mdash; A thin adapter (~50 lines) that mounts the React app inside a custom element with Shadow DOM</li>
+      <li><strong>Register the custom element</strong> &mdash; <code>customElements.define('ml-catalog-plp', CatalogPLPElement)</code></li>
+      <li><strong>Publish to CDN</strong> &mdash; The domain module (React code + wrapper) is built and published as a versioned ES module</li>
+      <li><strong>No React code changes</strong> &mdash; The React components inside the wrapper don&rsquo;t change at all. They render exactly as before.</li>
+    </ul>
+
+    <div class="industry-std">
+      <strong>Industry Standard: Progressive Migration via Web Component Wrappers</strong>
+      Wrapping existing framework components in Web Components is a proven migration strategy used by Google (wrapping Polymer in Lit), GitHub (wrapping jQuery in Web Components), and Salesforce (wrapping Aura in Lightning Web Components). The wrapper provides a standards-based interface while the internals migrate at their own pace.
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════ -->
+  <section>
+    <h2>Phase 4: Traffic Shift</h2>
+    <p>With the new shell tested and all domains wrapped, traffic is gradually shifted from the old shell to the new one. This uses the same percentage-based rollout used for domain extraction:</p>
+
+    <h3>Rollout Schedule</h3>
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Stage</th>
+          <th>New Shell Traffic %</th>
+          <th>Duration</th>
+          <th>Gate Criteria</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Canary</td>
+          <td>1%</td>
+          <td>2 days</td>
+          <td>Error rate &lt; baseline, Core Web Vitals stable</td>
+        </tr>
+        <tr>
+          <td>Early Adopter</td>
+          <td>5%</td>
+          <td>3 days</td>
+          <td>No P1/P2 incidents, conversion rate stable</td>
+        </tr>
+        <tr>
+          <td>Ramp 1</td>
+          <td>25%</td>
+          <td>5 days</td>
+          <td>Performance metrics match or exceed old shell</td>
+        </tr>
+        <tr>
+          <td>Ramp 2</td>
+          <td>50%</td>
+          <td>5 days</td>
+          <td>No regressions at scale</td>
+        </tr>
+        <tr>
+          <td>Full</td>
+          <td>100%</td>
+          <td>&mdash;</td>
+          <td>Old shell decommissioned</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="mermaid-wrap" id="d11-2">
+      <div class="mw-toolbar">
+        <button onclick="mzoom(this,1.2)">+</button>
+        <button onclick="mzoom(this,0.8)">&minus;</button>
+        <button onclick="mreset(this)">Reset</button>
+        <button onclick="mfull(this)">&#x26F6;</button>
+      </div>
+      <div class="mw-view"><div class="mermaid-inner" data-src="graph TB
+    subgraph LB[&quot;Load Balancer / Feature Flag&quot;]
+      SPLIT{Traffic Split}
+    end
+    subgraph OLD[&quot;Old Shell — Next.js SSR&quot;]
+      OLD_SSR[Node.js SSR Server]
+      OLD_REACT[React MFEs via Module Federation]
+    end
+    subgraph NEW[&quot;New Shell — WCFramework CSR&quot;]
+      NEW_CDN[Static HTML + JS from CDN]
+      NEW_WC[React MFEs as Web Components]
+    end
+    subgraph ROLLBACK[&quot;Rollback Path&quot;]
+      FLAG[Set flag to 0%]
+      INSTANT[All traffic → Old Shell]
+    end
+
+    SPLIT -->|X% traffic| NEW
+    SPLIT -->|100-X% traffic| OLD
+    NEW -.->|If issues detected| FLAG
+    FLAG --> INSTANT
+
+    style LB fill:#1a2744,stroke:#58a6ff,color:#e6edf3
+    style OLD fill:#3d1418,stroke:#f85149,color:#e6edf3
+    style NEW fill:#0d2818,stroke:#3fb950,color:#e6edf3
+    style ROLLBACK fill:#3d2a14,stroke:#f0883e,color:#e6edf3"></div></div>
+      <div class="mw-caption">Traffic migration flow &mdash; gradual shift with instant rollback via feature flag or load balancer rules</div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════ -->
+  <section>
+    <h2>Why WCFramework?</h2>
+    <p>The new shell is built with the WCFramework &mdash; a standards-based component framework that uses browser-native APIs exclusively. Here&rsquo;s why this choice matters for a platform that needs to last 10+ years:</p>
+
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Factor</th>
+          <th>Next.js / React Shell</th>
+          <th>WCFramework CSR Shell</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Standards compliance</td>
+          <td class="bad">Proprietary JSX, virtual DOM, React-specific APIs</td>
+          <td class="good">W3C Custom Elements, Shadow DOM, HTML Templates, ES Modules</td>
+        </tr>
+        <tr>
+          <td>Framework lock-in</td>
+          <td class="bad">All MFEs must use React. Version upgrades affect everyone.</td>
+          <td class="good">No lock-in. Domains can use any internal framework (or none).</td>
+        </tr>
+        <tr>
+          <td>Upgrade path</td>
+          <td class="bad">React 17 → 18 → 19 → ... requires coordinated migration</td>
+          <td class="good">Browser standards are forever. No framework upgrade cycle.</td>
+        </tr>
+        <tr>
+          <td>Server infrastructure</td>
+          <td class="bad">Node.js SSR servers (compute, scaling, memory)</td>
+          <td class="good">Static files on CDN (no servers to manage)</td>
+        </tr>
+        <tr>
+          <td>Expected lifespan</td>
+          <td class="bad">React&rsquo;s API surface changes every 2&ndash;3 years</td>
+          <td class="good">Browser standards last 10&ndash;20+ years</td>
+        </tr>
+        <tr>
+          <td>Team independence</td>
+          <td class="bad">Shared React runtime creates coupling</td>
+          <td class="good">Web Component boundaries provide true isolation</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout success">
+      <strong>&#9989; The Shell Becomes Infrastructure, Not Application</strong>
+      With WCFramework, the shell is more like a web server than an application. It routes requests, serves static content, and provides shared infrastructure. It has no opinions about what framework domains use internally. It just needs them to register a custom element. That&rsquo;s the entire contract.
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════ -->
+  <section>
+    <h2>Rollback: The Safety Net</h2>
+    <p>At every phase of the swap, rollback is instant and requires no code changes:</p>
+
+    <details>
+      <summary>Phase 2 Rollback <span class="detail-summary">New shell is preview-only, no traffic impact</span></summary>
+      <div class="detail-body">
+        <p>The new shell is only accessible to internal testers. To &ldquo;rollback,&rdquo; simply turn off the preview URL or remove the feature flag. Zero production impact.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary>Phase 3 Rollback <span class="detail-summary">Web Component wrappers are additive, not destructive</span></summary>
+      <div class="detail-body">
+        <p>The Web Component wrappers are added alongside the existing React code. They don&rsquo;t modify the React components. If wrapping causes issues, simply don&rsquo;t load the wrapper and the React MFE continues to work in the old shell as before.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary>Phase 4 Rollback <span class="detail-summary">Route traffic back to old shell instantly</span></summary>
+      <div class="detail-body">
+        <p>Traffic split is controlled by a feature flag or load balancer rule. To rollback: set the new shell percentage to 0%. All traffic immediately returns to the old Next.js shell. The old shell is kept running and warmed until the new shell has been at 100% for an agreed period (typically 2&ndash;4 weeks).</p>
+        <ul>
+          <li>No redeployment needed</li>
+          <li>No data migration to reverse</li>
+          <li>No code changes required</li>
+          <li>Takes effect in seconds</li>
+        </ul>
+      </div>
+    </details>
+
+    <div class="industry-std">
+      <strong>Industry Standard: Blue-Green Deployment</strong>
+      Running the old and new shells simultaneously is a blue-green deployment pattern. Netflix, Amazon, and Google all use this approach for major infrastructure transitions. The key principle: <em>never remove the old thing until the new thing has been running successfully in production for an extended period</em>.
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════ -->
+  <section>
+    <h2>What Teams Need to Do</h2>
+    <p>The shell swap requires minimal work from domain teams. Here&rsquo;s the exhaustive list:</p>
+
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Task</th>
+          <th>Effort</th>
+          <th>Who</th>
+          <th>When</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Add Web Component wrapper to domain module</td>
+          <td class="good">~50 lines of code</td>
+          <td>Domain team</td>
+          <td>Phase 3</td>
+        </tr>
+        <tr>
+          <td>Register custom element in module entry point</td>
+          <td class="good">1 line of code</td>
+          <td>Domain team</td>
+          <td>Phase 3</td>
+        </tr>
+        <tr>
+          <td>Publish domain module to CDN</td>
+          <td class="good">CI/CD pipeline update</td>
+          <td>Domain team + Platform team</td>
+          <td>Phase 3</td>
+        </tr>
+        <tr>
+          <td>Verify domain works in new shell</td>
+          <td class="neutral">Testing (automated + manual)</td>
+          <td>Domain team</td>
+          <td>Phase 3</td>
+        </tr>
+        <tr>
+          <td>Switch to event-based communication</td>
+          <td class="neutral">If not already done during extraction</td>
+          <td>Domain team</td>
+          <td>Phase 3</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout">
+      <strong>&#128161; Total Effort per Domain: 1&ndash;2 Days</strong>
+      The Web Component wrapper is a thin adapter. It doesn&rsquo;t require rewriting any React code. A senior developer can add the wrapper, register the element, update the build pipeline, and verify functionality in 1&ndash;2 days. The rest of the team continues shipping features uninterrupted.
+    </div>
+  </section>
+
+</main>
+<div style="max-width:900px;margin:0 auto;padding:0 1.5rem;">
+  <div class="page-nav">
+    <a href="10-shell-architecture.html"><span class="pn-label">&larr; Previous</span><span class="pn-title">The CSR Shell: How It Works</span></a>
+    <a href="12-web-component-wrapping.html" class="next"><span class="pn-label">Next &rarr;</span><span class="pn-title">Wrapping React MFEs in Web Components</span></a>
+  </div>
+</div>
+<footer>Medline Platform Evolution &mdash; v5 &mdash; 2026-04-05 &mdash; Technical Director Series &mdash; Confidential</footer>
+<div class="toast" id="toast">Copied!</div>
+<script src="shared.js"></script>
+</body>
+</html>

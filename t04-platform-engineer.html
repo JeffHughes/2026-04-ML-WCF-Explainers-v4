@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Track: Platform Engineer &mdash; Medline Platform Evolution</title>
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<div class="progress-bar"></div>
+<nav>
+  <a href="t-index.html" class="logo">ML Training</a>
+  <div class="nav-links">
+    <a href="index.html">&larr; Migration Series</a>
+    <a href="t01-overview.html">Overview</a>
+    <a href="t02-domain-developer.html">Domain Dev</a>
+    <a href="t03-component-author.html">Component Author</a>
+    <a href="t04-platform-engineer.html" class="active">Platform Eng</a>
+    <a href="t05-sign-off-gates.html">Gates</a>
+    <a href="t06-certification.html">Certification</a>
+    <a href="t07-onboarding-checklist.html">Day One</a>
+  </div>
+  <button class="theme-toggle" id="themeToggle" title="Toggle theme">&#9790;</button>
+</nav>
+
+<div class="hero">
+  <div class="page-num">Training &mdash; Page 4 of 7</div>
+  <h1>Track: Platform Engineer</h1>
+  <p class="subtitle">Six modules for the team that maintains the shell, the App Catalog, the CDN, and the infrastructure that makes everything else possible. You keep the platform running.</p>
+</div>
+
+<main>
+
+<!-- Track Overview -->
+<section>
+  <h2>Track Overview</h2>
+  <p>Platform Engineers are the team behind the scenes. You manage the shell that composes domain micro frontends, the App Catalog that tracks every component and version, the API scanning that catches breaking changes, and the CDN that delivers it all. Without you, domains can't deploy and components can't be discovered.</p>
+  <p>This track has <strong>6 modules</strong>. Expected completion: <strong>~3 weeks</strong>.</p>
+
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="stat-num">6</div>
+      <div class="stat-label">Modules</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num green">~3 Weeks</div>
+      <div class="stat-label">Completion time</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num purple">6 Exercises</div>
+      <div class="stat-label">Hands-on validations</div>
+    </div>
+  </div>
+</section>
+
+<!-- Platform Engineer Responsibilities Diagram -->
+<section>
+  <h2>Platform Engineer Responsibilities</h2>
+  <p>Your role spans across the entire platform. Each module teaches you to operate one piece of the system.</p>
+
+  <div class="mermaid-wrap" id="dt04-1">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">&#9974;</button>
+    </div>
+    <div class="mw-view">
+      <div class="mermaid-inner" data-src="graph TD
+  PE[Platform Engineer]
+  PE --> SHELL[Shell Architecture\nCSR Composition + Routing]
+  PE --> CAT[App Catalog\nComponent Registry + Versions]
+  PE --> SCAN[API Scanning\nContract Discovery + Diffs]
+  PE --> CDN[CDN Management\nImport Maps + Versioning]
+  PE --> CADENCE[Core Cadence\nAnnual Updates + Scripts]
+  PE --> MON[Monitoring\nHealth Dashboard + Alerts]
+  style PE fill:#58a6ff,stroke:#58a6ff,color:#fff
+  style SHELL fill:#d2a8ff,stroke:#d2a8ff,color:#000
+  style CAT fill:#d2a8ff,stroke:#d2a8ff,color:#000
+  style SCAN fill:#d2a8ff,stroke:#d2a8ff,color:#000
+  style CDN fill:#f0883e,stroke:#f0883e,color:#fff
+  style CADENCE fill:#f0883e,stroke:#f0883e,color:#fff
+  style MON fill:#3fb950,stroke:#3fb950,color:#fff"></div>
+    </div>
+    <div class="mw-caption">Platform Engineer responsibilities mapped to six system areas</div>
+  </div>
+</section>
+
+<!-- Module 1 -->
+<section>
+  <h2>Module 1: Shell Architecture</h2>
+  <p><strong>What you'll learn:</strong> How the CSR shell composes domain micro frontends, manages the import map, and handles route registration.</p>
+
+  <details>
+    <summary>Module content <span class="detail-summary">CSR composition, import maps, routing</span></summary>
+    <div class="detail-body">
+      <h4>Key Concepts</h4>
+      <ul>
+        <li><strong>CSR composition</strong> &mdash; the shell is a thin orchestration layer that loads domain bundles on demand via the import map</li>
+        <li><strong>Import map</strong> &mdash; a JSON file that maps module specifiers to CDN URLs. This is how the shell knows where each domain lives.</li>
+        <li><strong>Route registration</strong> &mdash; domains declare their routes in <code>domain.config.json</code>. The shell aggregates them at build time.</li>
+        <li><strong>Lazy loading</strong> &mdash; domains are loaded only when their route is matched. No upfront download of all domains.</li>
+        <li><strong>Shell lifecycle</strong> &mdash; bootstrap, route match, domain load, mount, unmount</li>
+      </ul>
+      <h4>Hands-on Exercise</h4>
+      <p>Register a new sandbox domain in the shell's route table. Configure its import map entry pointing to the CDN. Verify the shell loads the domain when its route is navigated. Test lazy loading by confirming no other domains are downloaded.</p>
+      <h4>Sign-off Criteria</h4>
+      <ul>
+        <li>New domain registered in route table</li>
+        <li>Import map entry points to correct CDN URL</li>
+        <li>Domain loads correctly on route navigation</li>
+        <li>Lazy loading verified (no unnecessary downloads)</li>
+      </ul>
+    </div>
+  </details>
+
+  <div class="industry-std">
+    <strong>Industry Standard: Import Map Composition</strong>
+    Import map-based micro frontend composition is the industry standard for client-side rendering platforms. Used by IKEA, Spotify, and other enterprise teams, it provides runtime module resolution without a monolithic build step. Each domain deploys independently; the shell simply updates a JSON file.
+  </div>
+</section>
+
+<!-- Module 2 -->
+<section>
+  <h2>Module 2: App Catalog Operations</h2>
+  <p><strong>What you'll learn:</strong> How the App Catalog scans, registers, and tracks every component and domain version across the platform.</p>
+
+  <details>
+    <summary>Module content <span class="detail-summary">Scanning, registration, version tracking, alerts</span></summary>
+    <div class="detail-body">
+      <h4>Key Concepts</h4>
+      <ul>
+        <li><strong>Component scanning</strong> &mdash; automated pipeline scans published components, extracts contracts, and updates the catalog</li>
+        <li><strong>Version tracking</strong> &mdash; every component version is tracked: who published it, when, what changed, and who consumes it</li>
+        <li><strong>Dependency mapping</strong> &mdash; the catalog knows which domains depend on which component versions</li>
+        <li><strong>Breaking change alerts</strong> &mdash; when a component contract changes in a breaking way, the catalog alerts all consuming domains</li>
+        <li><strong>Health status</strong> &mdash; each component and domain has a health indicator based on test results, deployment status, and error rates</li>
+      </ul>
+      <h4>Hands-on Exercise</h4>
+      <p>Publish a new component version with a contract change. Verify the catalog detects the change, updates the version record, identifies consuming domains, and sends a breaking change alert to the sandbox domain that depends on it.</p>
+      <h4>Sign-off Criteria</h4>
+      <ul>
+        <li>Catalog detects the new version automatically</li>
+        <li>Contract diff is generated correctly</li>
+        <li>Consuming domains are identified</li>
+        <li>Breaking change alert is sent to affected domains</li>
+      </ul>
+    </div>
+  </details>
+</section>
+
+<!-- Module 3 -->
+<section>
+  <h2>Module 3: API Scanning</h2>
+  <p><strong>What you'll learn:</strong> How automated API scanning discovers contracts, generates diffs, and notifies consumers of changes.</p>
+
+  <details>
+    <summary>Module content <span class="detail-summary">Contract discovery, diff generation, notifications</span></summary>
+    <div class="detail-body">
+      <h4>Key Concepts</h4>
+      <ul>
+        <li><strong>Contract discovery</strong> &mdash; the scanner inspects BFF endpoints and generates OpenAPI contracts automatically</li>
+        <li><strong>Diff generation</strong> &mdash; when a contract changes, a structured diff shows exactly what was added, removed, or modified</li>
+        <li><strong>Breaking vs. non-breaking</strong> &mdash; the scanner classifies changes: adding a field is non-breaking, removing or renaming is breaking</li>
+        <li><strong>Consumer notification</strong> &mdash; affected domain teams are notified with the diff and remediation guidance</li>
+        <li><strong>Contract versioning</strong> &mdash; old contracts remain available until all consumers have migrated to the new version</li>
+      </ul>
+      <h4>Hands-on Exercise</h4>
+      <p>Modify a sandbox BFF endpoint: add a new field (non-breaking) and rename an existing field (breaking). Run the API scanner. Verify it generates correct diffs, classifies the changes correctly, and sends the right notifications.</p>
+      <h4>Sign-off Criteria</h4>
+      <ul>
+        <li>Scanner detects both changes</li>
+        <li>Non-breaking change classified correctly</li>
+        <li>Breaking change classified correctly with remediation guidance</li>
+        <li>Notifications sent to consuming domains</li>
+      </ul>
+    </div>
+  </details>
+
+  <div class="industry-std">
+    <strong>Industry Standard: Automated Contract Testing</strong>
+    Automated API contract scanning and consumer-driven contract testing are the industry standard for microservice and micro frontend architectures. Tools like Pact, Spectral, and custom OpenAPI validators are used by enterprises to catch breaking changes before they reach production.
+  </div>
+</section>
+
+<!-- Module 4 -->
+<section>
+  <h2>Module 4: CDN &amp; Import Map Management</h2>
+  <p><strong>What you'll learn:</strong> How to manage the CDN publish workflow, version pinning, and import map rollback.</p>
+
+  <details>
+    <summary>Module content <span class="detail-summary">CDN workflow, version pinning, rollback</span></summary>
+    <div class="detail-body">
+      <h4>Key Concepts</h4>
+      <ul>
+        <li><strong>CDN publish workflow</strong> &mdash; built assets are pushed to CDN with unique version-hashed URLs</li>
+        <li><strong>Import map management</strong> &mdash; updating the master import map to point domains at specific versions</li>
+        <li><strong>Version pinning</strong> &mdash; locking a domain to a specific component version to prevent unexpected updates</li>
+        <li><strong>Rollback</strong> &mdash; reverting the import map to a previous version. Old versions remain on CDN indefinitely.</li>
+        <li><strong>Cache strategy</strong> &mdash; immutable URLs with content hashes for infinite caching; import map has short TTL</li>
+      </ul>
+      <h4>Hands-on Exercise</h4>
+      <p>Publish a sandbox domain to CDN. Update the import map. Verify the new version loads. Pin a component to a specific version. Perform a rollback. Verify the previous version is restored. Confirm cache headers are correct.</p>
+      <h4>Sign-off Criteria</h4>
+      <ul>
+        <li>Domain published to CDN with correct version hash</li>
+        <li>Import map updated and shell loads new version</li>
+        <li>Rollback restores previous version within seconds</li>
+        <li>Cache headers verified (immutable for assets, short TTL for import map)</li>
+      </ul>
+    </div>
+  </details>
+</section>
+
+<!-- Module 5 -->
+<section>
+  <h2>Module 5: Core Cadence</h2>
+  <p><strong>What you'll learn:</strong> The annual core update process&mdash;how change-mod scripts are authored, how updates are staged, and how rollouts happen domain-by-domain.</p>
+
+  <details>
+    <summary>Module content <span class="detail-summary">Annual updates, change-mod scripts, staged rollout</span></summary>
+    <div class="detail-body">
+      <h4>Key Concepts</h4>
+      <ul>
+        <li><strong>1-year cadence</strong> &mdash; core framework updates happen once a year, not continuously</li>
+        <li><strong>Change-mod scripts</strong> &mdash; automated scripts that transform domain code to be compatible with the new core version</li>
+        <li><strong>Script authoring</strong> &mdash; how to write a change-mod script: AST transforms, config updates, dependency bumps</li>
+        <li><strong>Staged rollout</strong> &mdash; core update rolls out domain-by-domain, starting with the smallest/simplest domain</li>
+        <li><strong>Validation</strong> &mdash; each domain validates in staging before the update goes to production</li>
+        <li><strong>Rollback</strong> &mdash; if a domain fails validation, it stays on the old version until the script is fixed</li>
+      </ul>
+      <h4>Hands-on Exercise</h4>
+      <p>Write a change-mod script that renames a deprecated API call across all domain code. Run it against the sandbox domain. Verify the transformation is correct. Stage the updated domain. Run validation tests.</p>
+      <h4>Sign-off Criteria</h4>
+      <ul>
+        <li>Change-mod script runs without errors</li>
+        <li>All deprecated API calls are renamed correctly</li>
+        <li>Domain passes all validation tests after transformation</li>
+        <li>Script is idempotent (running twice produces the same result)</li>
+      </ul>
+    </div>
+  </details>
+
+  <!-- Annual Core Update Workflow Diagram -->
+  <div class="mermaid-wrap" id="dt04-2">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">&#9974;</button>
+    </div>
+    <div class="mw-view">
+      <div class="mermaid-inner" data-src="graph LR
+  A[New Core Version\nAnnual Release] -->|Author| B[Change-Mod Scripts\nAST Transforms + Config]
+  B -->|Run per domain| C[Transform\nAutomated Code Changes]
+  C -->|Stage| D[Staging Validation\nTests + Visual Regression]
+  D -->|Pass| E[Production Rollout\nDomain-by-Domain]
+  D -->|Fail| F[Fix Script\nRetry Transform]
+  F --> C
+  style A fill:#58a6ff,stroke:#58a6ff,color:#fff
+  style B fill:#d2a8ff,stroke:#d2a8ff,color:#000
+  style C fill:#f0883e,stroke:#f0883e,color:#fff
+  style D fill:#f0883e,stroke:#f0883e,color:#fff
+  style E fill:#3fb950,stroke:#3fb950,color:#fff
+  style F fill:#f85149,stroke:#f85149,color:#fff"></div>
+    </div>
+    <div class="mw-caption">Annual core update workflow: release &rarr; scripts &rarr; transform &rarr; validate &rarr; rollout</div>
+  </div>
+
+  <div class="industry-std">
+    <strong>Industry Standard: Automated Codemods</strong>
+    Automated code transformation scripts (codemods) are the industry standard for large-scale framework updates. Facebook pioneered this approach with jscodeshift for React upgrades. Google uses similar tools for their monorepo migrations. The key: updates are automated, repeatable, and verifiable.
+  </div>
+</section>
+
+<!-- Module 6 -->
+<section>
+  <h2>Module 6: Monitoring &amp; Health</h2>
+  <p><strong>What you'll learn:</strong> How to monitor domain health, track deployments, and diagnose platform-wide issues.</p>
+
+  <details>
+    <summary>Module content <span class="detail-summary">Health dashboard, deployment tracking, diagnostics</span></summary>
+    <div class="detail-body">
+      <h4>Key Concepts</h4>
+      <ul>
+        <li><strong>Domain health dashboard</strong> &mdash; real-time view of every domain: deployment status, error rates, latency, and test results</li>
+        <li><strong>Deployment tracking</strong> &mdash; history of every deployment: who, when, what version, which import map change</li>
+        <li><strong>Error aggregation</strong> &mdash; errors are grouped by domain, component, and severity so you know where to look first</li>
+        <li><strong>Performance baselines</strong> &mdash; each domain has performance budgets; violations trigger alerts</li>
+        <li><strong>Incident response</strong> &mdash; when something goes wrong: how to identify the root domain, rollback, and post-mortem</li>
+      </ul>
+      <h4>Hands-on Exercise</h4>
+      <p>Deploy a sandbox domain version that intentionally violates a performance budget. Verify the monitoring dashboard detects the violation. Perform a rollback. Confirm the dashboard reflects the restored healthy state. Write a one-paragraph post-mortem.</p>
+      <h4>Sign-off Criteria</h4>
+      <ul>
+        <li>Performance violation detected by monitoring</li>
+        <li>Alert triggered correctly</li>
+        <li>Rollback performed and verified</li>
+        <li>Post-mortem documents root cause and resolution</li>
+      </ul>
+    </div>
+  </details>
+</section>
+
+</main>
+
+<div style="max-width:900px;margin:0 auto;padding:0 1.5rem;">
+  <div class="page-nav">
+    <a href="t03-component-author.html"><span class="pn-label">&larr; Previous</span><span class="pn-title">Track: Component Author</span></a>
+    <a href="t05-sign-off-gates.html" class="next"><span class="pn-label">Next &rarr;</span><span class="pn-title">Automated Sign-off Gates</span></a>
+  </div>
+</div>
+
+<footer>Medline Platform Evolution &mdash; Training &amp; Sign-off Plan &mdash; v5 &mdash; 2026-04-05 &mdash; Confidential</footer>
+<div class="toast" id="toast">Copied!</div>
+<script src="shared.js"></script>
+</body>
+</html>

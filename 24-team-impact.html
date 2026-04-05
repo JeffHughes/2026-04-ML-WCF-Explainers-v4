@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What Changes for Your Teams &mdash; Medline Platform Evolution</title>
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<div class="progress-bar"></div>
+<nav>
+  <a href="index.html" class="logo">ML Evolution</a>
+  <div class="nav-links">
+    <a href="01-executive-summary.html">Summary</a>
+    <a href="02-current-state.html">Today</a>
+    <a href="03-why-change.html">Why</a>
+    <a href="04-migration-overview.html">Strategy</a>
+    <a href="05-copy-split-strip.html">Copy-Split</a>
+    <a href="06-domain-map.html">Domains</a>
+    <a href="07-catalog-domain.html">Catalog</a>
+    <a href="08-cart-checkout.html">Cart</a>
+    <a href="09-remaining-domains.html">Other</a>
+    <a href="10-shell-architecture.html">Shell</a>
+    <a href="11-shell-swap.html">Swap</a>
+    <a href="12-web-component-wrapping.html">Wrapping</a>
+    <a href="13-hydration-csr.html">CSR</a>
+    <a href="14-component-standards.html">Standards</a>
+    <a href="15-component-transition.html">Transition</a>
+    <a href="16-app-catalog.html">Catalog</a>
+    <a href="17-api-scanning.html">Scanning</a>
+    <a href="18-bff-pattern.html">BFF</a>
+    <a href="19-managing-drift.html">Drift</a>
+    <a href="20-core-cadence.html">Cadence</a>
+    <a href="21-testing-strategy.html">Testing</a>
+    <a href="22-blue-green-rollouts.html">Deploy</a>
+    <a href="23-migration-timeline.html">Timeline</a>
+    <a href="24-team-impact.html" class="active">Teams</a>
+    <a href="25-key-principles.html">Principles</a>
+    <a href="dev-environment.html">DevEx</a>
+  </div>
+  <button class="theme-toggle" id="themeToggle" title="Toggle theme">&#9790;</button>
+</nav>
+<div class="hero">
+  <div class="page-num">Putting It Together</div>
+  <h1>What Changes for Your Teams</h1>
+  <p class="subtitle">Domain ownership, self-service deployment, automated governance, and day-one productivity for every developer&mdash;offshore resources, contractors, anyone who knows HTML, CSS, and JavaScript.</p>
+</div>
+<main>
+
+<!-- ═══ Section 1: The Shift ═══ -->
+<section>
+  <h2>From Coordination to Independence</h2>
+  <p>The most visible change for your teams is the shift from <strong>coordination-heavy</strong> to <strong>independence-first</strong>. Today, deploying a change requires aligning with other teams, merging into a shared branch, and waiting for a release window. After the evolution, each domain team controls their own cadence.</p>
+
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="stat-num">0</div>
+      <div class="stat-label">Cross-team deploys needed</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num green">Day 1</div>
+      <div class="stat-label">New dev productivity</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num purple">Self</div>
+      <div class="stat-label">Service deployment</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num orange">Auto</div>
+      <div class="stat-label">Quality governance</div>
+    </div>
+  </div>
+
+  <div class="callout">
+    <strong>&#128172; The Core Mindset Change</strong>
+    Cross-team coordination becomes the exception, not the rule. When teams need to coordinate, it's a signal that something can be improved — not the normal way of working.
+  </div>
+</section>
+
+<!-- ═══ Section 2: Team Topology ═══ -->
+<section>
+  <h2>Team Topology</h2>
+  <p>The modernized platform organizes around three team types, each with clear responsibilities and minimal overlap. This topology follows the <strong>Team Topologies</strong> model (Skelton &amp; Pais) — an industry-standard approach to organizing software teams for fast flow.</p>
+
+  <h3>Team Structure Overview</h3>
+  <div class="mermaid-wrap" id="d24-1">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">Fullscreen</button>
+    </div>
+    <div class="mw-view">
+      <div class="mermaid-inner" data-src="graph TB
+  subgraph platform [Platform Team]
+    PT[Shell, Import Maps,<br/>CDN, CI Infrastructure,<br/>Core Components,<br/>Change-Mod Scripts]
+  end
+  subgraph component [Component Team]
+    CT[Shared Component Library,<br/>App Catalog Maintenance,<br/>Design System,<br/>Documentation]
+  end
+  subgraph domains [Domain Teams]
+    D1[Catalog Domain<br/>Own repo, own pipeline,<br/>own BFF, own deploy]
+    D2[Cart Domain<br/>Own repo, own pipeline,<br/>own BFF, own deploy]
+    D3[Checkout Domain<br/>Own repo, own pipeline,<br/>own BFF, own deploy]
+    D4[Account Domain<br/>Own repo, own pipeline,<br/>own BFF, own deploy]
+    D5[Other Domains...<br/>Same pattern]
+  end
+  PT -->|Provides infrastructure| D1
+  PT -->|Provides infrastructure| D2
+  PT -->|Provides infrastructure| D3
+  PT -->|Provides infrastructure| D4
+  CT -->|Publishes components| D1
+  CT -->|Publishes components| D2
+  CT -->|Publishes components| D3
+  CT -->|Publishes components| D4
+  CT -->|Publishes components| D5
+  style PT fill:#1c2333,stroke:#58a6ff,color:#e6edf3
+  style CT fill:#1c2333,stroke:#d2a8ff,color:#e6edf3
+  style D1 fill:#0d2818,stroke:#3fb950,color:#e6edf3
+  style D2 fill:#0d2818,stroke:#3fb950,color:#e6edf3
+  style D3 fill:#0d2818,stroke:#3fb950,color:#e6edf3
+  style D4 fill:#0d2818,stroke:#3fb950,color:#e6edf3
+  style D5 fill:#122a1a,stroke:#3fb950,color:#e6edf3"></div>
+    </div>
+    <div class="mw-caption">Fig 24.1 — Team topology: platform team provides infrastructure, component team publishes shared libraries, domain teams ship independently</div>
+  </div>
+
+  <table class="compare-table">
+    <thead>
+      <tr>
+        <th>Team Type</th>
+        <th>Responsibilities</th>
+        <th>Interaction Mode</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Platform Team</strong></td>
+        <td>Shell, import maps, CDN, CI pipelines, core infrastructure, change-mod scripts</td>
+        <td class="good">X-as-a-Service — domain teams consume; no coordination needed</td>
+      </tr>
+      <tr>
+        <td><strong>Component Team</strong></td>
+        <td>Shared component library, App Catalog, design system, documentation</td>
+        <td class="good">Publish &amp; consume — components published to CDN; domains adopt on their schedule</td>
+      </tr>
+      <tr>
+        <td><strong>Domain Teams</strong></td>
+        <td>Own domain's frontend, BFF, tests, deployment, and user experience</td>
+        <td class="good">Stream-aligned — full ownership, minimal external dependencies</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ═══ Section 3: Day in the Life ═══ -->
+<section>
+  <h2>Day-to-Day Developer Experience</h2>
+  <p>What does the modernized workflow actually <em>feel like</em> for the people writing code every day? Here's a concrete walkthrough for each role.</p>
+
+  <details>
+    <summary>&#128187; Day in the Life: Domain Developer <span class="detail-summary">The most common role</span></summary>
+    <div class="detail-body">
+      <h4>Morning: Pick up a feature ticket</h4>
+      <ul>
+        <li>Pull latest from your domain's repository (not a monolith — just your domain)</li>
+        <li>Start local dev server: <code>npm run dev</code> — only your domain loads, fast hot-reload</li>
+        <li>Check the App Catalog for any shared components that match your needs</li>
+        <li>If a component exists, import it: <code>&lt;ml-data-table&gt;</code> — done</li>
+        <li>If it doesn't exist, build a domain-specific version (HTML, CSS, JS — nothing proprietary)</li>
+      </ul>
+      <h4>Afternoon: Test and ship</h4>
+      <ul>
+        <li>Run your domain's test suite: <code>npm test</code> — completes in under 2 minutes</li>
+        <li>Push to your branch. CI runs: unit tests, contract checks, visual regression, security scan</li>
+        <li>All gates pass. Merge to main. Deployment happens automatically via the domain pipeline.</li>
+        <li>Import map updates. Your change is live. No one else was involved.</li>
+      </ul>
+      <h4>Key difference from today</h4>
+      <p>You never touch a shared codebase. You never wait for another team. You never rebuild the monolith. Your world is your domain — and it's small, fast, and entirely under your control.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>&#127912; Day in the Life: Component Author <span class="detail-summary">Shared library contributor</span></summary>
+    <div class="detail-body">
+      <h4>Morning: Build or update a shared component</h4>
+      <ul>
+        <li>Work in the shared component library repository</li>
+        <li>Build using W3C Web Component standards — <code>class MlButton extends HTMLElement</code></li>
+        <li>Write comprehensive tests: unit, visual regression, accessibility (axe-core)</li>
+        <li>Document in the App Catalog format: props, events, slots, examples</li>
+      </ul>
+      <h4>Afternoon: Publish and notify</h4>
+      <ul>
+        <li>Publish the updated component to CDN with a new version number</li>
+        <li>App Catalog automatically picks up the new version and updates the registry</li>
+        <li>Domain teams see the update in the catalog — they adopt when ready</li>
+        <li>No forced adoption. No breaking existing consumers. Semantic versioning enforced.</li>
+      </ul>
+      <h4>Key difference from today</h4>
+      <p>You publish once. Every domain can consume it. You don't need to update ten different projects — the CDN handles distribution, and the import map handles version resolution.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>&#9881;&#65039; Day in the Life: Platform Team Member <span class="detail-summary">Infrastructure and tooling</span></summary>
+    <div class="detail-body">
+      <h4>Morning: Monitor and improve</h4>
+      <ul>
+        <li>Review the platform dashboard: domain health, deployment frequency, error rates</li>
+        <li>Check App Catalog for components missing documentation or failing validation</li>
+        <li>Review API scanning reports: any new endpoints that lack contracts?</li>
+        <li>Triage platform improvement requests from domain teams</li>
+      </ul>
+      <h4>Afternoon: Build tooling</h4>
+      <ul>
+        <li>Improve change-mod scripts based on feedback from the latest core adoption wave</li>
+        <li>Optimize CI pipeline shared infrastructure (caching, parallelization)</li>
+        <li>Update shell components: header, footer, navigation</li>
+        <li>Prepare RFC for next year's core component edition</li>
+      </ul>
+      <h4>Key difference from today</h4>
+      <p>You're building a platform, not fighting fires. Domain teams are self-sufficient, so your time goes toward improving the infrastructure rather than unblocking deployments.</p>
+    </div>
+  </details>
+</section>
+
+<!-- ═══ Section 4: Developer Workflow ═══ -->
+<section>
+  <h2>Developer Workflow: Code to Production</h2>
+  <p>The end-to-end workflow from writing code to seeing it live in production follows a clear, automated path. No manual handoffs. No ticket queues. No waiting for someone else's approval (unless your team's own process requires it).</p>
+
+  <h3>Domain Developer Workflow</h3>
+  <div class="mermaid-wrap" id="d24-2">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">Fullscreen</button>
+    </div>
+    <div class="mw-view">
+      <div class="mermaid-inner" data-src="flowchart LR
+  A[Write Code<br/>HTML, CSS, JS] --> B[Run Local Tests<br/>Unit + Integration]
+  B --> C[Push to Branch<br/>Open PR]
+  C --> D[CI Quality Gates<br/>Tests, Contracts,<br/>Visual Regression,<br/>Security, A11y]
+  D --> E{All Gates<br/>Pass?}
+  E -->|Yes| F[Merge to Main]
+  E -->|No| G[Fix Issues<br/>Re-push]
+  G --> D
+  F --> H[Build &amp; Publish<br/>to CDN]
+  H --> I[Update Import Map<br/>Blue/Green Switch]
+  I --> J[Live in Production<br/>Monitoring Active]
+  J --> K{Metrics<br/>Healthy?}
+  K -->|Yes| L[Done ✅]
+  K -->|No| M[Rollback<br/>Revert Import Map]
+  style A fill:#1c2333,stroke:#58a6ff,color:#e6edf3
+  style F fill:#122a1a,stroke:#3fb950,color:#e6edf3
+  style L fill:#0d2818,stroke:#3fb950,color:#e6edf3
+  style M fill:#2d1b00,stroke:#f0883e,color:#e6edf3"></div>
+    </div>
+    <div class="mw-caption">Fig 24.2 — Developer workflow: from code to production with automated gates and instant rollback</div>
+  </div>
+</section>
+
+<!-- ═══ Section 5: Onboarding ═══ -->
+<section>
+  <h2>Onboarding: Productive from Day One</h2>
+  <p>One of the highest-impact changes is <strong>onboarding speed</strong>. If a team needs some temp augmentation&mdash;offshore resources, contractors, whoever&mdash;they can be productive on their first day. Here's why:</p>
+
+  <div class="themes-grid">
+    <div class="theme-card">
+      <div class="theme-icon">&#127760;</div>
+      <h4>HTML-First Development</h4>
+      <p>WCFramework builds on W3C standards. If a developer knows HTML, CSS, and JavaScript, they can build components. No proprietary framework to learn first.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#128218;</div>
+      <h4>Component Catalog</h4>
+      <p>The App Catalog shows every available component with live examples, prop documentation, and copy-paste code snippets. No tribal knowledge required.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#128737;</div>
+      <h4>Domain Boundaries</h4>
+      <p>New developers work within a single domain. They physically cannot break other domains — the architecture prevents it. Safe to experiment from day one.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#9989;</div>
+      <h4>Automated Quality Gates</h4>
+      <p>Quality enforcement is automated. New developers don't need to know all the rules — CI catches issues before they reach production. Learn by doing, safely.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#128640;</div>
+      <h4>Fast Feedback Loops</h4>
+      <p>Local dev server starts in seconds. Tests run in minutes. Deployment feedback within the hour. No waiting for overnight builds or weekly releases.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#128101;</div>
+      <h4>Small Codebase</h4>
+      <p>Each domain is a small, focused codebase — not a sprawling monolith. New developers can understand the full scope of their domain within days, not months.</p>
+    </div>
+  </div>
+
+  <div class="industry-std">
+    <strong>Industry Standard: Developer Experience as Competitive Advantage</strong>
+    Spotify's "Golden Path" and Netflix's "Paved Road" both demonstrate that the fastest way to scale engineering teams is to reduce onboarding friction. When the platform makes the right thing easy and the wrong thing hard, even junior developers produce production-quality work from day one.
+  </div>
+</section>
+
+<!-- ═══ Section 6: Governance Without Meetings ═══ -->
+<section>
+  <h2>Automated Governance</h2>
+  <p>Governance in the modernized platform happens <strong>automatically, without meetings</strong>. The App Catalog validates component quality. API scanning detects drift. Contract tests catch boundary violations. Change-mod scripts enforce upgrade patterns.</p>
+
+  <div class="callout success">
+    <strong>&#9989; The Best Governance</strong>
+    The best governance is the kind that happens automatically without anyone thinking about it. No review boards. No approval committees. No governance meetings. Just automated checks that run on every commit.
+  </div>
+
+  <table class="compare-table">
+    <thead>
+      <tr>
+        <th>Governance Concern</th>
+        <th class="good">Automated Approach</th>
+        <th class="bad">Manual Approach (Today)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Component quality</td>
+        <td class="good">App Catalog validation pipeline</td>
+        <td class="bad">Manual code review (inconsistent)</td>
+      </tr>
+      <tr>
+        <td>API compatibility</td>
+        <td class="good">Contract tests in CI</td>
+        <td class="bad">Discovered in staging (too late)</td>
+      </tr>
+      <tr>
+        <td>Security compliance</td>
+        <td class="good">Automated dependency audit + CSP checks</td>
+        <td class="bad">Periodic manual audits</td>
+      </tr>
+      <tr>
+        <td>Accessibility</td>
+        <td class="good">axe-core in CI + visual regression</td>
+        <td class="bad">Manual testing before releases</td>
+      </tr>
+      <tr>
+        <td>Documentation</td>
+        <td class="good">Catalog rejects undocumented components</td>
+        <td class="bad">Best-effort wiki updates</td>
+      </tr>
+      <tr>
+        <td>Version adoption</td>
+        <td class="good">Dashboard shows adoption across domains</td>
+        <td class="bad">Spreadsheet tracking (always outdated)</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <details>
+    <summary>How Automated Governance Protects Offshore Teams <span class="detail-summary">Safety without oversight overhead</span></summary>
+    <div class="detail-body">
+      <p>Offshore development teams benefit enormously from automated governance. Instead of relying on synchronous code reviews across time zones, the platform enforces quality standards <strong>automatically and instantly</strong>:</p>
+      <ul>
+        <li><strong>Instant feedback:</strong> CI gates catch issues within minutes, not during a review meeting hours later</li>
+        <li><strong>Consistent standards:</strong> The same rules apply to every commit, regardless of who wrote it or when</li>
+        <li><strong>Safe experimentation:</strong> Domain boundaries prevent accidental cross-team impacts</li>
+        <li><strong>Self-service learning:</strong> When a gate fails, the error message explains why and how to fix it</li>
+        <li><strong>No timezone dependency:</strong> Governance doesn't require a person in another timezone to be online</li>
+      </ul>
+    </div>
+  </details>
+</section>
+
+</main>
+<div style="max-width:900px;margin:0 auto;padding:0 1.5rem;">
+  <div class="page-nav">
+    <a href="23-migration-timeline.html"><span class="pn-label">&larr; Previous</span><span class="pn-title">The Migration Timeline</span></a>
+    <a href="25-key-principles.html" class="next"><span class="pn-label">Next &rarr;</span><span class="pn-title">Key Principles</span></a>
+  </div>
+</div>
+<footer>Medline Platform Evolution &mdash; v5 &mdash; 2026-04-05 &mdash; Technical Director Series &mdash; Confidential</footer>
+<div class="toast" id="toast">Copied!</div>
+<script src="shared.js"></script>
+</body>
+</html>

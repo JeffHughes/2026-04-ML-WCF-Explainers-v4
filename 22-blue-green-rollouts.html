@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blue/Green Deployments at Domain Level &mdash; Medline Platform Evolution</title>
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<div class="progress-bar"></div>
+<nav>
+  <a href="index.html" class="logo">ML Evolution</a>
+  <div class="nav-links">
+    <a href="01-executive-summary.html">Summary</a>
+    <a href="02-current-state.html">Today</a>
+    <a href="03-why-change.html">Why</a>
+    <a href="04-migration-overview.html">Strategy</a>
+    <a href="05-copy-split-strip.html">Copy-Split</a>
+    <a href="06-domain-map.html">Domains</a>
+    <a href="07-catalog-domain.html">Catalog</a>
+    <a href="08-cart-checkout.html">Cart</a>
+    <a href="09-remaining-domains.html">Other</a>
+    <a href="10-shell-architecture.html">Shell</a>
+    <a href="11-shell-swap.html">Swap</a>
+    <a href="12-web-component-wrapping.html">Wrapping</a>
+    <a href="13-hydration-csr.html">CSR</a>
+    <a href="14-component-standards.html">Standards</a>
+    <a href="15-component-transition.html">Transition</a>
+    <a href="16-app-catalog.html">Catalog</a>
+    <a href="17-api-scanning.html">Scanning</a>
+    <a href="18-bff-pattern.html">BFF</a>
+    <a href="19-managing-drift.html">Drift</a>
+    <a href="20-core-cadence.html">Cadence</a>
+    <a href="21-testing-strategy.html">Testing</a>
+    <a href="22-blue-green-rollouts.html" class="active">Deploy</a>
+    <a href="23-migration-timeline.html">Timeline</a>
+    <a href="24-team-impact.html">Teams</a>
+    <a href="25-key-principles.html">Principles</a>
+    <a href="dev-environment.html">DevEx</a>
+  </div>
+  <button class="theme-toggle" id="themeToggle" title="Toggle theme">&#9790;</button>
+</nav>
+<div class="hero">
+  <div class="page-num">Operations</div>
+  <h1>Blue/Green Deployments at Domain Level</h1>
+  <p class="subtitle">When deployment is boring, you deploy daily. Import-map switching gives every domain instant, zero-downtime deployments with sub-second rollback.</p>
+</div>
+<main>
+
+<!-- ═══ Section 1: The Deployment Problem ═══ -->
+<section>
+  <h2>Why Deployment Shouldn't Be Scary</h2>
+  <p>In the current monolith, every deployment is a coordinated event. Multiple teams must align schedules, merge code into a shared release branch, and deploy together during a designated window. If anything goes wrong, <strong>everyone rolls back</strong> — even teams whose changes were fine.</p>
+
+  <div class="callout danger">
+    <strong>&#128680; The Monolith Deployment Tax</strong>
+    When deployment is scary, you deploy less. When you deploy less, each deployment carries more changes. More changes mean more risk. More risk makes deployment scarier. It's a vicious cycle that the domain-level blue/green model breaks entirely.
+  </div>
+
+  <p>The modernized architecture inverts this: no more big-bang releases. Each domain deploys <strong>independently</strong> via blue/green switching&mdash;or canary rollouts for higher-risk changes. No coordinated release trains. No deployment windows. No all-hands-on-deck releases. Just faster independent deployments&mdash;a team pushing their code through their own pipeline whenever they're ready.</p>
+
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="stat-num">0</div>
+      <div class="stat-label">Coordinated deploys needed</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num green">&lt;1s</div>
+      <div class="stat-label">Rollback time</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num purple">0</div>
+      <div class="stat-label">Downtime per deployment</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num orange">1</div>
+      <div class="stat-label">JSON file to update</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ Section 2: How Blue/Green Works ═══ -->
+<section>
+  <h2>How Blue/Green Works with Import Maps</h2>
+  <p>The import map is the deployment mechanism. It's a JSON file that tells the browser which version of each domain's JavaScript bundle to load from the CDN. Switching from blue (current) to green (new) is simply <strong>updating a URL in that JSON file</strong>.</p>
+
+  <h3>Blue/Green Deployment via Import Map</h3>
+  <div class="mermaid-wrap" id="d22-1">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">Fullscreen</button>
+    </div>
+    <div class="mw-view">
+      <div class="mermaid-inner" data-src="flowchart TB
+  subgraph shell [Application Shell]
+    IM[Import Map JSON]
+  end
+  subgraph cdn [CDN]
+    B1[catalog@2.4.1<br/>Blue - Current Live]
+    G1[catalog@2.5.0<br/>Green - Staged]
+    B2[cart@1.8.0<br/>Blue - Current Live]
+    G2[cart@1.8.1<br/>Green - Staged]
+  end
+  IM -->|Currently points to| B1
+  IM -->|Currently points to| B2
+  IM -.->|Switch: update URL| G1
+  IM -.->|Switch: update URL| G2
+  subgraph user [User Browser]
+    UB[Loads domain bundles<br/>from import map URLs]
+  end
+  IM --> UB
+  style B1 fill:#0d2818,stroke:#3fb950,color:#e6edf3
+  style B2 fill:#0d2818,stroke:#3fb950,color:#e6edf3
+  style G1 fill:#1c2333,stroke:#58a6ff,color:#e6edf3
+  style G2 fill:#1c2333,stroke:#58a6ff,color:#e6edf3
+  style IM fill:#2d1b00,stroke:#f0883e,color:#e6edf3"></div>
+    </div>
+    <div class="mw-caption">Fig 22.1 — Blue/green deployment: the import map points to CDN-hosted domain bundles; switching versions is a URL update</div>
+  </div>
+
+  <h3>The Import Map Explained</h3>
+  <p>The import map is a standard browser feature (supported in all modern browsers). It maps module specifiers to URLs. Here's what it looks like in practice:</p>
+
+  <pre><code>{
+  "imports": {
+    "@ml/catalog": "https://cdn.medline.com/mfe/catalog/2.4.1/index.js",
+    "@ml/cart":    "https://cdn.medline.com/mfe/cart/1.8.0/index.js",
+    "@ml/checkout":"https://cdn.medline.com/mfe/checkout/3.1.0/index.js",
+    "@ml/account": "https://cdn.medline.com/mfe/account/1.2.0/index.js"
+  }
+}</code></pre>
+
+  <p>To deploy the Catalog domain's new version, you change <strong>one line</strong>:</p>
+
+  <pre><code>// Before (Blue)
+"@ml/catalog": "https://cdn.medline.com/mfe/catalog/2.4.1/index.js"
+
+// After (Green)
+"@ml/catalog": "https://cdn.medline.com/mfe/catalog/2.5.0/index.js"</code></pre>
+
+  <div class="callout success">
+    <strong>&#9989; That's the Entire Deployment</strong>
+    Update one URL. The next page load picks up the new version. No server restarts. No build pipeline waiting. No other domain affected. The old version remains on the CDN — rollback is reverting that one URL.
+  </div>
+</section>
+
+<!-- ═══ Section 3: Rollback ═══ -->
+<section>
+  <h2>Instant Rollback</h2>
+  <p>Rollback is the inverse of deployment: <strong>revert the import map entry</strong>. Because the previous version's bundle is still on the CDN (it was never removed), reverting is instant. No rebuilding, no redeploying, no waiting.</p>
+
+  <h3>Rollback Procedure</h3>
+  <ol>
+    <li><strong>Detect issue</strong> — monitoring alerts fire (error rate spike, performance degradation)</li>
+    <li><strong>Revert import map</strong> — change the URL back to the previous version (<code>2.5.0</code> → <code>2.4.1</code>)</li>
+    <li><strong>Verify</strong> — confirm the issue is resolved via the same monitoring</li>
+    <li><strong>Investigate</strong> — the green version remains on the CDN for debugging</li>
+  </ol>
+
+  <div class="callout">
+    <strong>&#9201; Sub-Second Rollback</strong>
+    The entire rollback process — from "something is wrong" to "it's fixed" — takes seconds. No rebuild, no redeploy, no approval chain. The import map update propagates on the next page load. For existing sessions, a soft refresh picks up the reverted version.
+  </div>
+
+  <table class="compare-table">
+    <thead>
+      <tr>
+        <th>Dimension</th>
+        <th class="good">Import Map Rollback</th>
+        <th class="bad">Monolith Rollback</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Rollback time</td>
+        <td class="good">Sub-second (URL revert)</td>
+        <td class="bad">Minutes to hours (full redeploy)</td>
+      </tr>
+      <tr>
+        <td>Blast radius</td>
+        <td class="good">Single domain only</td>
+        <td class="bad">Entire application</td>
+      </tr>
+      <tr>
+        <td>Previous version availability</td>
+        <td class="good">Always on CDN</td>
+        <td class="bad">Must be rebuilt or found in artifact storage</td>
+      </tr>
+      <tr>
+        <td>Team coordination</td>
+        <td class="good">Domain team decides independently</td>
+        <td class="bad">All teams must agree to rollback</td>
+      </tr>
+      <tr>
+        <td>Downtime</td>
+        <td class="good">Zero — seamless switch</td>
+        <td class="bad">Typically minutes of degraded service</td>
+      </tr>
+      <tr>
+        <td>Risk of rollback</td>
+        <td class="good">Zero — restores known-good version</td>
+        <td class="bad">Rollback itself can introduce issues</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ═══ Section 4: Canary Deployments ═══ -->
+<section>
+  <h2>Canary Rollouts: Gradual Traffic Shifting</h2>
+  <p>For high-risk changes, teams can opt into <strong>canary deployments</strong> — routing a small percentage of traffic to the green version while monitoring for issues before switching fully.</p>
+
+  <h3>Canary Rollout with Monitoring</h3>
+  <div class="mermaid-wrap" id="d22-2">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">Fullscreen</button>
+    </div>
+    <div class="mw-view">
+      <div class="mermaid-inner" data-src="flowchart LR
+  subgraph traffic [Incoming Traffic]
+    U[All Users]
+  end
+  subgraph router [Edge Router / CDN]
+    R{Traffic Split<br/>Rule}
+  end
+  subgraph versions [Domain Versions]
+    BLUE[Blue v2.4.1<br/>95% traffic]
+    GREEN[Green v2.5.0<br/>5% traffic]
+  end
+  subgraph monitor [Monitoring]
+    M[Compare Metrics<br/>Error rate, latency,<br/>conversion rate]
+  end
+  U --> R
+  R -->|95%| BLUE
+  R -->|5%| GREEN
+  BLUE --> M
+  GREEN --> M
+  M -->|Metrics healthy| P[Promote: 5→25→50→100%]
+  M -->|Metrics degraded| RB[Rollback: 0% green]
+  style BLUE fill:#0d2818,stroke:#3fb950,color:#e6edf3
+  style GREEN fill:#1c2333,stroke:#58a6ff,color:#e6edf3
+  style P fill:#0d2818,stroke:#3fb950,color:#e6edf3
+  style RB fill:#2d1b00,stroke:#f0883e,color:#e6edf3"></div>
+    </div>
+    <div class="mw-caption">Fig 22.2 — Canary rollout: gradual traffic shift with real-time metric comparison</div>
+  </div>
+
+  <details>
+    <summary>Step-by-Step Canary Deployment <span class="detail-summary">Gradual promotion</span></summary>
+    <div class="detail-body">
+      <h4>Phase 1: Initial Canary (5% traffic)</h4>
+      <ul>
+        <li>Deploy green version to CDN</li>
+        <li>Configure edge router to send 5% of traffic to green</li>
+        <li>Monitor for 30 minutes: error rate, p95 latency, core web vitals</li>
+        <li>If metrics are healthy, proceed to Phase 2</li>
+      </ul>
+      <h4>Phase 2: Expanded Canary (25% traffic)</h4>
+      <ul>
+        <li>Increase traffic split to 25%</li>
+        <li>Monitor for 1 hour with broader traffic patterns</li>
+        <li>Validate business metrics (conversion rates, add-to-cart rates)</li>
+      </ul>
+      <h4>Phase 3: Majority Traffic (50% traffic)</h4>
+      <ul>
+        <li>Increase to 50% — now half of users are on the new version</li>
+        <li>Monitor for 2 hours across peak and off-peak periods</li>
+        <li>Compare aggregate metrics between blue and green cohorts</li>
+      </ul>
+      <h4>Phase 4: Full Promotion (100%)</h4>
+      <ul>
+        <li>Update the import map to point to green version for all traffic</li>
+        <li>Blue version remains on CDN as instant rollback target</li>
+        <li>Canary complete — domain is fully deployed</li>
+      </ul>
+    </div>
+  </details>
+
+  <details>
+    <summary>Rollback Procedure <span class="detail-summary">When canary goes wrong</span></summary>
+    <div class="detail-body">
+      <p>If metrics degrade at any canary phase:</p>
+      <ol>
+        <li><strong>Automated alert fires</strong> — threshold breach on error rate or latency</li>
+        <li><strong>Traffic immediately routed 100% to blue</strong> — edge router removes green from rotation</li>
+        <li><strong>Team investigates</strong> — green version remains accessible for debugging at its CDN URL</li>
+        <li><strong>Fix and retry</strong> — deploy a new green version and restart the canary process</li>
+      </ol>
+      <p>The key insight: at no point during a canary does the blue version stop being available. It's always there as the safety net.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>Canary Monitoring Metrics <span class="detail-summary">What to watch</span></summary>
+    <div class="detail-body">
+      <table class="compare-table">
+        <thead>
+          <tr><th>Metric</th><th>Threshold</th><th>Action on Breach</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>JavaScript error rate</td><td>&gt;0.5% increase over blue</td><td>Auto-rollback</td></tr>
+          <tr><td>p95 latency</td><td>&gt;200ms increase over blue</td><td>Auto-rollback</td></tr>
+          <tr><td>Core Web Vitals (LCP)</td><td>&gt;500ms increase</td><td>Alert + manual review</td></tr>
+          <tr><td>API error rate (BFF)</td><td>&gt;1% increase</td><td>Auto-rollback</td></tr>
+          <tr><td>Conversion rate</td><td>&gt;2% decrease</td><td>Alert + manual review</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </details>
+</section>
+
+<!-- ═══ Section 5: Self-Service Deployment ═══ -->
+<section>
+  <h2>Self-Service Domain Deployment</h2>
+  <p>Every domain team controls their own deployment pipeline. No tickets. No approvals from other teams. No waiting for a shared deployment window. The pipeline is:</p>
+
+  <ol>
+    <li><strong>Push to main</strong> — triggers CI pipeline</li>
+    <li><strong>Quality gates pass</strong> — unit tests, contracts, visual regression, security scan</li>
+    <li><strong>Bundle published to CDN</strong> — new version available at its unique URL</li>
+    <li><strong>Import map updated</strong> — either directly (blue/green) or via canary configuration</li>
+    <li><strong>Monitoring confirms</strong> — dashboards verify the deployment is healthy</li>
+  </ol>
+
+  <div class="industry-std">
+    <strong>Industry Standard: Self-Service Deployment</strong>
+    Amazon deploys to production every 11.7 seconds on average. This is only possible because teams own their own deployment pipelines. The platform provides the infrastructure (CDN, import maps, monitoring), and teams control the timing. This is the same model applied to domain-level micro frontends.
+  </div>
+
+  <div class="callout">
+    <strong>&#128172; The Mindset Shift</strong>
+    "When deployment is scary, you deploy less. When deployment is boring, you deploy daily." The goal is to make deployment so routine, so automated, and so safe that it's just another part of the development workflow — not a special event.
+  </div>
+</section>
+
+</main>
+<div style="max-width:900px;margin:0 auto;padding:0 1.5rem;">
+  <div class="page-nav">
+    <a href="21-testing-strategy.html"><span class="pn-label">&larr; Previous</span><span class="pn-title">Testing Strategy</span></a>
+    <a href="23-migration-timeline.html" class="next"><span class="pn-label">Next &rarr;</span><span class="pn-title">The Migration Timeline</span></a>
+  </div>
+</div>
+<footer>Medline Platform Evolution &mdash; v5 &mdash; 2026-04-05 &mdash; Technical Director Series &mdash; Confidential</footer>
+<div class="toast" id="toast">Copied!</div>
+<script src="shared.js"></script>
+</body>
+</html>

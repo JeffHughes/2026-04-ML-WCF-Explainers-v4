@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Key Principles: The Foundation &mdash; Medline Platform Evolution</title>
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<div class="progress-bar"></div>
+<nav>
+  <a href="index.html" class="logo">ML Evolution</a>
+  <div class="nav-links">
+    <a href="01-executive-summary.html">Summary</a>
+    <a href="02-current-state.html">Today</a>
+    <a href="03-why-change.html">Why</a>
+    <a href="04-migration-overview.html">Strategy</a>
+    <a href="05-copy-split-strip.html">Copy-Split</a>
+    <a href="06-domain-map.html">Domains</a>
+    <a href="07-catalog-domain.html">Catalog</a>
+    <a href="08-cart-checkout.html">Cart</a>
+    <a href="09-remaining-domains.html">Other</a>
+    <a href="10-shell-architecture.html">Shell</a>
+    <a href="11-shell-swap.html">Swap</a>
+    <a href="12-web-component-wrapping.html">Wrapping</a>
+    <a href="13-hydration-csr.html">CSR</a>
+    <a href="14-component-standards.html">Standards</a>
+    <a href="15-component-transition.html">Transition</a>
+    <a href="16-app-catalog.html">Catalog</a>
+    <a href="17-api-scanning.html">Scanning</a>
+    <a href="18-bff-pattern.html">BFF</a>
+    <a href="19-managing-drift.html">Drift</a>
+    <a href="20-core-cadence.html">Cadence</a>
+    <a href="21-testing-strategy.html">Testing</a>
+    <a href="22-blue-green-rollouts.html">Deploy</a>
+    <a href="23-migration-timeline.html">Timeline</a>
+    <a href="24-team-impact.html">Teams</a>
+    <a href="25-key-principles.html" class="active">Principles</a>
+    <a href="dev-environment.html">DevEx</a>
+  </div>
+  <button class="theme-toggle" id="themeToggle" title="Toggle theme">&#9790;</button>
+</nav>
+<div class="hero">
+  <div class="page-num">Putting It Together</div>
+  <h1>Key Principles: The Foundation</h1>
+  <p class="subtitle">Ten principles that underpin every decision in this evolution plan. Each one is backed by W3C standards, browser vendor commitments, and industry-proven patterns.</p>
+</div>
+<main>
+
+<!-- ═══ Section 1: The 10 Principles ═══ -->
+<section>
+  <h2>The 10 Principles</h2>
+  <p>Every architecture decision, every tooling choice, and every process change in this evolution plan traces back to one or more of these principles. They are not aspirational slogans — they are <strong>operational commitments</strong> with concrete implementation in the platform.</p>
+
+  <div class="themes-grid">
+    <div class="theme-card">
+      <div class="theme-icon">&#128737;</div>
+      <h4>1. Zero-Risk Migration</h4>
+      <p>Copy, don't rewrite. The copy-split-strip technique preserves every line of working code. The old system runs in parallel until the new one is proven. There is no moment where both systems are unavailable.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#127919;</div>
+      <h4>2. Domain Independence</h4>
+      <p>Each domain ships, tests, and fails on its own schedule&mdash;enabling faster independent deployments. A bug in Cart doesn't block Catalog. A deployment in Checkout doesn't require Account to be ready. Independence is architectural, not just organizational.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#127760;</div>
+      <h4>3. Standards Over Frameworks</h4>
+      <p>W3C Web Components, not proprietary library lock-in. The browser is the runtime. Build once, deploy many&mdash;standards evolve on decade timescales with full backward compatibility. No vendor can deprecate your investment.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#9881;&#65039;</div>
+      <h4>4. Automated Governance</h4>
+      <p>App Catalog validation + API scanning + contract testing + change-mod scripts. We shift left on quality&mdash;governance without meetings. Quality enforced on every commit, not in quarterly reviews.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#128274;</div>
+      <h4>5. Backend Isolation</h4>
+      <p>The BFF pattern keeps frontend and backend decoupled. Frontend teams own their data layer. Backend teams evolve APIs without coordinating frontend changes. Each side deploys independently.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#9203;</div>
+      <h4>6. Enterprise Longevity</h4>
+      <p>10–15 year component lifespans. No framework migration tax. Web Components built today will run in browsers a decade from now — the W3C specification guarantees it.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#128197;</div>
+      <h4>7. Predictable Cadence</h4>
+      <p>One core update per year with automated upgrade scripts. Twelve months advance notice. Three versions supported on CDN simultaneously. No surprise breaking changes.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#128640;</div>
+      <h4>8. Progressive Evolution</h4>
+      <p>Teams choose their own pace. Last year's components are fine. Two years ago is also fine. The CDN serves all versions. Evolution is a continuous choice, not a mandated deadline.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#9201;</div>
+      <h4>9. Instant Rollback</h4>
+      <p>Import map versioning means sub-second rollback at the domain level. Previous versions are always on the CDN. Revert one URL, and the last known-good version is live. No rebuild, no redeploy.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#128101;</div>
+      <h4>10. Accessible Development</h4>
+      <p>HTML-first means any developer can contribute from day one. No proprietary framework expertise required. The App Catalog provides examples. Domain boundaries prevent cross-team accidents. Safe by design.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ Section 2: How Principles Reinforce Each Other ═══ -->
+<section>
+  <h2>How the Principles Reinforce Each Other</h2>
+  <p>These principles are not independent ideas — they form a <strong>reinforcing system</strong>. Domain Independence enables Instant Rollback. Standards Over Frameworks enables Enterprise Longevity. Automated Governance enables Progressive Evolution. The diagram below shows these connections.</p>
+
+  <div class="mermaid-wrap" id="d25-1">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">Fullscreen</button>
+    </div>
+    <div class="mw-view">
+      <div class="mermaid-inner" data-src="graph TB
+  ZRM[1. Zero-Risk<br/>Migration]
+  DI[2. Domain<br/>Independence]
+  SOF[3. Standards Over<br/>Frameworks]
+  AG[4. Automated<br/>Governance]
+  BI[5. Backend<br/>Isolation]
+  EL[6. Enterprise<br/>Longevity]
+  PC[7. Predictable<br/>Cadence]
+  PM[8. Progressive<br/>Evolution]
+  IR[9. Instant<br/>Rollback]
+  AD[10. Accessible<br/>Development]
+
+  ZRM -->|Safe extraction enables| DI
+  DI -->|Independent deploy enables| IR
+  SOF -->|W3C standards ensure| EL
+  AG -->|Automated checks enable| PM
+  BI -->|Decoupled APIs enable| DI
+  PC -->|Planned updates enable| PM
+  SOF -->|HTML-first enables| AD
+  AD -->|Low barrier enables| PM
+  DI -->|Scoped domains enable| AG
+  IR -->|Safe rollback enables| PC
+  EL -->|Long-lived components enable| PC
+
+  style ZRM fill:#1c2333,stroke:#58a6ff,color:#e6edf3
+  style DI fill:#0d2818,stroke:#3fb950,color:#e6edf3
+  style SOF fill:#1c2333,stroke:#d2a8ff,color:#e6edf3
+  style AG fill:#2d1b00,stroke:#f0883e,color:#e6edf3
+  style BI fill:#1c2333,stroke:#58a6ff,color:#e6edf3
+  style EL fill:#1c2333,stroke:#d2a8ff,color:#e6edf3
+  style PC fill:#0d2818,stroke:#3fb950,color:#e6edf3
+  style PM fill:#2d1b00,stroke:#f0883e,color:#e6edf3
+  style IR fill:#0d2818,stroke:#3fb950,color:#e6edf3
+  style AD fill:#1c2333,stroke:#58a6ff,color:#e6edf3"></div>
+    </div>
+    <div class="mw-caption">Fig 25.1 — Principle relationship map: how the 10 principles reinforce each other to create a self-sustaining system</div>
+  </div>
+</section>
+
+<!-- ═══ Section 3: Principles in Practice ═══ -->
+<section>
+  <h2>Principles in Practice</h2>
+  <p>Each principle isn't just a philosophy — it's implemented through specific mechanisms in the platform. Here's how each one manifests in day-to-day operations:</p>
+
+  <details>
+    <summary>&#128737; Zero-Risk Migration in Practice <span class="detail-summary">Copy-split-strip technique</span></summary>
+    <div class="detail-body">
+      <ul>
+        <li><strong>Mechanism:</strong> Copy-split-strip extracts domains without modifying the monolith</li>
+        <li><strong>Safety net:</strong> The monolith continues serving traffic until the extracted domain is fully validated</li>
+        <li><strong>Rollback:</strong> If the extraction fails, revert the import map — monolith takes over again</li>
+        <li><strong>Proof:</strong> Each extraction is tested against production traffic patterns before cutover</li>
+      </ul>
+      <p><em>See <a href="05-copy-split-strip.html">Page 5: Copy-Split-Strip</a> for the full technique.</em></p>
+    </div>
+  </details>
+
+  <details>
+    <summary>&#127919; Domain Independence in Practice <span class="detail-summary">Separate repos, pipelines, deploys</span></summary>
+    <div class="detail-body">
+      <ul>
+        <li><strong>Mechanism:</strong> Each domain has its own repository, CI pipeline, CDN path, and import map entry</li>
+        <li><strong>Enforcement:</strong> Domains cannot import from other domains' packages — only from core and their own code</li>
+        <li><strong>Testing:</strong> Domain tests run in isolation; contract tests verify boundaries</li>
+        <li><strong>Deployment:</strong> Each domain deploys independently via blue/green import map switching</li>
+      </ul>
+      <p><em>See <a href="06-domain-map.html">Page 6: Domain Map</a> for the full domain architecture.</em></p>
+    </div>
+  </details>
+
+  <details>
+    <summary>&#127760; Standards Over Frameworks in Practice <span class="detail-summary">W3C Web Components everywhere</span></summary>
+    <div class="detail-body">
+      <ul>
+        <li><strong>Mechanism:</strong> All shared components are W3C-standard Web Components (Custom Elements + Shadow DOM)</li>
+        <li><strong>Compatibility:</strong> Works with any framework — or no framework at all</li>
+        <li><strong>Longevity:</strong> Browser vendors are committed to backward compatibility for Web Components</li>
+        <li><strong>Tooling:</strong> Standard dev tools, standard testing libraries, standard CI — no proprietary lock-in</li>
+      </ul>
+      <p><em>See <a href="14-component-standards.html">Page 14: Component Standards</a> for the full specification.</em></p>
+    </div>
+  </details>
+
+  <details>
+    <summary>&#9881;&#65039; Automated Governance in Practice <span class="detail-summary">CI-enforced quality gates</span></summary>
+    <div class="detail-body">
+      <ul>
+        <li><strong>App Catalog:</strong> Validates component documentation, test coverage, and accessibility compliance</li>
+        <li><strong>API Scanning:</strong> Detects endpoint changes and alerts affected domains automatically</li>
+        <li><strong>Contract Testing:</strong> Verifies API boundaries on every commit — both consumer and provider side</li>
+        <li><strong>Change-Mod Scripts:</strong> Automates core component upgrades — no manual migration work</li>
+      </ul>
+      <p><em>See <a href="16-app-catalog.html">Page 16: App Catalog</a> and <a href="17-api-scanning.html">Page 17: API Scanning</a> for details.</em></p>
+    </div>
+  </details>
+
+  <details>
+    <summary>&#128274; Backend Isolation in Practice <span class="detail-summary">BFF pattern decouples layers</span></summary>
+    <div class="detail-body">
+      <ul>
+        <li><strong>Mechanism:</strong> Each domain's frontend communicates only with its own BFF, never directly with backend services</li>
+        <li><strong>Data shaping:</strong> BFF transforms backend data into exactly the shape the frontend needs</li>
+        <li><strong>Independence:</strong> Backend API changes are absorbed by the BFF — frontend is insulated</li>
+        <li><strong>Testing:</strong> Contract tests at both boundaries (frontend↔BFF and BFF↔backend)</li>
+      </ul>
+      <p><em>See <a href="18-bff-pattern.html">Page 18: BFF Pattern</a> for the full architecture.</em></p>
+    </div>
+  </details>
+</section>
+
+<!-- ═══ Section 4: Comparison Table ═══ -->
+<section>
+  <h2>Principles vs. Traditional Approaches</h2>
+  <table class="compare-table">
+    <thead>
+      <tr>
+        <th>Principle</th>
+        <th class="good">This Platform's Approach</th>
+        <th class="bad">Traditional Monolith Approach</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Migration strategy</td>
+        <td class="good">Copy-split-strip: zero-risk, incremental</td>
+        <td class="bad">Big-bang rewrite: all-or-nothing gamble</td>
+      </tr>
+      <tr>
+        <td>Team coupling</td>
+        <td class="good">Domain independence: ship alone</td>
+        <td class="bad">Release trains: wait for everyone</td>
+      </tr>
+      <tr>
+        <td>Technology foundation</td>
+        <td class="good">W3C standards: decade-scale longevity</td>
+        <td class="bad">Framework-first: 2-3 year rewrite cycles</td>
+      </tr>
+      <tr>
+        <td>Quality enforcement</td>
+        <td class="good">Automated gates: every commit checked</td>
+        <td class="bad">Manual reviews: inconsistent, slow</td>
+      </tr>
+      <tr>
+        <td>API management</td>
+        <td class="good">BFF isolation: layers decoupled</td>
+        <td class="bad">Direct coupling: backend breaks frontend</td>
+      </tr>
+      <tr>
+        <td>Component lifespan</td>
+        <td class="good">10-15 years: browser-guaranteed</td>
+        <td class="bad">2-3 years: framework deprecation pressure</td>
+      </tr>
+      <tr>
+        <td>Upgrade cadence</td>
+        <td class="good">Annual, scripted, optional</td>
+        <td class="bad">Unpredictable, manual, forced</td>
+      </tr>
+      <tr>
+        <td>Rollback capability</td>
+        <td class="good">Sub-second via import map</td>
+        <td class="bad">Hours via full rebuild and redeploy</td>
+      </tr>
+      <tr>
+        <td>Developer onboarding</td>
+        <td class="good">HTML/CSS/JS — productive day one</td>
+        <td class="bad">Framework-specific — weeks to ramp up</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ═══ Section 5: What's Next ═══ -->
+<section>
+  <h2>What's Next: Dive Deeper</h2>
+  <p>You've seen the complete picture: from the current state to the migration strategy, from domain extraction to deployment mechanics, from testing to governance. Now it's time to <strong>dig into the topics that matter most to your teams</strong>.</p>
+
+  <div class="themes-grid">
+    <div class="theme-card">
+      <div class="theme-icon">&#128204;</div>
+      <h4>For Migration Planning</h4>
+      <p>Start with <a href="04-migration-overview.html">Migration Overview</a>, then <a href="05-copy-split-strip.html">Copy-Split-Strip</a> and <a href="23-migration-timeline.html">Migration Timeline</a>.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#128736;</div>
+      <h4>For Architecture Decisions</h4>
+      <p>Review <a href="10-shell-architecture.html">Shell Architecture</a>, <a href="12-web-component-wrapping.html">Web Component Wrapping</a>, and <a href="18-bff-pattern.html">BFF Pattern</a>.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#128101;</div>
+      <h4>For Team Leads</h4>
+      <p>Focus on <a href="24-team-impact.html">Team Impact</a>, <a href="21-testing-strategy.html">Testing Strategy</a>, and <a href="22-blue-green-rollouts.html">Blue/Green Deployments</a>.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#128200;</div>
+      <h4>For Governance</h4>
+      <p>See <a href="16-app-catalog.html">App Catalog</a>, <a href="17-api-scanning.html">API Scanning</a>, and <a href="19-managing-drift.html">Managing Drift</a>.</p>
+    </div>
+  </div>
+
+  <div class="industry-std">
+    <strong>Industry Standard: Standards-Based Architecture</strong>
+    Every technology decision in this plan is backed by W3C standards, browser vendor commitments, and industry-proven patterns. There are no proprietary bets. Web Components, import maps, CDN distribution, contract testing, blue/green deployments, and BFF patterns are all battle-tested at organizations like Google, Spotify, Amazon, and Shopify. This is not experimental technology — it is the established path for enterprise platform evolution.
+  </div>
+
+  <div class="callout success">
+    <strong>&#9989; The Bottom Line</strong>
+    This evolution plan delivers speed, simplicity, safety, and independence — all built on industry standards that will outlast any single framework's lifecycle. Your teams get self-service deployment, automated governance, and day-one productivity. The platform gets 10-15 year component longevity with a predictable annual cadence. And the organization gets a migration path that delivers value at every phase, with zero all-or-nothing risk.
+  </div>
+</section>
+
+</main>
+<div style="max-width:900px;margin:0 auto;padding:0 1.5rem;">
+  <div class="page-nav">
+    <a href="24-team-impact.html"><span class="pn-label">&larr; Previous</span><span class="pn-title">What Changes for Your Teams</span></a>
+    <a href="index.html" class="next"><span class="pn-label">Back to Index &rarr;</span><span class="pn-title">All Pages</span></a>
+  </div>
+</div>
+<footer>Medline Platform Evolution &mdash; v5 &mdash; 2026-04-05 &mdash; Technical Director Series &mdash; Confidential</footer>
+<div class="toast" id="toast">Copied!</div>
+<script src="shared.js"></script>
+</body>
+</html>

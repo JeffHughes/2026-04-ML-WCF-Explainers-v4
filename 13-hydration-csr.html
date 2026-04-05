@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSR Hydration: Why Client-Side Wins for Enterprise Commerce &mdash; Medline Platform Evolution</title>
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<div class="progress-bar"></div>
+<nav>
+  <a href="index.html" class="logo">ML Evolution</a>
+  <div class="nav-links">
+    <a href="01-executive-summary.html">Summary</a>
+    <a href="02-current-state.html">Today</a>
+    <a href="03-why-change.html">Why</a>
+    <a href="04-migration-overview.html">Strategy</a>
+    <a href="05-copy-split-strip.html">Copy-Split</a>
+    <a href="06-domain-map.html">Domains</a>
+    <a href="07-catalog-domain.html">Catalog</a>
+    <a href="08-cart-checkout.html">Cart</a>
+    <a href="09-remaining-domains.html">Other</a>
+    <a href="10-shell-architecture.html">Shell</a>
+    <a href="11-shell-swap.html">Swap</a>
+    <a href="12-web-component-wrapping.html">Wrapping</a>
+    <a href="13-hydration-csr.html" class="active">CSR</a>
+    <a href="14-component-standards.html">Standards</a>
+    <a href="15-component-transition.html">Transition</a>
+    <a href="16-app-catalog.html">Catalog</a>
+    <a href="17-api-scanning.html">Scanning</a>
+    <a href="18-bff-pattern.html">BFF</a>
+    <a href="19-managing-drift.html">Drift</a>
+    <a href="20-core-cadence.html">Cadence</a>
+    <a href="21-testing-strategy.html">Testing</a>
+    <a href="22-blue-green-rollouts.html">Deploy</a>
+    <a href="23-migration-timeline.html">Timeline</a>
+    <a href="24-team-impact.html">Teams</a>
+    <a href="25-key-principles.html">Principles</a>
+    <a href="dev-environment.html">DevEx</a>
+  </div>
+  <button class="theme-toggle" id="themeToggle" title="Toggle theme">&#9790;</button>
+</nav>
+<div class="hero">
+  <div class="page-num">New Architecture</div>
+  <h1>CSR Hydration: Why Client-Side Wins for Enterprise Commerce</h1>
+  <p class="subtitle">Patterns that made sense for SEO-driven content blogs in 2016 don&rsquo;t optimize for authenticated enterprise commerce in 2026</p>
+</div>
+<main>
+
+  <!-- ════════════════════════════════════════════ -->
+  <section>
+    <h2>The SSR Monolith Problem</h2>
+    <p>The current platform renders every page server-side through a shared Node.js process. This means every page request &mdash; whether it&rsquo;s a product listing, a cart view, or the checkout flow &mdash; passes through the <strong>same SSR server</strong>. One slow domain&rsquo;s rendering blocks the entire page&rsquo;s Time to First Byte (TTFB).</p>
+
+    <h3>How SSR Monolith Rendering Works Today</h3>
+    <ol>
+      <li>Browser sends request to server</li>
+      <li>Server receives request, starts rendering the full page</li>
+      <li>Server calls backend APIs for product data, cart data, CMS data, user data</li>
+      <li>Server waits for <strong>all</strong> API responses (slowest one determines total time)</li>
+      <li>Server renders the complete HTML with all data embedded</li>
+      <li>Server sends HTML to browser</li>
+      <li>Browser displays the HTML (looks fast &mdash; but user can&rsquo;t interact yet)</li>
+      <li>Browser downloads the full JS bundle (~2MB+)</li>
+      <li>Browser &ldquo;hydrates&rdquo; the page &mdash; React re-renders everything client-side to attach event handlers</li>
+      <li>Page is finally interactive (Time to Interactive)</li>
+    </ol>
+
+    <div class="callout danger">
+      <strong>&#9888;&#65039; The Hydration Tax</strong>
+      SSR hydration means the page renders <strong>twice</strong>: once on the server (generating HTML) and once on the client (React re-creating the same DOM to attach event handlers). For a complex page with 84+ micro frontends, this double-rendering is the single largest performance bottleneck. Users see content but can&rsquo;t click anything until hydration completes.
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════ -->
+  <section>
+    <h2>SSR vs. CSR: Side-by-Side Comparison</h2>
+
+    <div class="mermaid-wrap" id="d13-1">
+      <div class="mw-toolbar">
+        <button onclick="mzoom(this,1.2)">+</button>
+        <button onclick="mzoom(this,0.8)">&minus;</button>
+        <button onclick="mreset(this)">Reset</button>
+        <button onclick="mfull(this)">&#x26F6;</button>
+      </div>
+      <div class="mw-view"><div class="mermaid-inner" data-src="graph TB
+    subgraph SSR[&quot;SSR Monolith Request Flow&quot;]
+      direction TB
+      B1[Browser Request] --> S1[Node.js SSR Server]
+      S1 --> API1[Product API]
+      S1 --> API2[Cart API]
+      S1 --> API3[CMS API]
+      S1 --> API4[User API]
+      API1 --> WAIT1[Wait for ALL responses]
+      API2 --> WAIT1
+      API3 --> WAIT1
+      API4 --> WAIT1
+      WAIT1 --> RENDER1[Server renders full HTML]
+      RENDER1 --> HTML1[Send ~500KB HTML to browser]
+      HTML1 --> DL1[Download ~2MB JS bundle]
+      DL1 --> HYD1[Hydrate — re-render everything client-side]
+      HYD1 --> INT1[Finally interactive]
+    end
+    subgraph CSR[&quot;CSR + BFF Request Flow&quot;]
+      direction TB
+      B2[Browser Request] --> CDN2[CDN serves shell HTML + JS]
+      CDN2 --> SHELL2[Shell renders instantly — header/footer/skeleton]
+      SHELL2 --> MOD2[Load domain module from CDN — cached]
+      MOD2 --> BFF2[Domain fetches from its BFF]
+      BFF2 --> DATA2[BFF aggregates backend data]
+      DATA2 --> RENDER2[Domain renders its content]
+      RENDER2 --> INT2[Interactive immediately — no hydration step]
+    end
+
+    style SSR fill:#3d1418,stroke:#f85149,color:#e6edf3
+    style CSR fill:#0d2818,stroke:#3fb950,color:#e6edf3"></div></div>
+      <div class="mw-caption">SSR monolith vs. CSR + BFF &mdash; SSR serializes everything through one server; CSR parallelizes from CDN</div>
+    </div>
+
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Metric</th>
+          <th>SSR Monolith</th>
+          <th>CSR + BFF</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Time to First Byte (TTFB)</td>
+          <td class="bad">Slow &mdash; server must render full page before sending anything</td>
+          <td class="good">Fast &mdash; CDN serves static HTML in milliseconds</td>
+        </tr>
+        <tr>
+          <td>First Contentful Paint (FCP)</td>
+          <td class="neutral">Fast once HTML arrives (content is in the HTML)</td>
+          <td class="good">Fast &mdash; shell skeleton renders immediately</td>
+        </tr>
+        <tr>
+          <td>Time to Interactive (TTI)</td>
+          <td class="bad">Slow &mdash; must download and hydrate full JS bundle</td>
+          <td class="good">Fast &mdash; only the active domain's JS loads, no hydration step</td>
+        </tr>
+        <tr>
+          <td>Largest Contentful Paint (LCP)</td>
+          <td class="neutral">Depends on backend API speed</td>
+          <td class="good">Domain data loads in parallel with shell rendering</td>
+        </tr>
+        <tr>
+          <td>Server infrastructure</td>
+          <td class="bad">Node.js SSR servers (compute-intensive, memory-heavy)</td>
+          <td class="good">Static files on CDN (no servers to scale)</td>
+        </tr>
+        <tr>
+          <td>Failure blast radius</td>
+          <td class="bad">SSR server down = entire site down</td>
+          <td class="good">CDN is always up; individual domain failure is isolated</td>
+        </tr>
+        <tr>
+          <td>Cache efficiency</td>
+          <td class="bad">Dynamic HTML is hard to cache (per-user, per-session)</td>
+          <td class="good">Shell and domain modules are versioned, immutable, cached forever</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════════════════════════════════════ -->
+  <section>
+    <h2>Page Load Timeline: SSR Blocking vs. CSR Parallel</h2>
+
+    <div class="mermaid-wrap" id="d13-2">
+      <div class="mw-toolbar">
+        <button onclick="mzoom(this,1.2)">+</button>
+        <button onclick="mzoom(this,0.8)">&minus;</button>
+        <button onclick="mreset(this)">Reset</button>
+        <button onclick="mfull(this)">&#x26F6;</button>
+      </div>
+      <div class="mw-view"><div class="mermaid-inner" data-src="gantt
+    title Page Load Timeline Comparison
+    dateFormat X
+    axisFormat %Lms
+
+    section SSR Monolith
+    Server receives request     :ssr1, 0, 50
+    Server calls 4 backend APIs :ssr2, 50, 400
+    Server renders full HTML    :ssr3, 400, 550
+    Network transfer HTML       :ssr4, 550, 650
+    Browser paints HTML         :ssr5, 650, 700
+    Download 2MB JS bundle      :ssr6, 700, 1200
+    Hydrate all components      :ssr7, 1200, 1800
+    INTERACTIVE                 :milestone, 1800, 1800
+
+    section CSR + BFF
+    CDN serves shell HTML+JS    :csr1, 0, 50
+    Shell renders skeleton      :csr2, 50, 100
+    Load domain module (cached) :csr3, 100, 200
+    Domain fetches BFF data     :csr4, 200, 500
+    Domain renders content      :csr5, 500, 600
+    INTERACTIVE                 :milestone, 600, 600"></div></div>
+      <div class="mw-caption">SSR: ~1800ms to interactive. CSR + BFF: ~600ms to interactive. CSR eliminates the hydration bottleneck entirely.</div>
+    </div>
+
+    <div class="callout success">
+      <strong>&#9989; The Key Difference: Hydration vs. No Hydration</strong>
+      In the SSR model, the browser receives server-rendered HTML and then must download the entire JS bundle and &ldquo;hydrate&rdquo; (re-render) everything to make it interactive. In the CSR model, the shell renders a skeleton instantly, loads only the domain module that&rsquo;s needed, and renders once. There&rsquo;s no double-rendering. Interactive faster, with less code downloaded.
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════ -->
+  <section>
+    <h2>The SEO Concern &mdash; Addressed</h2>
+    <p>The most common objection to CSR is: &ldquo;What about SEO? Search engines need server-rendered HTML.&rdquo; This concern is valid for public content blogs. It is <strong>largely irrelevant</strong> for authenticated enterprise B2B commerce. Here&rsquo;s why:</p>
+
+    <h3>What Needs SEO</h3>
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Page Type</th>
+          <th>SEO Critical?</th>
+          <th>Solution</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Product Listing Pages (PLP)</td>
+          <td class="neutral">Yes (public catalog)</td>
+          <td>Pre-rendered / Static Site Generation (SSG) at build time</td>
+        </tr>
+        <tr>
+          <td>Product Detail Pages (PDP)</td>
+          <td class="neutral">Yes (public catalog)</td>
+          <td>Pre-rendered / SSG with incremental regeneration</td>
+        </tr>
+        <tr>
+          <td>Marketing / CMS pages</td>
+          <td class="neutral">Yes</td>
+          <td>Pre-rendered from headless CMS at publish time</td>
+        </tr>
+        <tr>
+          <td>Cart page</td>
+          <td class="good">No &mdash; authenticated, per-user</td>
+          <td>CSR only</td>
+        </tr>
+        <tr>
+          <td>Checkout flow</td>
+          <td class="good">No &mdash; authenticated, per-session</td>
+          <td>CSR only</td>
+        </tr>
+        <tr>
+          <td>Account pages</td>
+          <td class="good">No &mdash; authenticated, private</td>
+          <td>CSR only</td>
+        </tr>
+        <tr>
+          <td>Admin console</td>
+          <td class="good">No &mdash; internal only</td>
+          <td>CSR only</td>
+        </tr>
+        <tr>
+          <td>Search results</td>
+          <td class="neutral">Partially (some engines index)</td>
+          <td>Pre-render popular queries, CSR for long-tail</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Pre-Rendering: The Best of Both Worlds</h3>
+    <p>For the pages that need SEO (PLP, PDP, CMS), <strong>pre-rendering</strong> (also called Static Site Generation or SSG) generates HTML at build/publish time, not at request time. The pre-rendered HTML is cached on CDN and served instantly. When the user&rsquo;s browser loads it, the CSR shell takes over and makes it interactive.</p>
+
+    <ul>
+      <li><strong>Build-time generation</strong> &mdash; Product pages are generated from the Catalog BFF data during the CI/CD pipeline</li>
+      <li><strong>Incremental regeneration</strong> &mdash; When product data changes, only affected pages are re-generated (not the entire catalog)</li>
+      <li><strong>CDN-cached</strong> &mdash; Pre-rendered HTML is immutable and cached at the CDN edge. TTFB is sub-50ms globally.</li>
+      <li><strong>CSR takes over</strong> &mdash; Once the static HTML loads, the shell&rsquo;s JS activates the interactive elements (search, filters, add-to-cart)</li>
+    </ul>
+
+    <div class="industry-std">
+      <strong>Industry Standard: Static Site Generation + Client-Side Hydration</strong>
+      This is the &ldquo;Jamstack&rdquo; pattern used by Shopify (Hydrogen), Vercel (Next.js static export), Netlify, and every major e-commerce platform that needs both SEO and interactivity. Pre-render for crawlers, hydrate for users. No SSR servers needed.
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════ -->
+  <section>
+    <h2>Why SSR Made Sense in 2016 (and Doesn&rsquo;t in 2026)</h2>
+    <p>Server-side rendering was the right choice when the platform was first built. Here&rsquo;s what changed:</p>
+
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Factor</th>
+          <th>2016</th>
+          <th>2026</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Search engine crawlers</td>
+          <td>Couldn&rsquo;t execute JavaScript reliably</td>
+          <td>Google, Bing fully render JavaScript pages; plus pre-rendering solves it completely</td>
+        </tr>
+        <tr>
+          <td>Browser capabilities</td>
+          <td>No Custom Elements, no Shadow DOM, no import maps</td>
+          <td>All standards supported in every browser</td>
+        </tr>
+        <tr>
+          <td>CDN capabilities</td>
+          <td>Static file hosting only</td>
+          <td>Edge compute, edge caching, global distribution with sub-50ms TTFB</td>
+        </tr>
+        <tr>
+          <td>Device performance</td>
+          <td>Many users on slow devices needed server-rendered HTML</td>
+          <td>Enterprise B2B users are on modern hardware with fast connections</td>
+        </tr>
+        <tr>
+          <td>User context</td>
+          <td>Public website with anonymous visitors</td>
+          <td>Authenticated enterprise platform &mdash; 90%+ of pages are behind login</td>
+        </tr>
+        <tr>
+          <td>Application complexity</td>
+          <td>Simple e-commerce storefront</td>
+          <td>84+ micro frontends, complex state, multiple domains</td>
+        </tr>
+        <tr>
+          <td>Hydration patterns</td>
+          <td>Small bundles, hydration was fast</td>
+          <td>2MB+ bundles, hydration is the #1 performance bottleneck</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout">
+      <strong>&#128161; Context Matters More Than Dogma</strong>
+      SSR is still the right choice for public-facing content sites, blogs, and marketing pages where SEO and first-paint speed for anonymous visitors on slow connections are paramount. But for an authenticated enterprise B2B commerce platform where 90% of page views are behind a login, CSR + CDN + BFF is categorically faster, simpler, and more resilient.
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════ -->
+  <section>
+    <h2>CSR Performance Advantages for Enterprise Commerce</h2>
+
+    <details>
+      <summary>CDN-Cached Bundles Load Faster Than SSR Responses <span class="detail-summary">Static vs. dynamic response times</span></summary>
+      <div class="detail-body">
+        <p>The shell HTML and all domain JS modules are versioned, immutable files served from CDN edge locations worldwide. They&rsquo;re served from the closest edge node to the user with sub-50ms latency. Compare this to an SSR response that must:</p>
+        <ol>
+          <li>Route to a data center (potentially across regions)</li>
+          <li>Execute server-side rendering code</li>
+          <li>Wait for backend API responses</li>
+          <li>Generate HTML dynamically</li>
+          <li>Send the response back</li>
+        </ol>
+        <p>For an authenticated user who has visited before, <strong>every asset is already cached in the browser</strong>. The only network request is the BFF data fetch, which returns lightweight JSON &mdash; not a full HTML page.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary>Independent Domain Loading <span class="detail-summary">Only load what the user needs</span></summary>
+      <div class="detail-body">
+        <p>In the SSR monolith, the server renders the entire page including all micro frontends, and the browser downloads the entire JS bundle to hydrate them all. In the CSR model:</p>
+        <ul>
+          <li>The shell loads (~30KB)</li>
+          <li>Only the active domain&rsquo;s module loads (typically 50&ndash;200KB)</li>
+          <li>Other domains don&rsquo;t load until the user navigates to them</li>
+          <li>Subsequent navigation is instant because the shell is already loaded</li>
+        </ul>
+        <p>First page load downloads ~100KB instead of ~2MB. That&rsquo;s an order-of-magnitude improvement.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary>No Hydration Mismatch Risk <span class="detail-summary">Eliminating a class of bugs entirely</span></summary>
+      <div class="detail-body">
+        <p>SSR hydration is fragile. If the server-rendered HTML doesn&rsquo;t exactly match what React generates client-side (e.g., due to timezone differences, user-specific data, or race conditions), React throws a &ldquo;hydration mismatch&rdquo; error and re-renders the entire page from scratch &mdash; worse than not having SSR at all.</p>
+        <p>CSR eliminates this entire class of bugs. There&rsquo;s no server-rendered HTML to mismatch against. The domain module renders once, in the browser, with the correct client-side context. Simple, predictable, testable.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary>Resilience: CDN vs. SSR Server <span class="detail-summary">What happens when infrastructure fails</span></summary>
+      <div class="detail-body">
+        <table class="compare-table">
+          <thead>
+            <tr><th>Failure Scenario</th><th>SSR Monolith</th><th>CSR + CDN</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>SSR server goes down</td>
+              <td class="bad">Entire site returns 500 errors</td>
+              <td class="good">Not applicable &mdash; no SSR server</td>
+            </tr>
+            <tr>
+              <td>Backend API is slow</td>
+              <td class="bad">SSR blocks on slow API; entire page TTFB degrades</td>
+              <td class="good">Shell renders instantly; domain shows loading state, then data</td>
+            </tr>
+            <tr>
+              <td>One domain has a bug</td>
+              <td class="bad">Shared SSR server may crash, affecting all domains</td>
+              <td class="good">Error boundary catches it; other domains continue working</td>
+            </tr>
+            <tr>
+              <td>Traffic spike</td>
+              <td class="bad">Must scale SSR servers (expensive, slow to spin up)</td>
+              <td class="good">CDN handles unlimited traffic; BFFs scale independently per domain</td>
+            </tr>
+            <tr>
+              <td>CDN edge node goes down</td>
+              <td class="bad">Also affected &mdash; still serves static assets from CDN</td>
+              <td class="neutral">CDN failover to next nearest edge (automatic, sub-second)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </details>
+  </section>
+
+  <!-- ════════════════════════════════════════════ -->
+  <section>
+    <h2>The BFF&rsquo;s Role in the CSR Architecture</h2>
+    <p>In the CSR model, the shell never talks to backend services directly. Each domain&rsquo;s BFF (Backend-for-Frontend) handles data fetching, aggregation, and transformation. This is important because:</p>
+
+    <ul>
+      <li><strong>Separation of concerns</strong> &mdash; The browser handles rendering; the BFF handles data. Neither does both.</li>
+      <li><strong>Security</strong> &mdash; Internal service credentials stay on the server. The browser only talks to the domain&rsquo;s public BFF endpoint.</li>
+      <li><strong>Performance</strong> &mdash; The BFF runs close to the backends (same cluster, low latency). It aggregates multiple backend calls into a single JSON response.</li>
+      <li><strong>Contract ownership</strong> &mdash; The domain team owns both the frontend component <em>and</em> the BFF. They define the exact JSON shape their UI needs.</li>
+    </ul>
+
+    <div class="callout">
+      <strong>&#128161; BFF Is Not &ldquo;Just an API Gateway&rdquo;</strong>
+      An API gateway routes requests. A BFF <em>transforms</em> data for a specific frontend. The Catalog BFF knows that the PLP needs product name, first image, price, and availability &mdash; not the entire 200-field product entity. It returns exactly what the UI needs, nothing more. This keeps payloads small and rendering fast.
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════ -->
+  <section>
+    <h2>Summary: The CSR Advantage for This Platform</h2>
+
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-num green">CDN</div>
+        <div class="stat-label">All static assets served from CDN edge &mdash; sub-50ms TTFB globally</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num green">0</div>
+        <div class="stat-label">SSR servers to manage, scale, or pay for</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num green">1x</div>
+        <div class="stat-label">Rendering happens once (client) not twice (server + hydration)</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num green">Isolated</div>
+        <div class="stat-label">Each domain loads independently &mdash; one failure never blocks the page</div>
+      </div>
+    </div>
+
+    <div class="industry-std">
+      <strong>Industry Standard: CSR for Authenticated Applications</strong>
+      Every major SaaS platform (Salesforce, Workday, ServiceNow, SAP), every enterprise dashboard (Datadog, Grafana, Splunk), and every authenticated commerce platform (Shopify admin, Amazon Seller Central) uses CSR for authenticated experiences. SSR is reserved for the public-facing storefront where SEO matters &mdash; and even there, pre-rendering has replaced runtime SSR in modern architectures.
+    </div>
+
+    <p>The move from SSR monolith to CSR + BFF is not about following trends. It&rsquo;s about matching the architecture to the platform&rsquo;s actual usage pattern: <strong>authenticated users, on fast connections, accessing personalized data, across multiple domains</strong>. For this profile, CSR is categorically superior in speed, simplicity, resilience, and operational cost.</p>
+  </section>
+
+</main>
+<div style="max-width:900px;margin:0 auto;padding:0 1.5rem;">
+  <div class="page-nav">
+    <a href="12-web-component-wrapping.html"><span class="pn-label">&larr; Previous</span><span class="pn-title">Wrapping React MFEs in Web Components</span></a>
+    <a href="14-component-standards.html" class="next"><span class="pn-label">Next &rarr;</span><span class="pn-title">Component Standards</span></a>
+  </div>
+</div>
+<footer>Medline Platform Evolution &mdash; v5 &mdash; 2026-04-05 &mdash; Technical Director Series &mdash; Confidential</footer>
+<div class="toast" id="toast">Copied!</div>
+<script src="shared.js"></script>
+</body>
+</html>

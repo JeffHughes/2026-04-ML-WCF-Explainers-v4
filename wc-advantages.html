@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Web Components: Why the Platform Always Wins &mdash; Medline Platform Evolution</title>
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<div class="progress-bar"></div>
+<nav>
+  <a href="index.html" class="logo">ML Evolution</a>
+  <div class="nav-links">
+    <a href="index.html">Migration Series</a>
+    <a href="01-executive-summary.html">Summary</a>
+    <a href="02-current-state.html">Today</a>
+    <a href="03-why-change.html">Next Phase</a>
+    <a href="wc-advantages.html" class="active">Web Components</a>
+    <a href="04-migration-overview.html">Strategy</a>
+    <a href="14-component-standards.html">Standards</a>
+    <a href="15-component-transition.html">Transition</a>
+    <a href="t-index.html">Training</a>
+    <a href="p-index.html">Progress</a>
+  </div>
+  <button class="theme-toggle" id="themeToggle" title="Toggle theme">&#9790;</button>
+</nav>
+
+<div class="hero">
+  <div class="page-num">Reference</div>
+  <h1>Web Components: Why the Platform Always Wins</h1>
+  <p class="subtitle">The case for building on browser-native W3C standards instead of framework abstractions that reinvent themselves every 18 months.</p>
+</div>
+
+<main>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     SECTION 1: Framework-Agnostic by Design
+     ═══════════════════════════════════════════════════════════════════ -->
+<section>
+  <h2>&#9633; Framework-Agnostic by Design</h2>
+  <p>Web Components are the universal container. A <code>&lt;ml-product-card&gt;</code> element can host <em>anything</em> inside its Shadow DOM&mdash;a React render tree, a Vue instance, a Svelte component, plain vanilla JS, or whatever framework appears in 2028. The shell doesn&#8217;t care. The contract is standard: <strong>HTML attributes in, DOM events out.</strong> Inside can be anything the team finds productive.</p>
+  <p>But this system <strong>prefers</strong> plain vanilla, HTML-first MV* Web Components over virtual-DOM framework abstractions. Here are twelve concrete reasons why:</p>
+
+  <div class="themes-grid">
+    <div class="theme-card">
+      <div class="theme-icon">&#9633;</div>
+      <h4>1. Zero Runtime Overhead</h4>
+      <p>No framework JavaScript to download, parse, and execute before your component renders. The browser <em>is</em> the runtime. First paint happens the moment the HTML arrives.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#9635;</div>
+      <h4>2. Real DOM, Not Virtual DOM</h4>
+      <p>No reconciliation tax. No diffing algorithm. No stale closure bugs. You update the DOM directly, and the browser does what browsers do best&mdash;paint pixels.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#9641;</div>
+      <h4>3. Native Browser DevTools</h4>
+      <p>Inspect elements, Shadow DOM trees, event listeners, and CSS with built-in browser tools. No extension installation. No framework-specific debug panel. What you see is what the browser sees.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#8614;</div>
+      <h4>4. Shadow DOM Isolation</h4>
+      <p>Style encapsulation is free, built into the platform. One component&#8217;s CSS cannot leak into another. No CSS-in-JS libraries, no module hashing, no naming conventions required.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#9633;</div>
+      <h4>5. Standard Lifecycle</h4>
+      <p><code>connectedCallback</code>, <code>disconnectedCallback</code>, <code>attributeChangedCallback</code>&mdash;browser-native, documented on MDN, stable since 2018. No framework-specific lifecycle to memorize.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#9635;</div>
+      <h4>6. No Build Step Required</h4>
+      <p>Standard JavaScript files work as-is. No JSX transpilation. No compiler. No framework-specific Babel plugins. Ship <code>.js</code> files and the browser runs them.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#9641;</div>
+      <h4>7. CDN-Loadable</h4>
+      <p>Each component is a single ES module loaded via import map and cached at the edge. Version updates happen by changing a URL in the import map&mdash;no rebuild, no redeploy of the shell.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#8614;</div>
+      <h4>8. AI-Friendly</h4>
+      <p>HTML, CSS, and JavaScript are the most understood code on earth. Every AI coding tool&mdash;every LLM, every autocomplete engine&mdash;excels at standard web technologies. Framework-specific DSLs and abstractions confuse AI tools more often than they help.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#9633;</div>
+      <h4>9. Universal Hiring Pool</h4>
+      <p>Every web developer knows HTML, CSS, and JS. Framework-specific knowledge is not required. Offshore teams, contractors, new hires&mdash;they all start contributing on day one, not after weeks of framework training.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#9635;</div>
+      <h4>10. No Upgrade Treadmill</h4>
+      <p>W3C specs are backwards-compatible by design. Code written today works in 2036. No major version migrations. No paradigm shifts. No breaking changes every 18 months.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#9641;</div>
+      <h4>11. Testable with Standard APIs</h4>
+      <p><code>document.querySelector</code>, <code>element.dispatchEvent</code>, <code>element.getAttribute</code>&mdash;standard DOM APIs are your test harness. Any test runner works. No framework-specific testing library required.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#8614;</div>
+      <h4>12. Interoperable Everywhere</h4>
+      <p>Works in any CMS, any shell, any page, any framework&#8217;s render tree. A Web Component is just an HTML element. Drop it anywhere HTML is understood&mdash;which is everywhere.</p>
+    </div>
+  </div>
+
+  <div class="mermaid-wrap" id="dwc-1">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">&#9974;</button>
+    </div>
+    <div class="mw-view">
+      <div class="mermaid-inner" data-src="graph LR
+  subgraph WC[Web Component Contract]
+    direction TB
+    A[HTML Attributes In] --> B[Custom Element]
+    B --> C[DOM Events Out]
+  end
+  subgraph Inside[What Lives Inside]
+    direction TB
+    D[React Render Tree]
+    E[Vue Instance]
+    F[Svelte Component]
+    G[Plain Vanilla JS]
+    H[Whatever Comes Next]
+  end
+  D --> B
+  E --> B
+  F --> B
+  G --> B
+  H --> B
+  style B fill:#58a6ff,stroke:#58a6ff,color:#fff
+  style A fill:#3fb950,stroke:#3fb950,color:#fff
+  style C fill:#3fb950,stroke:#3fb950,color:#fff
+  style D fill:#8b949e,stroke:#8b949e,color:#fff
+  style E fill:#8b949e,stroke:#8b949e,color:#fff
+  style F fill:#8b949e,stroke:#8b949e,color:#fff
+  style G fill:#d2a8ff,stroke:#d2a8ff,color:#fff
+  style H fill:#8b949e,stroke:#8b949e,color:#fff"></div>
+    </div>
+    <div class="mw-caption">Figure WC-1: Web Components are framework-agnostic containers. The shell sees standard HTML elements. What lives inside each element is the team&#8217;s choice.</div>
+  </div>
+
+  <div class="industry-std">
+    <strong>Industry Standard: Framework-Agnostic Component Model</strong>
+    W3C Custom Elements, Shadow DOM, HTML Templates, and ES Modules are shipping in Chrome, Firefox, Safari, and Edge. Every browser vendor maintains these APIs. No single company can deprecate them. This is the stable, production-ready browser platform.
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     SECTION 2: The Framework Fad Cycle
+     ═══════════════════════════════════════════════════════════════════ -->
+<section>
+  <h2>&#9635; The Framework Fad Cycle</h2>
+  <p>The frontend ecosystem follows a predictable pattern. Every 18&#8211;24 months, the dominant framework introduces a paradigm shift&mdash;a fundamental change in how developers are expected to build components, manage state, handle routing, or render on the server. The shift isn&#8217;t a minor version bump. It&#8217;s a new mental model that invalidates the patterns teams just finished learning.</p>
+
+  <p>The consequences compound across the enterprise:</p>
+  <ul>
+    <li><strong>Teams that just finished absorbing the last paradigm</strong> now need to relearn how their own code should be structured.</li>
+    <li><strong>The ecosystem of supporting libraries fractures.</strong> Routers, state managers, CSS solutions, form handlers, test utilities&mdash;each library has its own migration timeline, and none of them align.</li>
+    <li><strong>Third-party integrations break.</strong> The analytics library that worked last year doesn&#8217;t support the new rendering model. The design system hasn&#8217;t caught up yet.</li>
+    <li><strong>Enterprise platforms can&#8217;t keep pace.</strong> A platform needs a 5&#8211;15 year lifespan. When the underlying framework reinvents itself every 18 months, the platform is always either mid-migration or falling behind.</li>
+    <li><strong>Knowledge becomes perishable.</strong> A developer&#8217;s deep expertise in last year&#8217;s paradigm becomes partial expertise in this year&#8217;s paradigm. Training never ends.</li>
+  </ul>
+
+  <div class="mermaid-wrap" id="dwc-2">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">&#9974;</button>
+    </div>
+    <div class="mw-view">
+      <div class="mermaid-inner" data-src="graph TD
+  A[New Framework Paradigm] -->|hype cycle| B[Rapid Adoption]
+  B -->|18-24 months| C[Ecosystem Maturity]
+  C -->|innovation pressure| D[New Paradigm Announced]
+  D -->|deprecation warnings| E[Migration Tax]
+  E -->|rewrite begins| A
+  style A fill:#f0883e,stroke:#f0883e,color:#fff
+  style B fill:#58a6ff,stroke:#58a6ff,color:#fff
+  style C fill:#3fb950,stroke:#3fb950,color:#fff
+  style D fill:#f0883e,stroke:#f0883e,color:#fff
+  style E fill:#f85149,stroke:#f85149,color:#fff"></div>
+    </div>
+    <div class="mw-caption">Figure WC-2: The Framework Fad Cycle &#8212; new paradigm &#8594; adoption &#8594; maturity &#8594; new paradigm &#8594; migration tax &#8594; repeat. Enterprise platforms pay this tax every cycle.</div>
+  </div>
+
+  <details>
+    <summary>The Anatomy of a Paradigm Shift <span class="detail-summary">What actually changes every 18 months</span></summary>
+    <div class="detail-body">
+      <p>A paradigm shift isn&#8217;t just a new API. It&#8217;s a cascade of breaking changes across the entire development stack:</p>
+      <table class="compare-table">
+        <thead>
+          <tr><th>Layer</th><th>What Changes</th><th>Impact</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Component model</strong></td><td>How you define and compose components</td><td class="bad">Every component rewritten</td></tr>
+          <tr><td><strong>State management</strong></td><td>How you manage and share state</td><td class="bad">Architecture redesign</td></tr>
+          <tr><td><strong>Rendering model</strong></td><td>Client vs server vs hybrid rendering</td><td class="bad">Deployment pipeline changes</td></tr>
+          <tr><td><strong>Routing</strong></td><td>How navigation and data loading work</td><td class="bad">Every route restructured</td></tr>
+          <tr><td><strong>Build tooling</strong></td><td>Bundler, compiler, dev server</td><td class="neutral">Configuration migration</td></tr>
+          <tr><td><strong>Test utilities</strong></td><td>How you test components</td><td class="bad">Every test rewritten</td></tr>
+          <tr><td><strong>CSS solution</strong></td><td>How styles are scoped and applied</td><td class="neutral">Styling approach changes</td></tr>
+          <tr><td><strong>Third-party libraries</strong></td><td>Ecosystem compatibility</td><td class="bad">Wait for library authors to catch up</td></tr>
+        </tbody>
+      </table>
+      <p>For a platform with dozens of apps and hundreds of components, multiply each row by every team, every app, every component. That&#8217;s the migration tax&mdash;paid repeatedly, in perpetuity.</p>
+    </div>
+  </details>
+
+  <div class="callout warn">
+    <strong>&#9641; The Hidden Cost</strong>
+    The migration tax isn&#8217;t just engineering time. It&#8217;s the features that didn&#8217;t ship, the bugs that didn&#8217;t get fixed, the performance improvements that never happened&mdash;because the team was busy rewriting code that already worked, to satisfy a new paradigm they didn&#8217;t ask for.
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     SECTION 3: The Platform Doesn't Churn
+     ═══════════════════════════════════════════════════════════════════ -->
+<section>
+  <h2>&#9641; The Platform Doesn&#8217;t Churn</h2>
+  <p>W3C Web Component APIs have been backwards-compatible since 2018. Custom Elements v1 and Shadow DOM v1 shipped across all major browsers and have not introduced a single breaking change in eight years.</p>
+  <p>This isn&#8217;t an accident. It&#8217;s the web&#8217;s core contract: <strong>nothing breaks.</strong></p>
+  <ul>
+    <li>HTML from 2005 still renders in every browser in 2026.</li>
+    <li><code>XMLHttpRequest</code> from 2006 still works.</li>
+    <li>The <code>&lt;marquee&gt;</code> tag from 1996 still scrolls text.</li>
+    <li><code>&lt;table&gt;</code> layouts from 2001 still render pixel-for-pixel.</li>
+    <li>CSS <code>float</code> layouts from 2003 still work alongside CSS Grid from 2017.</li>
+  </ul>
+  <p>Web standards don&#8217;t deprecate. They <strong>accumulate.</strong> New APIs are added; old APIs keep working. A Custom Element you write today will work in browsers in 2036&mdash;without a single line of migration code.</p>
+
+  <div class="mermaid-wrap" id="dwc-3">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">&#9974;</button>
+    </div>
+    <div class="mw-view">
+      <div class="mermaid-inner" data-src="graph LR
+  subgraph FP[Framework Path]
+    direction TB
+    F1[Your Code] --> F2[Framework Abstraction]
+    F2 --> F3[Browser]
+    F2 -.->|breaks every 18mo| F4[New Framework Version]
+    F4 -.->|rewrite required| F1
+  end
+  subgraph PP[Platform Path]
+    direction TB
+    P1[Your Code] --> P2[Browser]
+    P1 -.->|stable forever| P2
+  end
+  style F2 fill:#f85149,stroke:#f85149,color:#fff
+  style F4 fill:#f0883e,stroke:#f0883e,color:#fff
+  style F1 fill:#58a6ff,stroke:#58a6ff,color:#fff
+  style F3 fill:#8b949e,stroke:#8b949e,color:#fff
+  style P1 fill:#58a6ff,stroke:#58a6ff,color:#fff
+  style P2 fill:#3fb950,stroke:#3fb950,color:#fff"></div>
+    </div>
+    <div class="mw-caption">Figure WC-3: Two paths &#8212; the framework path adds a moving abstraction that breaks every 18 months. The platform path connects your code directly to the browser, stable forever.</div>
+  </div>
+
+  <details>
+    <summary>W3C Web Component Timeline <span class="detail-summary">Eight years of backwards compatibility</span></summary>
+    <div class="detail-body">
+      <table class="compare-table">
+        <thead>
+          <tr><th>Year</th><th>W3C Addition</th><th>Breaking Changes</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>2018</td><td>Custom Elements v1 + Shadow DOM v1 finalized</td><td class="good">None</td></tr>
+          <tr><td>2019</td><td>All major browsers ship full support</td><td class="good">None</td></tr>
+          <tr><td>2020</td><td>FormAssociated Custom Elements</td><td class="good">None &mdash; additive only</td></tr>
+          <tr><td>2021</td><td>CSS <code>::part()</code> and <code>::slotted()</code> selectors</td><td class="good">None &mdash; additive only</td></tr>
+          <tr><td>2022</td><td>Declarative Shadow DOM</td><td class="good">None &mdash; additive only</td></tr>
+          <tr><td>2023</td><td>CSS <code>@scope</code> rule</td><td class="good">None &mdash; additive only</td></tr>
+          <tr><td>2024</td><td>Scoped Custom Element Registries (proposal)</td><td class="good">None &mdash; additive only</td></tr>
+          <tr><td>2025&#8211;26</td><td>CSS Custom State, Anchor Positioning</td><td class="good">None &mdash; additive only</td></tr>
+        </tbody>
+      </table>
+      <p>Eight years. Zero breaking changes. Every new feature was additive. Every component written in 2018 still works exactly as written. That&#8217;s the platform guarantee.</p>
+    </div>
+  </details>
+
+  <div class="industry-std">
+    <strong>Industry Standard: Backwards Compatibility as a Core Principle</strong>
+    The W3C&#8217;s process requires consensus from Google, Apple, Mozilla, and Microsoft before any spec change ships. Breaking changes to existing APIs are effectively impossible because the web&#8217;s social contract is that <strong>deployed content never breaks</strong>. This is the stability guarantee no framework can offer.
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     SECTION 4: Web Components Can Host Anything
+     ═══════════════════════════════════════════════════════════════════ -->
+<section>
+  <h2>&#8614; Web Components Can Host Anything</h2>
+  <p>This is the key selling point: <strong>choosing Web Components does not lock you out of any framework.</strong> A Web Component is a standard HTML element with a Shadow DOM boundary. What lives inside that boundary is entirely up to the team that owns the component.</p>
+
+  <p>A single Web Component can host:</p>
+  <ul>
+    <li><strong>A React render tree</strong> inside its Shadow DOM</li>
+    <li><strong>A Vue instance</strong> mounted to a shadow root element</li>
+    <li><strong>A Svelte component</strong> compiled and attached</li>
+    <li><strong>Plain vanilla JavaScript</strong> with direct DOM manipulation</li>
+    <li><strong>Whatever framework appears in 2028</strong>&mdash;the contract doesn&#8217;t change</li>
+  </ul>
+
+  <p>The shell sees a <code>&lt;ml-product-card&gt;</code> element. It passes data via attributes and listens for events. It has no idea&mdash;and doesn&#8217;t need to know&mdash;what rendering technology lives inside. This means:</p>
+
+  <div class="themes-grid">
+    <div class="theme-card">
+      <div class="theme-icon">&#9633;</div>
+      <h4>Team Freedom</h4>
+      <p>Each team uses whatever framework they&#8217;re most productive in. The platform doesn&#8217;t dictate. The contract is standard HTML: attributes in, events out.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#9635;</div>
+      <h4>Legacy Compatibility</h4>
+      <p>Existing framework-based components wrap into Web Component shells and keep working immediately. No rewrite required. Migrate at your own pace.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#9641;</div>
+      <h4>Future-Proof Architecture</h4>
+      <p>New components can use plain HTML-first WCFramework for maximum simplicity. The choice is per-component, not per-platform. No big-bang decisions.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">&#8614;</div>
+      <h4>Gradual Evolution</h4>
+      <p>Over time, the ratio of vanilla Web Components to wrapped-framework components shifts naturally. Each pod decides their own pace. The architecture supports both forever.</p>
+    </div>
+  </div>
+
+  <div class="mermaid-wrap" id="dwc-4">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">&#9974;</button>
+    </div>
+    <div class="mw-view">
+      <div class="mermaid-inner" data-src="graph TB
+  subgraph Shell[WCFramework Shell]
+    S[Import Map + Router]
+  end
+  subgraph Components[Component Ecosystem]
+    direction LR
+    subgraph Native[Vanilla Web Components]
+      N1[ml-search-bar]
+      N2[ml-nav-menu]
+      N3[ml-footer]
+    end
+    subgraph Wrapped[Framework-Hosted WCs]
+      W1[ml-product-card\nReact inside]
+      W2[ml-cart-summary\nVue inside]
+      W3[ml-checkout-form\nSvelte inside]
+    end
+  end
+  S --> N1
+  S --> N2
+  S --> N3
+  S --> W1
+  S --> W2
+  S --> W3
+  style S fill:#58a6ff,stroke:#58a6ff,color:#fff
+  style N1 fill:#3fb950,stroke:#3fb950,color:#fff
+  style N2 fill:#3fb950,stroke:#3fb950,color:#fff
+  style N3 fill:#3fb950,stroke:#3fb950,color:#fff
+  style W1 fill:#d2a8ff,stroke:#d2a8ff,color:#fff
+  style W2 fill:#d2a8ff,stroke:#d2a8ff,color:#fff
+  style W3 fill:#d2a8ff,stroke:#d2a8ff,color:#fff"></div>
+    </div>
+    <div class="mw-caption">Figure WC-4: The shell treats every component identically &#8212; standard HTML elements. Some contain vanilla JS, some contain framework render trees. The shell doesn&#8217;t care. The contract is the same.</div>
+  </div>
+
+  <div class="callout success">
+    <strong>&#9633; Not Against Any Framework. For the Platform.</strong>
+    Frameworks are valuable tools. Teams should use whatever makes them productive inside their components. The argument isn&#8217;t that frameworks are bad. The argument is that the <em>platform boundary</em>&mdash;the contract between components&mdash;should be standard HTML, not a framework-specific API. Frameworks come and go. The platform is forever.
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     SECTION 5: Enterprise Adoption
+     ═══════════════════════════════════════════════════════════════════ -->
+<section>
+  <h2>&#9633; Enterprise Adoption: The Industry Converged</h2>
+  <p>The largest software companies in the world independently arrived at the same conclusion. They didn&#8217;t coordinate. They each evaluated their own needs&mdash;scale, longevity, multi-team coordination, cross-platform reuse&mdash;and converged on Web Components as the enterprise component standard.</p>
+
+  <table class="compare-table">
+    <thead>
+      <tr><th>Organization</th><th>Web Component System</th><th>Scale</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>GitHub</strong></td><td>Custom Elements powering the entire frontend</td><td>100M+ developers use it daily</td></tr>
+      <tr><td><strong>Salesforce</strong></td><td>Lightning Web Components &mdash; platform-wide standard</td><td>150K+ enterprise customers</td></tr>
+      <tr><td><strong>Adobe</strong></td><td>Spectrum Web Components design system</td><td>Creative Cloud, Experience Cloud</td></tr>
+      <tr><td><strong>SAP</strong></td><td>UI5 Web Components for enterprise ERP</td><td>400K+ enterprise customers</td></tr>
+      <tr><td><strong>ING Bank</strong></td><td>Lion Web Components &mdash; full banking platform</td><td>40M+ customers, regulated industry</td></tr>
+      <tr><td><strong>Google</strong></td><td>Material Web Components (MWC)</td><td>Used across Google products</td></tr>
+      <tr><td><strong>Microsoft</strong></td><td>FAST Web Components (Fluent UI)</td><td>Microsoft 365, Azure Portal</td></tr>
+      <tr><td><strong>Red Hat</strong></td><td>PatternFly Elements</td><td>OpenShift, enterprise platforms</td></tr>
+    </tbody>
+  </table>
+
+  <div class="mermaid-wrap" id="dwc-5">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">&#9974;</button>
+    </div>
+    <div class="mw-view">
+      <div class="mermaid-inner" data-src="graph TD
+  subgraph Convergence[Industry Convergence on Web Components]
+    GH[GitHub] --> WC[W3C Web Components]
+    SF[Salesforce] --> WC
+    AD[Adobe] --> WC
+    SP[SAP] --> WC
+    ING[ING Bank] --> WC
+    GO[Google] --> WC
+    MS[Microsoft] --> WC
+    RH[Red Hat] --> WC
+  end
+  WC --> STD[Shared Standard:\nCustom Elements\nShadow DOM\nES Modules]
+  style WC fill:#58a6ff,stroke:#58a6ff,color:#fff
+  style STD fill:#3fb950,stroke:#3fb950,color:#fff
+  style GH fill:#8b949e,stroke:#8b949e,color:#fff
+  style SF fill:#8b949e,stroke:#8b949e,color:#fff
+  style AD fill:#8b949e,stroke:#8b949e,color:#fff
+  style SP fill:#8b949e,stroke:#8b949e,color:#fff
+  style ING fill:#8b949e,stroke:#8b949e,color:#fff
+  style GO fill:#8b949e,stroke:#8b949e,color:#fff
+  style MS fill:#8b949e,stroke:#8b949e,color:#fff
+  style RH fill:#8b949e,stroke:#8b949e,color:#fff"></div>
+    </div>
+    <div class="mw-caption">Figure WC-5: Eight of the world&#8217;s largest software companies independently converged on Web Components for their enterprise component systems. That&#8217;s not a trend. That&#8217;s the industry settling on the right answer.</div>
+  </div>
+
+  <div class="industry-std">
+    <strong>Industry Standard: Enterprise Component Model</strong>
+    When GitHub, Salesforce, Adobe, SAP, ING, Google, Microsoft, and Red Hat all independently choose the same technology for their enterprise-scale component systems, that represents industry convergence. These companies serve hundreds of millions of users, manage thousands of developers, and need components that last a decade. They all chose the platform.
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     SECTION 6: Common Objections, Honest Answers
+     ═══════════════════════════════════════════════════════════════════ -->
+<section>
+  <h2>&#9635; Common Objections, Honest Answers</h2>
+
+  <details>
+    <summary>&#8220;The framework ecosystem is bigger&#8221; <span class="detail-summary">True, and that&#8217;s the problem</span></summary>
+    <div class="detail-body">
+      <p>A large ecosystem sounds like an advantage until you realize it&#8217;s also the source of the churn. Every popular library in a framework ecosystem follows the framework&#8217;s paradigm shifts. Routers get rewritten. State managers get replaced. CSS solutions rotate. Test utilities change.</p>
+      <p>A stable, standards-based ecosystem is <strong>better for enterprise</strong> than a massive one that reshuffles every 18 months. Web Components use standard DOM APIs. They don&#8217;t need a framework-specific router (the browser has the History API). They don&#8217;t need a state management library (the platform has events, properties, and the DOM). They don&#8217;t need a CSS-scoping solution (Shadow DOM <em>is</em> the solution).</p>
+      <p>Smaller. Stable. Standards-based. For a platform that needs to last a decade, that&#8217;s the right trade.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>&#8220;Our developers know [framework X], not Web Components&#8221; <span class="detail-summary">The learning curve is smaller than you think</span></summary>
+    <div class="detail-body">
+      <p>Web Components are HTML, CSS, and JavaScript. <strong>Your developers already know these.</strong> The Custom Elements API is approximately 20 lines of boilerplate. Shadow DOM is one method call. There is no proprietary template syntax to learn, no virtual DOM concept to internalize, no complex dependency-tracking rules to memorize.</p>
+      <p>A developer who has spent years learning framework abstractions already knows everything <em>underneath</em> those abstractions. Web Components just remove the abstraction layer and let developers work with the browser directly.</p>
+      <p>With WCFramework, teams also get developer ergonomics they expect&mdash;templates, data binding, dependency injection&mdash;while the output is still standard Custom Elements. The learning curve is days, not months.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>&#8220;What about developer experience?&#8221; <span class="detail-summary">The gap closed. The browser caught up.</span></summary>
+    <div class="detail-body">
+      <p>In 2018, framework developer experience was genuinely superior: hot module replacement, rich DevTools, declarative components, one-way data flow. Web Components were clunky by comparison.</p>
+      <p>In 2026, the gap has closed dramatically:</p>
+      <ul>
+        <li><strong>Hot reload:</strong> Standard ES module HMR works with Web Components out of the box</li>
+        <li><strong>DevTools:</strong> Browser DevTools now show Custom Element properties, Shadow DOM trees, and event listeners natively&mdash;no extension required</li>
+        <li><strong>Declarative templates:</strong> WCFramework provides clean declarative syntax with data binding</li>
+        <li><strong>TypeScript:</strong> Full TypeScript support with type-safe attributes, properties, and events</li>
+        <li><strong>AI assistance:</strong> Every AI coding tool is better at standard HTML/CSS/JS than any framework&#8217;s proprietary DSL</li>
+      </ul>
+      <p>Meanwhile, framework DX has gotten <em>more complex</em>, not simpler. New rendering paradigms, new compilation steps, new implicit rules. The abstraction tax has grown. The browser, by contrast, just keeps getting better at the basics.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>&#8220;What about SSR?&#8221; <span class="detail-summary">Declarative Shadow DOM. Solved.</span></summary>
+    <div class="detail-body">
+      <p>The most common historical objection to Web Components was server-side rendering. This has been <strong>fully resolved:</strong></p>
+      <ul>
+        <li><strong>Declarative Shadow DOM (DSD):</strong> Shipped in all major browsers. Allows Shadow DOM to be expressed directly in HTML without JavaScript, enabling true server-side rendering of Web Components.</li>
+        <li><strong>Pre-rendering:</strong> Static site generators and BFF services can emit Declarative Shadow DOM HTML. The browser hydrates natively&mdash;no framework runtime required on the server or client.</li>
+        <li><strong>Streaming:</strong> DSD works with streaming HTML responses. Components render progressively as the HTML arrives.</li>
+      </ul>
+      <p>For an e-commerce platform where most pages are authenticated (and therefore not SEO-critical), client-side rendering with BFF data fetching is typically faster than SSR anyway. The few SEO-critical pages (product listing, product detail) can use pre-rendering with Declarative Shadow DOM.</p>
+    </div>
+  </details>
+
+  <div class="mermaid-wrap" id="dwc-6">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">&#9974;</button>
+    </div>
+    <div class="mw-view">
+      <div class="mermaid-inner" data-src="graph TD
+  subgraph Objections[Common Objections]
+    O1[Bigger ecosystem?] -->|Answer| A1[Stable beats massive\nfor enterprise]
+    O2[Devs know framework X?] -->|Answer| A2[WCs are HTML/CSS/JS\nThey already know it]
+    O3[Developer experience?] -->|Answer| A3[Gap closed in 2026\nBrowser DevTools are excellent]
+    O4[Server-side rendering?] -->|Answer| A4[Declarative Shadow DOM\nSolved natively]
+  end
+  style O1 fill:#f0883e,stroke:#f0883e,color:#fff
+  style O2 fill:#f0883e,stroke:#f0883e,color:#fff
+  style O3 fill:#f0883e,stroke:#f0883e,color:#fff
+  style O4 fill:#f0883e,stroke:#f0883e,color:#fff
+  style A1 fill:#3fb950,stroke:#3fb950,color:#fff
+  style A2 fill:#3fb950,stroke:#3fb950,color:#fff
+  style A3 fill:#3fb950,stroke:#3fb950,color:#fff
+  style A4 fill:#3fb950,stroke:#3fb950,color:#fff"></div>
+    </div>
+    <div class="mw-caption">Figure WC-6: Every common objection to Web Components has a concrete, standards-based answer in 2026.</div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     SECTION 7: How This Maps to Your Pod Model
+     ═══════════════════════════════════════════════════════════════════ -->
+<section>
+  <h2>&#8614; How This Maps to Your Pod Model</h2>
+  <p>After domain extraction, your platform becomes 8&#8211;12 domain apps, each managed by a pod. Each app contains 10&#8211;30+ Web Components. This structure changes the economics of development, ownership, and maintenance entirely:</p>
+
+  <table class="compare-table">
+    <thead>
+      <tr><th>Aspect</th><th>Today (84 MFEs in Monolith)</th><th>Target (8&#8211;12 Domain Apps)</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Ownership</strong></td>
+        <td class="bad">MFEs share code, build, deploy. Ownership is blurry. One team&#8217;s change can break another team&#8217;s app.</td>
+        <td class="good">Each pod owns 1&#8211;2 apps. Complete ownership, complete autonomy. No cross-team coupling.</td>
+      </tr>
+      <tr>
+        <td><strong>Component count</strong></td>
+        <td class="bad">Hundreds of framework-specific components, no catalog, massive duplication across MFEs</td>
+        <td class="good">10&#8211;30 Web Components per app, cataloged in the App Catalog, deduplicated</td>
+      </tr>
+      <tr>
+        <td><strong>Upgrade cycle</strong></td>
+        <td class="bad">Entire monolith upgrades together (or doesn&#8217;t, and falls behind)</td>
+        <td class="good">Each pod upgrades their apps on their own schedule. No coordination needed.</td>
+      </tr>
+      <tr>
+        <td><strong>New developer ramp</strong></td>
+        <td class="bad">Weeks to understand monolith dependencies, framework conventions, and coupling</td>
+        <td class="good">Days &mdash; standard HTML/CSS/JS, scoped to one domain app</td>
+      </tr>
+      <tr>
+        <td><strong>Framework migration</strong></td>
+        <td class="bad">Every framework paradigm shift affects all 84 MFEs simultaneously</td>
+        <td class="good">Web Components don&#8217;t have framework migrations. The platform doesn&#8217;t churn.</td>
+      </tr>
+      <tr>
+        <td><strong>Deployment</strong></td>
+        <td class="bad">Coupled deployments. One MFE failure can block others.</td>
+        <td class="good">Independent deploys per domain. Blue/green per app. Instant rollback via import map.</td>
+      </tr>
+      <tr>
+        <td><strong>Governance</strong></td>
+        <td class="bad">No visibility into what components exist, what versions run where</td>
+        <td class="good">App Catalog scans every component, every version, every API contract automatically</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="mermaid-wrap" id="dwc-7">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">&#9974;</button>
+    </div>
+    <div class="mw-view">
+      <div class="mermaid-inner" data-src="graph TB
+  subgraph Shell[WCFramework Shell]
+    direction LR
+    S[Import Map + Router]
+  end
+  subgraph Pods[Pod-Managed Domain Apps]
+    subgraph PA[Pod Alpha &#8212; Catalog + Search]
+      A1[Catalog App\n25 Web Components]
+      A2[Search App\n12 Web Components]
+    end
+    subgraph PB[Pod Beta &#8212; Commerce]
+      B1[Cart App\n18 Web Components]
+      B2[Checkout App\n22 Web Components]
+    end
+    subgraph PC[Pod Gamma &#8212; Account + Content]
+      C1[Account App\n15 Web Components]
+      C2[Content App\n10 Web Components]
+    end
+    subgraph PD[Pod Delta &#8212; Admin]
+      D1[Admin App\n20 Web Components]
+      D2[Analytics App\n8 Web Components]
+    end
+  end
+  S --> A1
+  S --> A2
+  S --> B1
+  S --> B2
+  S --> C1
+  S --> C2
+  S --> D1
+  S --> D2
+  CAT[App Catalog] -.->|scans| A1
+  CAT -.->|scans| B1
+  CAT -.->|scans| C1
+  CAT -.->|scans| D1
+  style S fill:#58a6ff,stroke:#58a6ff,color:#fff
+  style CAT fill:#3fb950,stroke:#3fb950,color:#fff"></div>
+    </div>
+    <div class="mw-caption">Figure WC-7: Target architecture &#8212; 8&#8211;12 domain apps managed by pods, each composed of 10&#8211;30 Web Components, governed by the App Catalog. Each pod is autonomous. The shell is the only shared surface.</div>
+  </div>
+
+  <details>
+    <summary>Pod Autonomy in Practice <span class="detail-summary">What independence actually looks like</span></summary>
+    <div class="detail-body">
+      <p>Each pod operates independently across the full development lifecycle:</p>
+      <ul>
+        <li><strong>Development:</strong> Pod chooses their own internal tooling, coding patterns, and velocity. They ship Web Components that conform to the standard contract.</li>
+        <li><strong>Testing:</strong> Pod runs their own unit, integration, and e2e tests. No shared test pipeline. No &#8220;we&#8217;re waiting on another team&#8217;s tests.&#8221;</li>
+        <li><strong>Deployment:</strong> Pod deploys their domain app independently. Import map update. Blue/green switch. Done. Other pods are unaffected.</li>
+        <li><strong>Rollback:</strong> Pod rolls back by pointing the import map to the previous version. Instant. No rebuild. No coordination.</li>
+        <li><strong>Upgrade:</strong> When the 1-year core update cadence arrives, the pod upgrades their apps on their own schedule using change-mod scripts. No monolith-wide lockstep.</li>
+      </ul>
+      <p>This is the structural advantage Web Components provide: the platform&#8217;s component contract is standard HTML, so pods never need to coordinate on framework-level decisions. The contract is stable. The boundary is clear. The autonomy is real.</p>
+    </div>
+  </details>
+
+  <div class="industry-std">
+    <strong>Industry Standard: Domain-Driven Component Architecture</strong>
+    The combination of domain-driven design, Web Component boundaries, and import-map versioning is the architecture pattern used by GitHub, Salesforce, and SAP for their largest platforms. It enables autonomous teams, independent deployments, and zero-coordination upgrades at enterprise scale.
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     SECTION 8: The Bottom Line
+     ═══════════════════════════════════════════════════════════════════ -->
+<section>
+  <h2>&#9635; The Bottom Line</h2>
+  <p>This is not an argument against any framework. Frameworks are valuable tools, and Web Components can host any of them. Teams should use whatever makes them productive <em>inside</em> their components.</p>
+  <p>The argument is about <strong>what sits at the platform boundary</strong>&mdash;the contract between components, between teams, between domains. That boundary should be the web platform itself: standard HTML elements with attributes in and events out.</p>
+  <p>Here&#8217;s why:</p>
+  <ul>
+    <li><strong>Frameworks come and go.</strong> The dominant framework of 2016 isn&#8217;t the dominant framework of 2026. The dominant framework of 2026 won&#8217;t be the dominant framework of 2036.</li>
+    <li><strong>The platform is forever.</strong> HTML from 2005 still renders. Web Components from 2018 still work. The platform doesn&#8217;t deprecate. It accumulates.</li>
+    <li><strong>The industry converged.</strong> GitHub, Salesforce, Adobe, SAP, ING, Google, Microsoft, Red Hat all independently chose Web Components for their enterprise platforms.</li>
+    <li><strong>The hosting model solves adoption.</strong> You don&#8217;t have to rewrite anything. Existing components wrap into Web Component shells. New components use WCFramework. The ratio shifts naturally over time.</li>
+  </ul>
+  <p>Build on the platform. The platform doesn&#8217;t churn. The platform doesn&#8217;t pivot. The platform doesn&#8217;t deprecate. The platform just works&mdash;the same way it has worked for 30 years and will work for 30 more.</p>
+
+  <div class="callout success">
+    <strong>&#9633; The Best Platform Decision Is the One You Make Once</strong>
+    Choose the web platform as your component boundary. Let teams use any framework inside their components. Let the standard contract&mdash;attributes in, events out, Shadow DOM boundary&mdash;provide the stability. Make the decision once. Never migrate again.
+  </div>
+</section>
+
+</main>
+
+<div style="max-width:900px;margin:0 auto;padding:0 1.5rem;">
+  <div class="page-nav">
+    <a href="index.html"><span class="pn-label">&larr; Back</span><span class="pn-title">Document Index</span></a>
+    <a href="14-component-standards.html" class="next"><span class="pn-label">Next &rarr;</span><span class="pn-title">Component Standards</span></a>
+  </div>
+</div>
+
+<footer>Medline Platform Evolution &mdash; v5 &mdash; 2026-04-05 &mdash; Confidential</footer>
+<div class="toast" id="toast">Copied!</div>
+<script src="shared.js"></script>
+</body>
+</html>

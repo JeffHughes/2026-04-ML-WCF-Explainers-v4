@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Where You Are Today &mdash; Medline Platform Evolution</title>
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<div class="progress-bar"></div>
+<nav>
+  <a href="index.html" class="logo">ML Evolution</a>
+  <div class="nav-links">
+    <a href="01-executive-summary.html">Summary</a>
+    <a href="02-current-state.html" class="active">Today</a>
+    <a href="03-why-change.html">Why</a>
+    <a href="04-migration-overview.html">Strategy</a>
+    <a href="05-copy-split-strip.html">Copy-Split</a>
+    <a href="06-domain-map.html">Domains</a>
+    <a href="07-catalog-domain.html">Catalog</a>
+    <a href="08-cart-checkout.html">Cart</a>
+    <a href="09-remaining-domains.html">Other</a>
+    <a href="10-shell-architecture.html">Shell</a>
+    <a href="11-shell-swap.html">Swap</a>
+    <a href="12-web-component-wrapping.html">Wrapping</a>
+    <a href="13-hydration-csr.html">CSR</a>
+    <a href="14-component-standards.html">Standards</a>
+    <a href="15-component-transition.html">Transition</a>
+    <a href="16-app-catalog.html">Catalog</a>
+    <a href="17-api-scanning.html">Scanning</a>
+    <a href="18-bff-pattern.html">BFF</a>
+    <a href="19-managing-drift.html">Drift</a>
+    <a href="20-core-cadence.html">Cadence</a>
+    <a href="21-testing-strategy.html">Testing</a>
+    <a href="22-blue-green-rollouts.html">Deploy</a>
+    <a href="23-migration-timeline.html">Timeline</a>
+    <a href="24-team-impact.html">Teams</a>
+    <a href="25-key-principles.html">Principles</a>
+    <a href="dev-environment.html">DevEx</a>
+  </div>
+  <button class="theme-toggle" id="themeToggle" title="Toggle theme">&#9790;</button>
+</nav>
+
+<div class="hero">
+  <div class="page-num">The Big Picture</div>
+  <h1>Where You Are Today</h1>
+  <p class="subtitle">A detailed breakdown of the current monolithic architecture, its coupling patterns, and the operational friction your teams face every day.</p>
+</div>
+
+<main>
+
+<!-- The Platform at a Glance -->
+<section>
+  <h2>The Platform at a Glance</h2>
+  <p>Your current e-commerce platform is a Next.js 12.3 monolithic shell that hosts 84+ micro frontends. On paper, it's a micro frontend architecture. In practice, every MFE shares the same SSR runtime, the same build pipeline, the same <code>node_modules</code>, and the same failure domain.</p>
+  <p>This means that in day-to-day operations, the "micro" in micro frontend is aspirational rather than actual. Teams experience the coordination overhead of a monolith while carrying the conceptual complexity of a distributed system&mdash;big-bang releases, dependency inconsistencies across shared <code>node_modules</code>, and weird UI flicker issues from competing SSR hydration and style conflicts.</p>
+
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="stat-num">84+</div>
+      <div class="stat-label">Micro frontends in a single monolith</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num orange">1</div>
+      <div class="stat-label">Shared SSR runtime serving all traffic</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num purple">1</div>
+      <div class="stat-label">Build pipeline for all teams</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num green">React 17.x</div>
+      <div class="stat-label">Components with no shared interface standard</div>
+    </div>
+  </div>
+</section>
+
+<!-- Current Architecture Diagram -->
+<section>
+  <h2>Current Architecture</h2>
+  <p>This diagram shows how the current platform is structured. Every micro frontend flows through the same Next.js SSR shell, shares the same Node.js runtime, and deploys through the same pipeline.</p>
+
+  <div class="mermaid-wrap" id="d02-1">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">Fullscreen</button>
+    </div>
+    <div class="mw-view">
+      <div class="mermaid-inner" data-src="graph TB
+  LB[Load Balancer] --> SHELL[Next.js 12.3 SSR Shell]
+  SHELL --> SSR[Node.js SSR Runtime]
+  SSR --> MFE1[Catalog MFE]
+  SSR --> MFE2[Cart MFE]
+  SSR --> MFE3[Checkout MFE]
+  SSR --> MFE4[Account MFE]
+  SSR --> MFE5[Search MFE]
+  SSR --> MFE6[Header MFE]
+  SSR --> MFE7[Footer MFE]
+  SSR --> MFEN[... +77 more MFEs]
+  NM[Shared node_modules] -.-> MFE1
+  NM -.-> MFE2
+  NM -.-> MFE3
+  NM -.-> MFEN
+  BP[Single Build Pipeline] -.-> SHELL
+  K8S[K8s Cluster] --> SHELL
+  style SHELL fill:#f85149,stroke:#f85149,color:#fff
+  style SSR fill:#f0883e,stroke:#f0883e,color:#fff
+  style NM fill:#d2a8ff,stroke:#d2a8ff,color:#000
+  style BP fill:#d2a8ff,stroke:#d2a8ff,color:#000"></div>
+    </div>
+    <div class="mw-caption">Figure 2-1: Current monolithic architecture — all 84+ MFEs share a single SSR runtime and build pipeline</div>
+  </div>
+</section>
+
+<!-- The Technology Stack -->
+<section>
+  <h2>The Technology Stack</h2>
+  <table class="compare-table">
+    <thead>
+      <tr><th>Layer</th><th>Technology</th><th>Status</th><th>Impact</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Shell</td><td>Next.js 12.3</td><td class="bad">End of life</td><td>No security patches, no bug fixes, community has moved to 14+</td></tr>
+      <tr><td>SSR Runtime</td><td>Node.js (shared)</td><td class="bad">Single point of failure</td><td>One OOM crash affects all 84 MFEs</td></tr>
+      <tr><td>Components</td><td>React 17.x</td><td class="neutral">Outdated</td><td>Missing concurrent features, no streaming SSR support</td></tr>
+      <tr><td>Build</td><td>Webpack (shared)</td><td class="bad">Bottleneck</td><td>Full rebuild on any change; 15-25 min CI times</td></tr>
+      <tr><td>Infrastructure</td><td>Kubernetes</td><td class="good">Solid</td><td>Good foundation; reusable for domain architecture</td></tr>
+      <tr><td>State Management</td><td>Mixed (Redux, Context, local)</td><td class="neutral">Inconsistent</td><td>No shared state contract between MFEs</td></tr>
+      <tr><td>Testing</td><td>Jest + Cypress (shared)</td><td class="bad">Coupled</td><td>Full regression suite runs for any PR; 45+ min test cycles</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- The Coupling Problem -->
+<section>
+  <h2>The Coupling Problem</h2>
+  <p>The fundamental issue isn't any single technology choice. It's that <strong>everything is coupled to everything else</strong>. The diagram below shows how dependencies flow between MFEs through shared runtime, shared packages, and shared build artifacts.</p>
+
+  <div class="mermaid-wrap" id="d02-2">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">Fullscreen</button>
+    </div>
+    <div class="mw-view">
+      <div class="mermaid-inner" data-src="graph LR
+  subgraph SharedRuntime[&quot;Shared Runtime &amp; Dependencies&quot;]
+    NM[node_modules]
+    RT[SSR Runtime]
+    BP[Build Pipeline]
+    TS[Test Suite]
+  end
+  subgraph MFEs[&quot;84+ Micro Frontends&quot;]
+    C1[Catalog]
+    C2[Cart]
+    C3[Checkout]
+    C4[Account]
+    C5[Search]
+    C6[Content]
+    C7[Admin]
+    C8[Header/Footer]
+  end
+  C1 --> NM
+  C2 --> NM
+  C3 --> NM
+  C4 --> NM
+  C5 --> NM
+  C6 --> NM
+  C7 --> NM
+  C8 --> NM
+  C1 --> RT
+  C2 --> RT
+  C3 --> RT
+  C1 --> BP
+  C2 --> BP
+  C5 --> BP
+  C1 -.implicit dep.-> C5
+  C2 -.implicit dep.-> C3
+  C4 -.implicit dep.-> C8
+  style NM fill:#f85149,stroke:#f85149,color:#fff
+  style RT fill:#f85149,stroke:#f85149,color:#fff
+  style BP fill:#f0883e,stroke:#f0883e,color:#fff
+  style TS fill:#f0883e,stroke:#f0883e,color:#fff"></div>
+    </div>
+    <div class="mw-caption">Figure 2-2: Dependency web — all MFEs share runtime dependencies, creating implicit coupling across unrelated domains</div>
+  </div>
+</section>
+
+<!-- The Monolith Coupling Problem -->
+<section>
+  <h2>Understanding the Pain Points</h2>
+
+  <details>
+    <summary>The Monolith Coupling Problem <span class="detail-summary">Why 84 MFEs behave like one</span></summary>
+    <div class="detail-body">
+      <h4>What Coupling Looks Like in Practice</h4>
+      <p>Imagine the Catalog team needs to update a date-formatting library. In a truly independent architecture, they'd update it in their repo, run their tests, and deploy. Done.</p>
+      <p>In the current monolith, here's what actually happens:</p>
+      <ol>
+        <li>The Catalog team updates <code>date-fns</code> in the shared <code>package.json</code></li>
+        <li>The change propagates to all 84 MFEs because they share <code>node_modules</code></li>
+        <li>The full build pipeline runs (15-25 minutes)</li>
+        <li>The full regression test suite runs (45+ minutes)</li>
+        <li>Three unrelated MFEs fail because they used an undocumented API in the old version of <code>date-fns</code></li>
+        <li>The Catalog team's PR is blocked until three other teams fix their code</li>
+        <li>The three other teams are in different time zones and different sprint cycles</li>
+        <li>What should have been a 10-minute change takes 2-3 days</li>
+      </ol>
+      <p>This is the daily reality of a "micro frontend" architecture that shares a monolithic runtime.</p>
+
+      <h4>The Shared Failure Domain</h4>
+      <p>When all MFEs share the same Node.js SSR runtime, a memory leak in one MFE affects all MFEs. A slow API call in Checkout blocks SSR rendering for Catalog. An unhandled exception in Account can crash the entire shell.</p>
+      <p>There is no isolation. The "micro" in micro frontend is a label, not a boundary.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>The SSR Tax <span class="detail-summary">Why server-side rendering costs more than it gives</span></summary>
+    <div class="detail-body">
+      <h4>The Promise of SSR</h4>
+      <p>Server-side rendering was originally adopted for two reasons: SEO (search engines needed pre-rendered HTML) and perceived performance (first paint appears faster). Both of these reasons have significantly diminished:</p>
+      <ul>
+        <li><strong>SEO:</strong> Modern search engine crawlers (Google, Bing) execute JavaScript and render SPAs. Dedicated product pages can use static generation or prerendering without a full SSR runtime.</li>
+        <li><strong>Performance:</strong> The SSR "fast first paint" comes at the cost of a large JavaScript bundle that must hydrate after the initial HTML arrives. The Time to Interactive (TTI) often ends up <em>slower</em> than a well-optimized CSR approach with code splitting.</li>
+      </ul>
+
+      <h4>The Cost of SSR at Scale</h4>
+      <p>For an e-commerce platform with 84+ MFEs, SSR imposes a heavy tax:</p>
+      <ul>
+        <li><strong>Shared runtime process:</strong> All MFEs render in the same Node.js process. One slow component blocks the entire render pipeline.</li>
+        <li><strong>Memory pressure:</strong> SSR requires maintaining component state on the server for every concurrent request. At scale, this means significant memory allocation per request.</li>
+        <li><strong>Hydration cost:</strong> After SSR sends HTML to the browser, React must "hydrate" the page&mdash;re-attaching event handlers and reconstructing the virtual DOM. For complex pages, hydration can take 2-5 seconds.</li>
+        <li><strong>Deployment coupling:</strong> Because all MFEs share the SSR runtime, you can't deploy one MFE's server-side code without deploying all of them.</li>
+      </ul>
+
+      <div class="callout warn">
+        <strong>The Hidden Cost</strong>
+        SSR infrastructure is more complex to operate, harder to debug, and more expensive to scale than CSR + CDN. Every request requires compute. CSR serves static files from the edge.
+      </div>
+    </div>
+  </details>
+
+  <details>
+    <summary>The Testing Bottleneck <span class="detail-summary">Why a 10-line change triggers a 45-minute test suite</span></summary>
+    <div class="detail-body">
+      <h4>The Current Testing Flow</h4>
+      <p>Because all 84 MFEs share a single repository and build pipeline, the CI/CD system has no way to determine which MFEs are affected by a change. The safe default: run everything.</p>
+      <ol>
+        <li><strong>Developer pushes a PR</strong> touching 3 files in the Catalog MFE</li>
+        <li><strong>CI triggers full build</strong> of all 84 MFEs (15-25 minutes)</li>
+        <li><strong>Unit tests run</strong> for all MFEs (10-15 minutes)</li>
+        <li><strong>Integration tests run</strong> for all MFEs (15-20 minutes)</li>
+        <li><strong>E2E tests run</strong> across the full platform (10-15 minutes)</li>
+        <li><strong>Total: 45-75 minutes</strong> for a change that affects one domain</li>
+      </ol>
+
+      <h4>The Impact</h4>
+      <ul>
+        <li>Developers context-switch while waiting for CI. Productivity drops.</li>
+        <li>Flaky tests in unrelated MFEs block unrelated PRs. Teams waste time investigating failures that aren't theirs.</li>
+        <li>The feedback loop is too long. Developers batch changes instead of shipping small, frequent updates.</li>
+        <li>The cost of running the full suite for every PR scales linearly with team size. More developers = more queued builds = longer wait times.</li>
+      </ul>
+
+      <h4>The Fix Preview</h4>
+      <p>With independent domain repositories, each domain runs only its own tests. A change in Catalog triggers Catalog's test suite (3-5 minutes), not the entire platform's. The feedback loop shrinks from 45 minutes to 5 minutes.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>The Component Sprawl <span class="detail-summary">Nobody knows what exists or what version is running</span></summary>
+    <div class="detail-body">
+      <h4>The Problem</h4>
+      <p>With 84+ MFEs, there are hundreds of React components spread across the codebase. Many of them do the same thing with slight variations:</p>
+      <ul>
+        <li>6 different button components with different styling approaches</li>
+        <li>4 different modal implementations</li>
+        <li>3 different table components, each with their own sorting and pagination logic</li>
+        <li>2 different date picker implementations</li>
+        <li>Multiple product card layouts that should be standardized but aren't</li>
+      </ul>
+      <p>No one has a complete inventory. There is no component catalog. When a new team member asks "do we have a date picker?", the answer is "check Slack" or "search the codebase."</p>
+
+      <h4>The Consequences</h4>
+      <ul>
+        <li><strong>Duplicate work:</strong> Teams build components that already exist because they can't find them.</li>
+        <li><strong>Inconsistent UX:</strong> Different implementations of the same pattern lead to different behavior for end users.</li>
+        <li><strong>Accessibility gaps:</strong> Without standards, accessibility support varies wildly between implementations.</li>
+        <li><strong>Maintenance burden:</strong> When a design system change is needed, there's no way to know which components need updating.</li>
+      </ul>
+
+      <h4>The Fix Preview</h4>
+      <p>The App Catalog (Page 16) will register every component with its version, ownership, and interface contract. Automated scanning will detect duplicate components and flag non-standard implementations.</p>
+    </div>
+  </details>
+</section>
+
+<!-- Summary -->
+<section>
+  <h2>Summary: The Current State</h2>
+  <div class="callout">
+    <strong>The Bottom Line</strong>
+    You have a "micro frontend" architecture that delivers monolithic coupling. Teams can't deploy independently, can't test independently, and can't fail independently. The SSR runtime is a single point of failure. The build pipeline is a bottleneck. The component landscape is ungoverned.
+  </div>
+  <p>None of this means the platform is failing. It processes orders, it serves customers, it generates revenue. But the architecture has reached the point where <strong>the cost of change is growing faster than the value of change</strong>. Every new feature takes longer. Every upgrade is riskier. Every team is slower than they should be.</p>
+  <p>The next page explores <em>why</em> this pattern doesn't scale&mdash;and why the industry has converged on a different approach.</p>
+</section>
+
+</main>
+
+<div style="max-width:900px;margin:0 auto;padding:0 1.5rem;">
+  <div class="page-nav">
+    <a href="01-executive-summary.html"><span class="pn-label">&larr; Previous</span><span class="pn-title">The 90-Second Pitch</span></a>
+    <a href="03-why-change.html" class="next"><span class="pn-label">Next &rarr;</span><span class="pn-title">The Next Evolution</span></a>
+  </div>
+</div>
+
+<footer>Medline Platform Evolution &mdash; v5 &mdash; 2026-04-05 &mdash; Technical Director Series &mdash; Confidential</footer>
+<div class="toast" id="toast">Copied!</div>
+<script src="shared.js"></script>
+</body>
+</html>

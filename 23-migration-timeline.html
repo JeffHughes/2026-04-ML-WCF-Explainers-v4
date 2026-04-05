@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Migration Timeline: Phase by Phase &mdash; Medline Platform Evolution</title>
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<div class="progress-bar"></div>
+<nav>
+  <a href="index.html" class="logo">ML Evolution</a>
+  <div class="nav-links">
+    <a href="01-executive-summary.html">Summary</a>
+    <a href="02-current-state.html">Today</a>
+    <a href="03-why-change.html">Why</a>
+    <a href="04-migration-overview.html">Strategy</a>
+    <a href="05-copy-split-strip.html">Copy-Split</a>
+    <a href="06-domain-map.html">Domains</a>
+    <a href="07-catalog-domain.html">Catalog</a>
+    <a href="08-cart-checkout.html">Cart</a>
+    <a href="09-remaining-domains.html">Other</a>
+    <a href="10-shell-architecture.html">Shell</a>
+    <a href="11-shell-swap.html">Swap</a>
+    <a href="12-web-component-wrapping.html">Wrapping</a>
+    <a href="13-hydration-csr.html">CSR</a>
+    <a href="14-component-standards.html">Standards</a>
+    <a href="15-component-transition.html">Transition</a>
+    <a href="16-app-catalog.html">Catalog</a>
+    <a href="17-api-scanning.html">Scanning</a>
+    <a href="18-bff-pattern.html">BFF</a>
+    <a href="19-managing-drift.html">Drift</a>
+    <a href="20-core-cadence.html">Cadence</a>
+    <a href="21-testing-strategy.html">Testing</a>
+    <a href="22-blue-green-rollouts.html">Deploy</a>
+    <a href="23-migration-timeline.html" class="active">Timeline</a>
+    <a href="24-team-impact.html">Teams</a>
+    <a href="25-key-principles.html">Principles</a>
+    <a href="dev-environment.html">DevEx</a>
+  </div>
+  <button class="theme-toggle" id="themeToggle" title="Toggle theme">&#9790;</button>
+</nav>
+<div class="hero">
+  <div class="page-num">Putting It Together</div>
+  <h1>The Migration Timeline: Phase by Phase</h1>
+  <p class="subtitle">Four phases, each delivering independent value. You're better off after any phase — even if you stop. No big-bang cutover. No all-or-nothing gamble.</p>
+</div>
+<main>
+
+<!-- ═══ Section 1: Timeline Overview ═══ -->
+<section>
+  <h2>Four Phases, Each Standing Alone</h2>
+  <p>The migration is structured as four sequential but <strong>independently valuable</strong> phases. Each phase delivers measurable improvements to the platform. If circumstances change and the migration pauses after any phase, the organization is still better off than before it started.</p>
+
+  <div class="callout success">
+    <strong>&#9989; The Key Guarantee</strong>
+    Every phase delivers independently. Phase 1 alone reduces blast radius and enables independent deployments. Phase 2 removes the SSR bottleneck. Phase 3 gives visibility and governance. Phase 4 is continuous improvement that never "finishes" — and that's by design.
+  </div>
+
+  <h3>Full Migration Timeline</h3>
+  <div class="mermaid-wrap" id="d23-1">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">Fullscreen</button>
+    </div>
+    <div class="mw-view">
+      <div class="mermaid-inner" data-src="gantt
+  title Migration Timeline — All Phases
+  dateFormat YYYY-MM
+  axisFormat %b %Y
+  section Phase 1: Domain Extraction
+    Catalog domain copy-split-strip  :p1a, 2026-01, 2M
+    Cart domain extraction           :p1b, after p1a, 6w
+    Checkout domain extraction       :p1c, after p1b, 6w
+    Phase 1 complete                 :milestone, m1, 2026-06, 0d
+  section Phase 2: Shell Swap
+    New CSR shell development        :p2a, 2026-04, 2M
+    React MFE Web Component wrapping :p2b, 2026-05, 2M
+    Shell swap cutover               :p2c, after p2b, 4w
+    Phase 2 complete                 :milestone, m2, 2026-08, 0d
+  section Phase 3: App Catalog + BFF
+    App Catalog deployment           :p3a, 2026-07, 6w
+    API scanning activation          :p3b, 2026-08, 4w
+    BFF pattern for pilot domains    :p3c, 2026-09, 6w
+    Phase 3 complete                 :milestone, m3, 2026-11, 0d
+  section Phase 4: Progressive Evolution
+    Component upgrades (ongoing)     :p4a, 2026-10, 6M
+    New domain onboarding            :p4b, 2027-01, 4M
+    Continuous improvement           :p4c, 2027-01, 6M"></div>
+    </div>
+    <div class="mw-caption">Fig 23.1 — Full migration timeline showing all four phases with milestones and parallel workstreams</div>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="stat-num">4</div>
+      <div class="stat-label">Independent phases</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num green">Q1–Q2</div>
+      <div class="stat-label">Phase 1: Domain Extraction</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num purple">Q2–Q3</div>
+      <div class="stat-label">Phase 2: Shell Swap</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num orange">Q3–Q4</div>
+      <div class="stat-label">Phase 3: Catalog + BFF</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ Section 2: Phase 1 ═══ -->
+<section>
+  <h2>Phase 1: Domain Extraction (Q1–Q2)</h2>
+  <p>The first phase uses the <strong>copy-split-strip</strong> technique to extract the three highest-impact domains from the monolith: Catalog (the pilot), then Cart, then Checkout. Each extraction produces an independently deployable micro frontend.</p>
+
+  <details>
+    <summary>What's Delivered <span class="detail-summary">Concrete outcomes</span></summary>
+    <div class="detail-body">
+      <ul>
+        <li><strong>3 independent domain packages</strong> — Catalog, Cart, Checkout, each with their own repository, CI pipeline, and CDN deployment</li>
+        <li><strong>Import map integration</strong> — each domain loadable via the existing shell through import map entries</li>
+        <li><strong>Domain-scoped test suites</strong> — unit and integration tests for each extracted domain</li>
+        <li><strong>Deployment independence</strong> — each domain can deploy without affecting the others</li>
+        <li><strong>Rollback capability</strong> — import map versioning enables instant rollback per domain</li>
+      </ul>
+    </div>
+  </details>
+
+  <details>
+    <summary>What Changes <span class="detail-summary">Impact on teams</span></summary>
+    <div class="detail-body">
+      <ul>
+        <li>Catalog, Cart, and Checkout teams begin deploying independently</li>
+        <li>The monolith shrinks — these domains' code is removed from the shared codebase</li>
+        <li>Other domains continue operating exactly as before — zero impact</li>
+        <li>Shared components are still loaded from the monolith's bundle until Phase 2</li>
+        <li>The import map is introduced as the new deployment mechanism for extracted domains</li>
+      </ul>
+    </div>
+  </details>
+
+  <details>
+    <summary>Success Criteria <span class="detail-summary">How we know it's done</span></summary>
+    <div class="detail-body">
+      <ul>
+        <li>&#9989; All three domains deploy independently via their own CI pipelines</li>
+        <li>&#9989; No monolith build required for Catalog, Cart, or Checkout changes</li>
+        <li>&#9989; Rollback demonstrated: domain reverted via import map in under 5 seconds</li>
+        <li>&#9989; Domain test suites run in under 3 minutes each</li>
+        <li>&#9989; User experience is identical — no visible change to end users</li>
+      </ul>
+    </div>
+  </details>
+
+  <div class="callout">
+    <strong>&#128161; Phase 1 Alone Is Valuable</strong>
+    Even if the migration stopped here, the organization gains independent deployments for its three highest-traffic domains, reduced blast radius, and faster CI for those teams. This is not a "foundation that only pays off later" — it delivers immediate, measurable value.
+  </div>
+</section>
+
+<!-- ═══ Section 3: Phase 2 ═══ -->
+<section>
+  <h2>Phase 2: Shell Swap (Q2–Q3)</h2>
+  <p>Phase 2 replaces the monolith's server-side rendered shell with a new <strong>client-side rendered (CSR) shell</strong>. This removes the SSR bottleneck and establishes the standards-based component framework as the shell's technology. Existing React micro frontends are wrapped as Web Components for seamless integration.</p>
+
+  <details>
+    <summary>What's Delivered <span class="detail-summary">Concrete outcomes</span></summary>
+    <div class="detail-body">
+      <ul>
+        <li><strong>New CSR shell</strong> — lightweight, standards-based application shell that loads domains via import maps</li>
+        <li><strong>React MFE wrapping</strong> — existing React micro frontends wrapped as Web Components, running inside the new shell</li>
+        <li><strong>SSR removal</strong> — the server-side rendering layer is eliminated, reducing infrastructure complexity</li>
+        <li><strong>Unified routing</strong> — shell manages top-level routing, domains handle their own internal routes</li>
+        <li><strong>Shared layout</strong> — header, footer, and navigation managed by the shell using core Web Components</li>
+      </ul>
+    </div>
+  </details>
+
+  <details>
+    <summary>What Changes <span class="detail-summary">Impact on teams</span></summary>
+    <div class="detail-body">
+      <ul>
+        <li>All domains now load through the CSR shell — consistent experience</li>
+        <li>React domains continue working unchanged inside their Web Component wrappers</li>
+        <li>Page load model shifts from SSR to CSR — initial loads are client-rendered</li>
+        <li>The monolith's server component is no longer in the critical path for frontend rendering</li>
+        <li>New domains can be built directly using the standards-based component framework</li>
+      </ul>
+    </div>
+  </details>
+
+  <details>
+    <summary>Success Criteria <span class="detail-summary">How we know it's done</span></summary>
+    <div class="detail-body">
+      <ul>
+        <li>&#9989; CSR shell serves all pages — SSR server decommissioned for frontend rendering</li>
+        <li>&#9989; All existing React MFEs render correctly inside Web Component wrappers</li>
+        <li>&#9989; Core Web Vitals (LCP, CLS, FID) remain within acceptable thresholds</li>
+        <li>&#9989; New domain (pilot) built with WCFramework renders alongside React MFEs</li>
+        <li>&#9989; No user-facing regressions — visual regression tests pass</li>
+      </ul>
+    </div>
+  </details>
+</section>
+
+<!-- ═══ Section 4: Phase 3 ═══ -->
+<section>
+  <h2>Phase 3: App Catalog + BFF (Q3–Q4)</h2>
+  <p>Phase 3 introduces the <strong>governance and visibility layer</strong>. The App Catalog tracks every component, the API scanner monitors every endpoint, and the BFF pattern decouples frontend from backend services. This is where the platform gains operational maturity.</p>
+
+  <details>
+    <summary>What's Delivered <span class="detail-summary">Concrete outcomes</span></summary>
+    <div class="detail-body">
+      <ul>
+        <li><strong>App Catalog</strong> — live registry of every component, domain, and their dependencies</li>
+        <li><strong>API scanning</strong> — automated discovery and monitoring of all API endpoints across domains</li>
+        <li><strong>BFF pattern</strong> — Backend-for-Frontend services deployed for pilot domains (Catalog, Cart)</li>
+        <li><strong>Contract testing</strong> — consumer-driven contracts established between frontends, BFFs, and backends</li>
+        <li><strong>Dependency graph</strong> — visual map showing which domains use which components</li>
+      </ul>
+    </div>
+  </details>
+
+  <details>
+    <summary>What Changes <span class="detail-summary">Impact on teams</span></summary>
+    <div class="detail-body">
+      <ul>
+        <li>Component authors publish to the App Catalog — consumers discover via the catalog UI</li>
+        <li>API changes are detected automatically — no more surprise breaking changes from backend teams</li>
+        <li>Frontend teams interact with their BFF, not directly with backend services</li>
+        <li>Test targeting becomes intelligent — only affected domains tested when a component changes</li>
+        <li>Governance happens automatically through the catalog validation pipeline</li>
+      </ul>
+    </div>
+  </details>
+
+  <details>
+    <summary>Success Criteria <span class="detail-summary">How we know it's done</span></summary>
+    <div class="detail-body">
+      <ul>
+        <li>&#9989; App Catalog displays all registered components with documentation and examples</li>
+        <li>&#9989; API scanner detects and reports endpoint changes within 24 hours</li>
+        <li>&#9989; BFF deployed for Catalog and Cart domains — frontend decoupled from direct backend calls</li>
+        <li>&#9989; Contract tests running in CI for all BFF-connected domains</li>
+        <li>&#9989; Dependency graph accurately reflects component-to-domain relationships</li>
+      </ul>
+    </div>
+  </details>
+</section>
+
+<!-- ═══ Section 5: Phase 4 ═══ -->
+<section>
+  <h2>Phase 4: Progressive Evolution (Q4+)</h2>
+  <p>Phase 4 is different from the others — <strong>it never "finishes"</strong>. This is the ongoing phase where teams upgrade components at their own pace, new domains are onboarded, and the platform continuously improves. It's not a project; it's a way of working.</p>
+
+  <details>
+    <summary>What's Delivered <span class="detail-summary">Continuous outcomes</span></summary>
+    <div class="detail-body">
+      <ul>
+        <li><strong>Component upgrades</strong> — teams replace React components with WCFramework equivalents on their own schedule</li>
+        <li><strong>New domain onboarding</strong> — additional domains extracted from the monolith using the proven copy-split-strip process</li>
+        <li><strong>Core component evolution</strong> — annual cadence delivers new shared components and improvements</li>
+        <li><strong>Performance optimization</strong> — bundle sizes decrease as framework-specific wrappers are removed</li>
+        <li><strong>Developer experience</strong> — tooling, documentation, and catalog improvements based on team feedback</li>
+      </ul>
+    </div>
+  </details>
+
+  <details>
+    <summary>What Changes <span class="detail-summary">Impact on teams</span></summary>
+    <div class="detail-body">
+      <ul>
+        <li>Each team chooses their own evolution pace — no organizational pressure</li>
+        <li>Last year's components are fine. Two years ago is also fine. The CDN serves all versions.</li>
+        <li>New hires onboard faster — WCFramework requires only HTML, CSS, and JavaScript knowledge</li>
+        <li>The platform team shifts from "building the migration" to "maintaining the platform"</li>
+        <li>Cross-team coordination becomes the exception, not the rule</li>
+      </ul>
+    </div>
+  </details>
+
+  <details>
+    <summary>Success Criteria <span class="detail-summary">Ongoing metrics</span></summary>
+    <div class="detail-body">
+      <ul>
+        <li>&#9989; New domains onboarded within 2 weeks using established patterns</li>
+        <li>&#9989; Component adoption tracked via App Catalog — upward trend over time</li>
+        <li>&#9989; Average deploy frequency per domain: weekly or better</li>
+        <li>&#9989; Mean time to rollback: under 30 seconds</li>
+        <li>&#9989; Developer satisfaction surveys show improvement in deployment confidence</li>
+      </ul>
+    </div>
+  </details>
+</section>
+
+<!-- ═══ Section 6: Value Delivery Curve ═══ -->
+<section>
+  <h2>Cumulative Value Delivery</h2>
+  <p>Each phase adds to the cumulative value delivered to the organization. The curve is front-loaded — Phase 1 delivers the most dramatic improvement (independent deployments), and each subsequent phase adds governance, visibility, and continuous improvement on top.</p>
+
+  <h3>Value Delivery Across Phases</h3>
+  <div class="mermaid-wrap" id="d23-2">
+    <div class="mw-toolbar">
+      <button onclick="mzoom(this,1.2)">+</button>
+      <button onclick="mzoom(this,0.8)">&minus;</button>
+      <button onclick="mreset(this)">Reset</button>
+      <button onclick="mfull(this)">Fullscreen</button>
+    </div>
+    <div class="mw-view">
+      <div class="mermaid-inner" data-src="graph LR
+  subgraph timeline [Cumulative Value by Phase]
+    P0[Before Migration<br/>Monolith: coupled deploys<br/>shared failures<br/>slow CI]
+    P1[After Phase 1<br/>+ Independent deploys<br/>+ Reduced blast radius<br/>+ Faster CI per domain]
+    P2[After Phase 2<br/>+ SSR removed<br/>+ Standards-based shell<br/>+ Mixed-tech support]
+    P3[After Phase 3<br/>+ Full visibility<br/>+ Automated governance<br/>+ Contract safety]
+    P4[After Phase 4<br/>+ Continuous improvement<br/>+ Predictable cadence<br/>+ Full independence]
+  end
+  P0 --> P1 --> P2 --> P3 --> P4
+  style P0 fill:#2d1b00,stroke:#f85149,color:#e6edf3
+  style P1 fill:#1c2333,stroke:#58a6ff,color:#e6edf3
+  style P2 fill:#1c2333,stroke:#d2a8ff,color:#e6edf3
+  style P3 fill:#122a1a,stroke:#3fb950,color:#e6edf3
+  style P4 fill:#0d2818,stroke:#3fb950,color:#e6edf3"></div>
+    </div>
+    <div class="mw-caption">Fig 23.2 — Cumulative value curve: each phase adds measurable capability on top of the previous</div>
+  </div>
+
+  <div class="industry-std">
+    <strong>Industry Standard: Incremental Migration</strong>
+    Martin Fowler's "Strangler Fig" pattern — the industry-standard approach to monolith decomposition — is built on exactly this principle: deliver value incrementally, never bet everything on a big-bang cutover. Organizations like Spotify, Shopify, and IKEA have followed this phased approach to break apart their monoliths.
+  </div>
+
+  <table class="compare-table">
+    <thead>
+      <tr>
+        <th>Phase</th>
+        <th>Primary Value</th>
+        <th>Risk Reduced</th>
+        <th>Standalone Benefit</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Phase 1</strong></td>
+        <td class="good">Independent deployments</td>
+        <td class="good">Blast radius contained</td>
+        <td class="good">Yes — immediate value</td>
+      </tr>
+      <tr>
+        <td><strong>Phase 2</strong></td>
+        <td class="good">SSR bottleneck removed</td>
+        <td class="good">Server dependency eliminated</td>
+        <td class="good">Yes — simpler architecture</td>
+      </tr>
+      <tr>
+        <td><strong>Phase 3</strong></td>
+        <td class="good">Visibility &amp; governance</td>
+        <td class="good">Drift detected automatically</td>
+        <td class="good">Yes — operational maturity</td>
+      </tr>
+      <tr>
+        <td><strong>Phase 4</strong></td>
+        <td class="good">Continuous improvement</td>
+        <td class="good">Framework lock-in eliminated</td>
+        <td class="good">Yes — ongoing evolution</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+</main>
+<div style="max-width:900px;margin:0 auto;padding:0 1.5rem;">
+  <div class="page-nav">
+    <a href="22-blue-green-rollouts.html"><span class="pn-label">&larr; Previous</span><span class="pn-title">Blue/Green Deployments</span></a>
+    <a href="24-team-impact.html" class="next"><span class="pn-label">Next &rarr;</span><span class="pn-title">What Changes for Your Teams</span></a>
+  </div>
+</div>
+<footer>Medline Platform Evolution &mdash; v5 &mdash; 2026-04-05 &mdash; Technical Director Series &mdash; Confidential</footer>
+<div class="toast" id="toast">Copied!</div>
+<script src="shared.js"></script>
+</body>
+</html>
