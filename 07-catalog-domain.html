@@ -238,11 +238,11 @@ this.dispatchEvent(new CustomEvent('ml:add-to-cart', {
       SEARCH_FE[Search Component]
     end
     subgraph BFF[&quot;Catalog BFF&quot;]
-      PRODUCTS[/products]
-      PRODUCT_ID[/products/:id]
-      CATEGORIES[/categories]
-      SEARCH_EP[/search]
-      FACETS[/facets]
+      PRODUCTS[&quot;/products&quot;]
+      PRODUCT_ID[&quot;/products/:id&quot;]
+      CATEGORIES[&quot;/categories&quot;]
+      SEARCH_EP[&quot;/search&quot;]
+      FACETS[&quot;/facets&quot;]
     end
     subgraph BACKENDS[&quot;Backend Services&quot;]
       PRODUCT_SVC[Product Service]
