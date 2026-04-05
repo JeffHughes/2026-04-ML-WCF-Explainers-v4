@@ -54,7 +54,7 @@
 
   <div class="callout warn">
     <strong>&#9888;&#65039; The Anti-Pattern</strong>
-    If your test suite requires standing up the entire monolith, your test suite is the problem. Domain-scoped testing inverts this: each team tests their own domain in isolation, with contract checks at the boundaries.
+    If our test suite requires standing up the entire monolith, our test suite is the problem. Domain-scoped testing inverts this: each team tests their own domain in isolation, with contract checks at the boundaries.
   </div>
 
   <p>The modernized architecture changes testing fundamentally. Because each domain is independently deployable, each domain is also <strong>independently testable</strong>. Most testing happens within a single domain's boundary, with lightweight contract checks at the integration points.</p>

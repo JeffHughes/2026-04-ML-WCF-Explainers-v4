@@ -26,7 +26,7 @@
 <div class="hero">
   <div class="page-num">Training &mdash; Page 4 of 7</div>
   <h1>Track: Platform Engineer</h1>
-  <p class="subtitle">Six modules for the team that maintains the shell, the App Catalog, the CDN, and the infrastructure that makes everything else possible. You keep the platform running.</p>
+  <p class="subtitle">Six modules for the team that maintains the shell, the App Catalog, the CDN, and the infrastructure that makes everything else possible. We keep the platform running.</p>
 </div>
 
 <main>
@@ -34,7 +34,7 @@
 <!-- Track Overview -->
 <section>
   <h2>Track Overview</h2>
-  <p>Platform Engineers are the team behind the scenes. You manage the shell that composes domain micro frontends, the App Catalog that tracks every component and version, the API scanning that catches breaking changes, and the CDN that delivers it all. Without you, domains can't deploy and components can't be discovered.</p>
+  <p>Platform Engineers are the team behind the scenes. We manage the shell that composes domain micro frontends, the App Catalog that tracks every component and version, the API scanning that catches breaking changes, and the CDN that delivers it all. Without we, domains can't deploy and components can't be discovered.</p>
   <p>This track has <strong>6 modules</strong>. Expected completion: <strong>~3 weeks</strong>.</p>
 
   <div class="stat-grid">
@@ -56,7 +56,7 @@
 <!-- Platform Engineer Responsibilities Diagram -->
 <section>
   <h2>Platform Engineer Responsibilities</h2>
-  <p>Your role spans across the entire platform. Each module teaches you to operate one piece of the system.</p>
+  <p>Our role spans across the entire platform. Each module teaches us to operate one piece of the system.</p>
 
   <div class="mermaid-wrap" id="dt04-1">
     <div class="mw-toolbar">
@@ -66,21 +66,7 @@
       <button onclick="mfull(this)">&#9974;</button>
     </div>
     <div class="mw-view">
-      <div class="mermaid-inner" data-src="graph TD
-  PE[Platform Engineer]
-  PE --> SHELL[Shell Architecture\nCSR Composition + Routing]
-  PE --> CAT[App Catalog\nComponent Registry + Versions]
-  PE --> SCAN[API Scanning\nContract Discovery + Diffs]
-  PE --> CDN[CDN Management\nImport Maps + Versioning]
-  PE --> CADENCE[Core Cadence\nAnnual Updates + Scripts]
-  PE --> MON[Monitoring\nHealth Dashboard + Alerts]
-  style PE fill:#58a6ff,stroke:#58a6ff,color:#fff
-  style SHELL fill:#d2a8ff,stroke:#d2a8ff,color:#000
-  style CAT fill:#d2a8ff,stroke:#d2a8ff,color:#000
-  style SCAN fill:#d2a8ff,stroke:#d2a8ff,color:#000
-  style CDN fill:#f0883e,stroke:#f0883e,color:#fff
-  style CADENCE fill:#f0883e,stroke:#f0883e,color:#fff
-  style MON fill:#3fb950,stroke:#3fb950,color:#fff"></div>
+      <div class="mermaid-inner" __PROTECTED_0__></div>
     </div>
     <div class="mw-caption">Platform Engineer responsibilities mapped to six system areas</div>
   </div>
@@ -89,7 +75,7 @@
 <!-- Module 1 -->
 <section>
   <h2>Module 1: Shell Architecture</h2>
-  <p><strong>What you'll learn:</strong> How the CSR shell composes domain micro frontends, manages the import map, and handles route registration.</p>
+  <p><strong>What we'll learn:</strong> How the CSR shell composes domain micro frontends, manages the import map, and handles route registration.</p>
 
   <details>
     <summary>Module content <span class="detail-summary">CSR composition, import maps, routing</span></summary>
@@ -123,7 +109,7 @@
 <!-- Module 2 -->
 <section>
   <h2>Module 2: App Catalog Operations</h2>
-  <p><strong>What you'll learn:</strong> How the App Catalog scans, registers, and tracks every component and domain version across the platform.</p>
+  <p><strong>What we'll learn:</strong> How the App Catalog scans, registers, and tracks every component and domain version across the platform.</p>
 
   <details>
     <summary>Module content <span class="detail-summary">Scanning, registration, version tracking, alerts</span></summary>
@@ -152,7 +138,7 @@
 <!-- Module 3 -->
 <section>
   <h2>Module 3: API Scanning</h2>
-  <p><strong>What you'll learn:</strong> How automated API scanning discovers contracts, generates diffs, and notifies consumers of changes.</p>
+  <p><strong>What we'll learn:</strong> How automated API scanning discovers contracts, generates diffs, and notifies consumers of changes.</p>
 
   <details>
     <summary>Module content <span class="detail-summary">Contract discovery, diff generation, notifications</span></summary>
@@ -186,7 +172,7 @@
 <!-- Module 4 -->
 <section>
   <h2>Module 4: CDN &amp; Import Map Management</h2>
-  <p><strong>What you'll learn:</strong> How to manage the CDN publish workflow, version pinning, and import map rollback.</p>
+  <p><strong>What we'll learn:</strong> How to manage the CDN publish workflow, version pinning, and import map rollback.</p>
 
   <details>
     <summary>Module content <span class="detail-summary">CDN workflow, version pinning, rollback</span></summary>
@@ -215,7 +201,7 @@
 <!-- Module 5 -->
 <section>
   <h2>Module 5: Core Cadence</h2>
-  <p><strong>What you'll learn:</strong> The annual core update process&mdash;how change-mod scripts are authored, how updates are staged, and how rollouts happen domain-by-domain.</p>
+  <p><strong>What we'll learn:</strong> The annual core update process&mdash;how change-mod scripts are authored, how updates are staged, and how rollouts happen domain-by-domain.</p>
 
   <details>
     <summary>Module content <span class="detail-summary">Annual updates, change-mod scripts, staged rollout</span></summary>
@@ -250,19 +236,7 @@
       <button onclick="mfull(this)">&#9974;</button>
     </div>
     <div class="mw-view">
-      <div class="mermaid-inner" data-src="graph LR
-  A[New Core Version\nAnnual Release] -->|Author| B[Change-Mod Scripts\nAST Transforms + Config]
-  B -->|Run per domain| C[Transform\nAutomated Code Changes]
-  C -->|Stage| D[Staging Validation\nTests + Visual Regression]
-  D -->|Pass| E[Production Rollout\nDomain-by-Domain]
-  D -->|Fail| F[Fix Script\nRetry Transform]
-  F --> C
-  style A fill:#58a6ff,stroke:#58a6ff,color:#fff
-  style B fill:#d2a8ff,stroke:#d2a8ff,color:#000
-  style C fill:#f0883e,stroke:#f0883e,color:#fff
-  style D fill:#f0883e,stroke:#f0883e,color:#fff
-  style E fill:#3fb950,stroke:#3fb950,color:#fff
-  style F fill:#f85149,stroke:#f85149,color:#fff"></div>
+      <div class="mermaid-inner" __PROTECTED_1__></div>
     </div>
     <div class="mw-caption">Annual core update workflow: release &rarr; scripts &rarr; transform &rarr; validate &rarr; rollout</div>
   </div>
@@ -276,7 +250,7 @@
 <!-- Module 6 -->
 <section>
   <h2>Module 6: Monitoring &amp; Health</h2>
-  <p><strong>What you'll learn:</strong> How to monitor domain health, track deployments, and diagnose platform-wide issues.</p>
+  <p><strong>What we'll learn:</strong> How to monitor domain health, track deployments, and diagnose platform-wide issues.</p>
 
   <details>
     <summary>Module content <span class="detail-summary">Health dashboard, deployment tracking, diagnostics</span></summary>
@@ -285,7 +259,7 @@
       <ul>
         <li><strong>Domain health dashboard</strong> &mdash; real-time view of every domain: deployment status, error rates, latency, and test results</li>
         <li><strong>Deployment tracking</strong> &mdash; history of every deployment: who, when, what version, which import map change</li>
-        <li><strong>Error aggregation</strong> &mdash; errors are grouped by domain, component, and severity so you know where to look first</li>
+        <li><strong>Error aggregation</strong> &mdash; errors are grouped by domain, component, and severity so we know where to look first</li>
         <li><strong>Performance baselines</strong> &mdash; each domain has performance budgets; violations trigger alerts</li>
         <li><strong>Incident response</strong> &mdash; when something goes wrong: how to identify the root domain, rollback, and post-mortem</li>
       </ul>

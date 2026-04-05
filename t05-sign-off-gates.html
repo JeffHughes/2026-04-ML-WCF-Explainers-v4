@@ -61,24 +61,7 @@
       <button onclick="mfull(this)">&#9974;</button>
     </div>
     <div class="mw-view">
-      <div class="mermaid-inner" data-src="graph TD
-  PUSH[Developer Pushes Code] --> G1
-  G1[Gate 1: Code Standards\nLinting + Formatting + Naming] -->|Pass| G2[Gate 2: Component Contract\nAttributes Documented + Events Typed]
-  G2 -->|Pass| G3[Gate 3: Test Coverage\nUnit + Integration Thresholds]
-  G3 -->|Pass| G4[Gate 4: API Compatibility\nNo Breaking Changes to Consumers]
-  G4 -->|Pass| G5[Gate 5: Visual Regression\nNo Unintended Visual Changes]
-  G5 -->|Pass| G6[Gate 6: Catalog Registration\nVersion Bumped + Dependencies Declared]
-  G6 -->|Pass| G7[Gate 7: Security Scan\nNo Vulnerabilities + No Exposed Secrets]
-  G7 -->|All Pass| SHIP[Ship It\nBlue/Green Deploy]
-  style PUSH fill:#58a6ff,stroke:#58a6ff,color:#fff
-  style G1 fill:#d2a8ff,stroke:#d2a8ff,color:#000
-  style G2 fill:#d2a8ff,stroke:#d2a8ff,color:#000
-  style G3 fill:#d2a8ff,stroke:#d2a8ff,color:#000
-  style G4 fill:#f0883e,stroke:#f0883e,color:#fff
-  style G5 fill:#f0883e,stroke:#f0883e,color:#fff
-  style G6 fill:#f0883e,stroke:#f0883e,color:#fff
-  style G7 fill:#f0883e,stroke:#f0883e,color:#fff
-  style SHIP fill:#3fb950,stroke:#3fb950,color:#fff"></div>
+      <div class="mermaid-inner" __PROTECTED_0__></div>
     </div>
     <div class="mw-caption">Seven automated gates: every commit must pass all seven before it ships</div>
   </div>
@@ -196,7 +179,7 @@
 
   <div class="industry-std">
     <strong>Industry Standard: Visual Regression Testing</strong>
-    Automated visual regression testing is the industry standard for component libraries and design systems. Tools like Chromatic, Percy, and BackstopJS are used by enterprise teams to catch visual bugs that unit tests miss. If it looks different, you know about it before it ships.
+    Automated visual regression testing is the industry standard for component libraries and design systems. Tools like Chromatic, Percy, and BackstopJS are used by enterprise teams to catch visual bugs that unit tests miss. If it looks different, we know about it before it ships.
   </div>
 </section>
 
@@ -260,21 +243,7 @@
       <button onclick="mfull(this)">&#9974;</button>
     </div>
     <div class="mw-view">
-      <div class="mermaid-inner" data-src="graph TD
-  FAIL[Gate Fails] --> REPORT[Failure Report\nWhich gate + specific error]
-  REPORT --> GUIDANCE[Remediation Guidance\nHow to fix with examples]
-  GUIDANCE --> FIX[Developer Fixes\nAddress the specific issue]
-  FIX --> REPUSH[Re-push Code]
-  REPUSH --> RERUN[Pipeline Re-runs\nAll gates from start]
-  RERUN -->|All pass| SHIP[Ship It]
-  RERUN -->|Fail again| FAIL
-  style FAIL fill:#f85149,stroke:#f85149,color:#fff
-  style REPORT fill:#f0883e,stroke:#f0883e,color:#fff
-  style GUIDANCE fill:#d2a8ff,stroke:#d2a8ff,color:#000
-  style FIX fill:#58a6ff,stroke:#58a6ff,color:#fff
-  style REPUSH fill:#58a6ff,stroke:#58a6ff,color:#fff
-  style RERUN fill:#f0883e,stroke:#f0883e,color:#fff
-  style SHIP fill:#3fb950,stroke:#3fb950,color:#fff"></div>
+      <div class="mermaid-inner" __PROTECTED_1__></div>
     </div>
     <div class="mw-caption">Gate failure flow: fail &rarr; report &rarr; guidance &rarr; fix &rarr; retry. No limit on retries.</div>
   </div>

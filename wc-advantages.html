@@ -45,17 +45,17 @@
     <div class="theme-card">
       <div class="theme-icon">&#9633;</div>
       <h4>1. Zero Runtime Overhead</h4>
-      <p>No framework JavaScript to download, parse, and execute before your component renders. The browser <em>is</em> the runtime. First paint happens the moment the HTML arrives.</p>
+      <p>No framework JavaScript to download, parse, and execute before our component renders. The browser <em>is</em> the runtime. First paint happens the moment the HTML arrives.</p>
     </div>
     <div class="theme-card">
       <div class="theme-icon">&#9635;</div>
       <h4>2. Real DOM, Not Virtual DOM</h4>
-      <p>No reconciliation tax. No diffing algorithm. No stale closure bugs. You update the DOM directly, and the browser does what browsers do best&mdash;paint pixels.</p>
+      <p>No reconciliation tax. No diffing algorithm. No stale closure bugs. We update the DOM directly, and the browser does what browsers do best&mdash;paint pixels.</p>
     </div>
     <div class="theme-card">
       <div class="theme-icon">&#9641;</div>
       <h4>3. Native Browser DevTools</h4>
-      <p>Inspect elements, Shadow DOM trees, event listeners, and CSS with built-in browser tools. No extension installation. No framework-specific debug panel. What you see is what the browser sees.</p>
+      <p>Inspect elements, Shadow DOM trees, event listeners, and CSS with built-in browser tools. No extension installation. No framework-specific debug panel. What we see is what the browser sees.</p>
     </div>
     <div class="theme-card">
       <div class="theme-icon">&#8614;</div>
@@ -95,7 +95,7 @@
     <div class="theme-card">
       <div class="theme-icon">&#9641;</div>
       <h4>11. Testable with Standard APIs</h4>
-      <p><code>document.querySelector</code>, <code>element.dispatchEvent</code>, <code>element.getAttribute</code>&mdash;standard DOM APIs are your test harness. Any test runner works. No framework-specific testing library required.</p>
+      <p><code>document.querySelector</code>, <code>element.dispatchEvent</code>, <code>element.getAttribute</code>&mdash;standard DOM APIs are our test harness. Any test runner works. No framework-specific testing library required.</p>
     </div>
     <div class="theme-card">
       <div class="theme-icon">&#8614;</div>
@@ -112,33 +112,7 @@
       <button onclick="mfull(this)">&#9974;</button>
     </div>
     <div class="mw-view">
-      <div class="mermaid-inner" data-src="graph LR
-  subgraph WC[Web Component Contract]
-    direction TB
-    A[HTML Attributes In] --> B[Custom Element]
-    B --> C[DOM Events Out]
-  end
-  subgraph Inside[What Lives Inside]
-    direction TB
-    D[React Render Tree]
-    E[Vue Instance]
-    F[Svelte Component]
-    G[Plain Vanilla JS]
-    H[Whatever Comes Next]
-  end
-  D --> B
-  E --> B
-  F --> B
-  G --> B
-  H --> B
-  style B fill:#58a6ff,stroke:#58a6ff,color:#fff
-  style A fill:#3fb950,stroke:#3fb950,color:#fff
-  style C fill:#3fb950,stroke:#3fb950,color:#fff
-  style D fill:#8b949e,stroke:#8b949e,color:#fff
-  style E fill:#8b949e,stroke:#8b949e,color:#fff
-  style F fill:#8b949e,stroke:#8b949e,color:#fff
-  style G fill:#d2a8ff,stroke:#d2a8ff,color:#fff
-  style H fill:#8b949e,stroke:#8b949e,color:#fff"></div>
+      <div class="mermaid-inner" __PROTECTED_0__></div>
     </div>
     <div class="mw-caption">Figure WC-1: Web Components are framework-agnostic containers. The shell sees standard HTML elements. What lives inside each element is the team&#8217;s choice.</div>
   </div>
@@ -173,17 +147,7 @@
       <button onclick="mfull(this)">&#9974;</button>
     </div>
     <div class="mw-view">
-      <div class="mermaid-inner" data-src="graph TD
-  A[New Framework Paradigm] -->|hype cycle| B[Rapid Adoption]
-  B -->|18-24 months| C[Ecosystem Maturity]
-  C -->|innovation pressure| D[New Paradigm Announced]
-  D -->|deprecation warnings| E[Migration Tax]
-  E -->|rewrite begins| A
-  style A fill:#f0883e,stroke:#f0883e,color:#fff
-  style B fill:#58a6ff,stroke:#58a6ff,color:#fff
-  style C fill:#3fb950,stroke:#3fb950,color:#fff
-  style D fill:#f0883e,stroke:#f0883e,color:#fff
-  style E fill:#f85149,stroke:#f85149,color:#fff"></div>
+      <div class="mermaid-inner" __PROTECTED_1__></div>
     </div>
     <div class="mw-caption">Figure WC-2: The Framework Fad Cycle &#8212; new paradigm &#8594; adoption &#8594; maturity &#8594; new paradigm &#8594; migration tax &#8594; repeat. Enterprise platforms pay this tax every cycle.</div>
   </div>
@@ -197,12 +161,12 @@
           <tr><th>Layer</th><th>What Changes</th><th>Impact</th></tr>
         </thead>
         <tbody>
-          <tr><td><strong>Component model</strong></td><td>How you define and compose components</td><td class="bad">Every component rewritten</td></tr>
-          <tr><td><strong>State management</strong></td><td>How you manage and share state</td><td class="bad">Architecture redesign</td></tr>
+          <tr><td><strong>Component model</strong></td><td>How we define and compose components</td><td class="bad">Every component rewritten</td></tr>
+          <tr><td><strong>State management</strong></td><td>How we manage and share state</td><td class="bad">Architecture redesign</td></tr>
           <tr><td><strong>Rendering model</strong></td><td>Client vs server vs hybrid rendering</td><td class="bad">Deployment pipeline changes</td></tr>
           <tr><td><strong>Routing</strong></td><td>How navigation and data loading work</td><td class="bad">Every route restructured</td></tr>
           <tr><td><strong>Build tooling</strong></td><td>Bundler, compiler, dev server</td><td class="neutral">Configuration migration</td></tr>
-          <tr><td><strong>Test utilities</strong></td><td>How you test components</td><td class="bad">Every test rewritten</td></tr>
+          <tr><td><strong>Test utilities</strong></td><td>How we test components</td><td class="bad">Every test rewritten</td></tr>
           <tr><td><strong>CSS solution</strong></td><td>How styles are scoped and applied</td><td class="neutral">Styling approach changes</td></tr>
           <tr><td><strong>Third-party libraries</strong></td><td>Ecosystem compatibility</td><td class="bad">Wait for library authors to catch up</td></tr>
         </tbody>
@@ -231,7 +195,7 @@
     <li><code>&lt;table&gt;</code> layouts from 2001 still render pixel-for-pixel.</li>
     <li>CSS <code>float</code> layouts from 2003 still work alongside CSS Grid from 2017.</li>
   </ul>
-  <p>Web standards don&#8217;t deprecate. They <strong>accumulate.</strong> New APIs are added; old APIs keep working. A Custom Element you write today will work in browsers in 2036&mdash;without a single line of migration code.</p>
+  <p>Web standards don&#8217;t deprecate. They <strong>accumulate.</strong> New APIs are added; old APIs keep working. A Custom Element we write today will work in browsers in 2036&mdash;without a single line of migration code.</p>
 
   <div class="mermaid-wrap" id="dwc-3">
     <div class="mw-toolbar">
@@ -241,27 +205,9 @@
       <button onclick="mfull(this)">&#9974;</button>
     </div>
     <div class="mw-view">
-      <div class="mermaid-inner" data-src="graph LR
-  subgraph FP[Framework Path]
-    direction TB
-    F1[Your Code] --> F2[Framework Abstraction]
-    F2 --> F3[Browser]
-    F2 -.->|breaks every 18mo| F4[New Framework Version]
-    F4 -.->|rewrite required| F1
-  end
-  subgraph PP[Platform Path]
-    direction TB
-    P1[Your Code] --> P2[Browser]
-    P1 -.->|stable forever| P2
-  end
-  style F2 fill:#f85149,stroke:#f85149,color:#fff
-  style F4 fill:#f0883e,stroke:#f0883e,color:#fff
-  style F1 fill:#58a6ff,stroke:#58a6ff,color:#fff
-  style F3 fill:#8b949e,stroke:#8b949e,color:#fff
-  style P1 fill:#58a6ff,stroke:#58a6ff,color:#fff
-  style P2 fill:#3fb950,stroke:#3fb950,color:#fff"></div>
+      <div class="mermaid-inner" __PROTECTED_2__></div>
     </div>
-    <div class="mw-caption">Figure WC-3: Two paths &#8212; the framework path adds a moving abstraction that breaks every 18 months. The platform path connects your code directly to the browser, stable forever.</div>
+    <div class="mw-caption">Figure WC-3: Two paths &#8212; the framework path adds a moving abstraction that breaks every 18 months. The platform path connects our code directly to the browser, stable forever.</div>
   </div>
 
   <details>
@@ -297,7 +243,7 @@
      ═══════════════════════════════════════════════════════════════════ -->
 <section>
   <h2>&#8614; Web Components Can Host Anything</h2>
-  <p>This is the key selling point: <strong>choosing Web Components does not lock you out of any framework.</strong> A Web Component is a standard HTML element with a Shadow DOM boundary. What lives inside that boundary is entirely up to the team that owns the component.</p>
+  <p>This is the key selling point: <strong>choosing Web Components does not lock we out of any framework.</strong> A Web Component is a standard HTML element with a Shadow DOM boundary. What lives inside that boundary is entirely up to the team that owns the component.</p>
 
   <p>A single Web Component can host:</p>
   <ul>
@@ -319,7 +265,7 @@
     <div class="theme-card">
       <div class="theme-icon">&#9635;</div>
       <h4>Legacy Compatibility</h4>
-      <p>Existing framework-based components wrap into Web Component shells and keep working immediately. No rewrite required. Migrate at your own pace.</p>
+      <p>Existing framework-based components wrap into Web Component shells and keep working immediately. No rewrite required. Migrate at our own pace.</p>
     </div>
     <div class="theme-card">
       <div class="theme-icon">&#9641;</div>
@@ -341,36 +287,7 @@
       <button onclick="mfull(this)">&#9974;</button>
     </div>
     <div class="mw-view">
-      <div class="mermaid-inner" data-src="graph TB
-  subgraph Shell[WCFramework Shell]
-    S[Import Map + Router]
-  end
-  subgraph Components[Component Ecosystem]
-    direction LR
-    subgraph Native[Vanilla Web Components]
-      N1[ml-search-bar]
-      N2[ml-nav-menu]
-      N3[ml-footer]
-    end
-    subgraph Wrapped[Framework-Hosted WCs]
-      W1[ml-product-card\nReact inside]
-      W2[ml-cart-summary\nVue inside]
-      W3[ml-checkout-form\nSvelte inside]
-    end
-  end
-  S --> N1
-  S --> N2
-  S --> N3
-  S --> W1
-  S --> W2
-  S --> W3
-  style S fill:#58a6ff,stroke:#58a6ff,color:#fff
-  style N1 fill:#3fb950,stroke:#3fb950,color:#fff
-  style N2 fill:#3fb950,stroke:#3fb950,color:#fff
-  style N3 fill:#3fb950,stroke:#3fb950,color:#fff
-  style W1 fill:#d2a8ff,stroke:#d2a8ff,color:#fff
-  style W2 fill:#d2a8ff,stroke:#d2a8ff,color:#fff
-  style W3 fill:#d2a8ff,stroke:#d2a8ff,color:#fff"></div>
+      <div class="mermaid-inner" __PROTECTED_3__></div>
     </div>
     <div class="mw-caption">Figure WC-4: The shell treats every component identically &#8212; standard HTML elements. Some contain vanilla JS, some contain framework render trees. The shell doesn&#8217;t care. The contract is the same.</div>
   </div>
@@ -412,28 +329,7 @@
       <button onclick="mfull(this)">&#9974;</button>
     </div>
     <div class="mw-view">
-      <div class="mermaid-inner" data-src="graph TD
-  subgraph Convergence[Industry Convergence on Web Components]
-    GH[GitHub] --> WC[W3C Web Components]
-    SF[Salesforce] --> WC
-    AD[Adobe] --> WC
-    SP[SAP] --> WC
-    ING[ING Bank] --> WC
-    GO[Google] --> WC
-    MS[Microsoft] --> WC
-    RH[Red Hat] --> WC
-  end
-  WC --> STD[Shared Standard:\nCustom Elements\nShadow DOM\nES Modules]
-  style WC fill:#58a6ff,stroke:#58a6ff,color:#fff
-  style STD fill:#3fb950,stroke:#3fb950,color:#fff
-  style GH fill:#8b949e,stroke:#8b949e,color:#fff
-  style SF fill:#8b949e,stroke:#8b949e,color:#fff
-  style AD fill:#8b949e,stroke:#8b949e,color:#fff
-  style SP fill:#8b949e,stroke:#8b949e,color:#fff
-  style ING fill:#8b949e,stroke:#8b949e,color:#fff
-  style GO fill:#8b949e,stroke:#8b949e,color:#fff
-  style MS fill:#8b949e,stroke:#8b949e,color:#fff
-  style RH fill:#8b949e,stroke:#8b949e,color:#fff"></div>
+      <div class="mermaid-inner" __PROTECTED_4__></div>
     </div>
     <div class="mw-caption">Figure WC-5: Eight of the world&#8217;s largest software companies independently converged on Web Components for their enterprise component systems. That&#8217;s not a trend. That&#8217;s the industry settling on the right answer.</div>
   </div>
@@ -453,16 +349,16 @@
   <details>
     <summary>&#8220;The framework ecosystem is bigger&#8221; <span class="detail-summary">True, and that&#8217;s the problem</span></summary>
     <div class="detail-body">
-      <p>A large ecosystem sounds like an advantage until you realize it&#8217;s also the source of the churn. Every popular library in a framework ecosystem follows the framework&#8217;s paradigm shifts. Routers get rewritten. State managers get replaced. CSS solutions rotate. Test utilities change.</p>
+      <p>A large ecosystem sounds like an advantage until we realize it&#8217;s also the source of the churn. Every popular library in a framework ecosystem follows the framework&#8217;s paradigm shifts. Routers get rewritten. State managers get replaced. CSS solutions rotate. Test utilities change.</p>
       <p>A stable, standards-based ecosystem is <strong>better for enterprise</strong> than a massive one that reshuffles every 18 months. Web Components use standard DOM APIs. They don&#8217;t need a framework-specific router (the browser has the History API). They don&#8217;t need a state management library (the platform has events, properties, and the DOM). They don&#8217;t need a CSS-scoping solution (Shadow DOM <em>is</em> the solution).</p>
       <p>Smaller. Stable. Standards-based. For a platform that needs to last a decade, that&#8217;s the right trade.</p>
     </div>
   </details>
 
   <details>
-    <summary>&#8220;Our developers know [framework X], not Web Components&#8221; <span class="detail-summary">The learning curve is smaller than you think</span></summary>
+    <summary>&#8220;Our developers know [framework X], not Web Components&#8221; <span class="detail-summary">The learning curve is smaller than we think</span></summary>
     <div class="detail-body">
-      <p>Web Components are HTML, CSS, and JavaScript. <strong>Your developers already know these.</strong> The Custom Elements API is approximately 20 lines of boilerplate. Shadow DOM is one method call. There is no proprietary template syntax to learn, no virtual DOM concept to internalize, no complex dependency-tracking rules to memorize.</p>
+      <p>Web Components are HTML, CSS, and JavaScript. <strong>Our developers already know these.</strong> The Custom Elements API is approximately 20 lines of boilerplate. Shadow DOM is one method call. There is no proprietary template syntax to learn, no virtual DOM concept to internalize, no complex dependency-tracking rules to memorize.</p>
       <p>A developer who has spent years learning framework abstractions already knows everything <em>underneath</em> those abstractions. Web Components just remove the abstraction layer and let developers work with the browser directly.</p>
       <p>With WCFramework, teams also get developer ergonomics they expect&mdash;templates, data binding, dependency injection&mdash;while the output is still standard Custom Elements. The learning curve is days, not months.</p>
     </div>
@@ -505,32 +401,18 @@
       <button onclick="mfull(this)">&#9974;</button>
     </div>
     <div class="mw-view">
-      <div class="mermaid-inner" data-src="graph TD
-  subgraph Objections[Common Objections]
-    O1[Bigger ecosystem?] -->|Answer| A1[Stable beats massive\nfor enterprise]
-    O2[Devs know framework X?] -->|Answer| A2[WCs are HTML/CSS/JS\nThey already know it]
-    O3[Developer experience?] -->|Answer| A3[Gap closed in 2026\nBrowser DevTools are excellent]
-    O4[Server-side rendering?] -->|Answer| A4[Declarative Shadow DOM\nSolved natively]
-  end
-  style O1 fill:#f0883e,stroke:#f0883e,color:#fff
-  style O2 fill:#f0883e,stroke:#f0883e,color:#fff
-  style O3 fill:#f0883e,stroke:#f0883e,color:#fff
-  style O4 fill:#f0883e,stroke:#f0883e,color:#fff
-  style A1 fill:#3fb950,stroke:#3fb950,color:#fff
-  style A2 fill:#3fb950,stroke:#3fb950,color:#fff
-  style A3 fill:#3fb950,stroke:#3fb950,color:#fff
-  style A4 fill:#3fb950,stroke:#3fb950,color:#fff"></div>
+      <div class="mermaid-inner" __PROTECTED_5__></div>
     </div>
     <div class="mw-caption">Figure WC-6: Every common objection to Web Components has a concrete, standards-based answer in 2026.</div>
   </div>
 </section>
 
 <!-- ═══════════════════════════════════════════════════════════════════
-     SECTION 7: How This Maps to Your Pod Model
+     SECTION 7: How This Maps to the Pod Model
      ═══════════════════════════════════════════════════════════════════ -->
 <section>
-  <h2>&#8614; How This Maps to Your Pod Model</h2>
-  <p>After domain extraction, your platform becomes 8&#8211;12 domain apps, each managed by a pod. Each app contains 10&#8211;30+ Web Components. This structure changes the economics of development, ownership, and maintenance entirely:</p>
+  <h2>&#8614; How This Maps to the Pod Model</h2>
+  <p>After domain extraction, our platform becomes 8&#8211;12 domain apps, each managed by a pod. Each app contains 10&#8211;30+ Web Components. This structure changes the economics of development, ownership, and maintenance entirely:</p>
 
   <table class="compare-table">
     <thead>
@@ -583,43 +465,7 @@
       <button onclick="mfull(this)">&#9974;</button>
     </div>
     <div class="mw-view">
-      <div class="mermaid-inner" data-src="graph TB
-  subgraph Shell[WCFramework Shell]
-    direction LR
-    S[Import Map + Router]
-  end
-  subgraph Pods[Pod-Managed Domain Apps]
-    subgraph PA[Pod Alpha &#8212; Catalog + Search]
-      A1[Catalog App\n25 Web Components]
-      A2[Search App\n12 Web Components]
-    end
-    subgraph PB[Pod Beta &#8212; Commerce]
-      B1[Cart App\n18 Web Components]
-      B2[Checkout App\n22 Web Components]
-    end
-    subgraph PC[Pod Gamma &#8212; Account + Content]
-      C1[Account App\n15 Web Components]
-      C2[Content App\n10 Web Components]
-    end
-    subgraph PD[Pod Delta &#8212; Admin]
-      D1[Admin App\n20 Web Components]
-      D2[Analytics App\n8 Web Components]
-    end
-  end
-  S --> A1
-  S --> A2
-  S --> B1
-  S --> B2
-  S --> C1
-  S --> C2
-  S --> D1
-  S --> D2
-  CAT[App Catalog] -.->|scans| A1
-  CAT -.->|scans| B1
-  CAT -.->|scans| C1
-  CAT -.->|scans| D1
-  style S fill:#58a6ff,stroke:#58a6ff,color:#fff
-  style CAT fill:#3fb950,stroke:#3fb950,color:#fff"></div>
+      <div class="mermaid-inner" __PROTECTED_6__></div>
     </div>
     <div class="mw-caption">Figure WC-7: Target architecture &#8212; 8&#8211;12 domain apps managed by pods, each composed of 10&#8211;30 Web Components, governed by the App Catalog. Each pod is autonomous. The shell is the only shared surface.</div>
   </div>
@@ -657,13 +503,13 @@
     <li><strong>Frameworks come and go.</strong> The dominant framework of 2016 isn&#8217;t the dominant framework of 2026. The dominant framework of 2026 won&#8217;t be the dominant framework of 2036.</li>
     <li><strong>The platform is forever.</strong> HTML from 2005 still renders. Web Components from 2018 still work. The platform doesn&#8217;t deprecate. It accumulates.</li>
     <li><strong>The industry converged.</strong> GitHub, Salesforce, Adobe, SAP, ING, Google, Microsoft, Red Hat all independently chose Web Components for their enterprise platforms.</li>
-    <li><strong>The hosting model solves adoption.</strong> You don&#8217;t have to rewrite anything. Existing components wrap into Web Component shells. New components use WCFramework. The ratio shifts naturally over time.</li>
+    <li><strong>The hosting model solves adoption.</strong> We don&#8217;t have to rewrite anything. Existing components wrap into Web Component shells. New components use WCFramework. The ratio shifts naturally over time.</li>
   </ul>
   <p>Build on the platform. The platform doesn&#8217;t churn. The platform doesn&#8217;t pivot. The platform doesn&#8217;t deprecate. The platform just works&mdash;the same way it has worked for 30 years and will work for 30 more.</p>
 
   <div class="callout success">
-    <strong>&#9633; The Best Platform Decision Is the One You Make Once</strong>
-    Choose the web platform as your component boundary. Let teams use any framework inside their components. Let the standard contract&mdash;attributes in, events out, Shadow DOM boundary&mdash;provide the stability. Make the decision once. Never migrate again.
+    <strong>&#9633; The Best Platform Decision Is the One We Make Once</strong>
+    Choose the web platform as our component boundary. Let teams use any framework inside their components. Let the standard contract&mdash;attributes in, events out, Shadow DOM boundary&mdash;provide the stability. Make the decision once. Never migrate again.
   </div>
 </section>
 

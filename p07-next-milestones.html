@@ -226,35 +226,7 @@
       <button onclick="mfull(this)">&#9974;</button>
     </div>
     <div class="mw-view">
-      <div class="mermaid-inner" data-src="gantt
-  title Next 90 Days — April 6 to July 4, 2026
-  dateFormat YYYY-MM-DD
-  axisFormat %b %d
-
-  section Domain Extraction
-  Cart completion           :active, cart, 2026-04-06, 2026-04-11
-  Search completion         :active, srch, 2026-04-06, 2026-04-25
-  Mini-Cart extraction      :mc, 2026-05-17, 2026-05-30
-  Checkout extraction start :co, 2026-05-31, 2026-07-04
-
-  section Shell
-  Shell swap to staging     :crit, swap, 2026-05-03, 2026-05-16
-
-  section Infrastructure
-  App Catalog v1.0          :active, ac1, 2026-04-06, 2026-04-18
-  Change-mod scripts        :cms, 2026-04-19, 2026-05-02
-  Visual regression deploy  :vr, 2026-05-31, 2026-06-13
-  App Catalog v1.1          :ac2, 2026-05-17, 2026-05-30
-
-  section Components
-  Remaining Cart wrapping   :cw, 2026-04-06, 2026-04-18
-  Search component wrapping :sw, 2026-04-19, 2026-05-02
-  Core WCF component set    :wcs, 2026-06-14, 2026-07-04
-
-  section Gates
-  Gate 1 Cart Go-No-Go      :milestone, g1, 2026-04-18, 0d
-  Gate 2 Shell Swap          :milestone, g2, 2026-05-16, 0d
-  Gate 3 Phase 1 Review      :milestone, g3, 2026-07-04, 0d"></div>
+      <div class="mermaid-inner" __PROTECTED_0__></div>
     </div>
     <div class="mw-caption">90-day execution plan with three decision gates &mdash; updated 2026-04-05</div>
   </div>
@@ -271,29 +243,7 @@
       <button onclick="mfull(this)">&#9974;</button>
     </div>
     <div class="mw-view">
-      <div class="mermaid-inner" data-src="graph TD
-  S1[Sprint 1-2: Extract Cart + Search] --> G1{Gate 1: Cart Go/No-Go}
-  G1 -->|Pass| S2[Sprint 3: Shell Swap to Staging]
-  G1 -->|Fail| R1[1-Sprint Remediation]
-  R1 --> G1
-
-  S2 --> G2{Gate 2: Shell Swap Go/No-Go}
-  G2 -->|Pass| S3[Sprint 4-5: Mini-Cart + Checkout]
-  G2 -->|Fail| R2[Performance Optimization Sprint]
-  R2 --> G2
-
-  S3 --> S4[Sprint 6: Core Components + Phase 1 Wrap]
-  S4 --> G3{Gate 3: Phase 1 Complete}
-  G3 -->|Approved| PH2[Begin Phase 2]
-  G3 -->|Deferred| EXT[Extended Phase 1 Sprint]
-  EXT --> G3
-
-  style G1 fill:#f0883e,stroke:#f0883e,color:#fff
-  style G2 fill:#f0883e,stroke:#f0883e,color:#fff
-  style G3 fill:#3fb950,stroke:#3fb950,color:#fff
-  style PH2 fill:#58a6ff,stroke:#58a6ff,color:#fff
-  style R1 fill:#f85149,stroke:#f85149,color:#fff
-  style R2 fill:#f85149,stroke:#f85149,color:#fff"></div>
+      <div class="mermaid-inner" __PROTECTED_1__></div>
     </div>
     <div class="mw-caption">Decision gate flow &mdash; every gate has a pass path and a remediation path</div>
   </div>

@@ -171,14 +171,14 @@
 <!-- ═══ Section 3: Change-Mod Scripts ═══ -->
 <section>
   <h2>Change-Mod Scripts: Automated Upgrades</h2>
-  <p>The single most important tool in the cadence process is the <strong>change-mod script</strong>. It automates the mechanical work of upgrading your domain's core component references. No manual find-and-replace. No guesswork. No missed imports.</p>
+  <p>The single most important tool in the cadence process is the <strong>change-mod script</strong>. It automates the mechanical work of upgrading each domain's core component references. No manual find-and-replace. No guesswork. No missed imports.</p>
 
   <h3>How It Works</h3>
   <ol>
     <li><strong>Run the script</strong> — <code>npx @core/change-mod --target v{N+1}</code></li>
     <li><strong>Review the diff</strong> — the script generates a standard git diff showing every change</li>
-    <li><strong>Test locally</strong> — run your domain's existing test suite against the updated components</li>
-    <li><strong>Deploy</strong> — push through your normal domain deployment pipeline</li>
+    <li><strong>Test locally</strong> — run each domain's existing test suite against the updated components</li>
+    <li><strong>Deploy</strong> — push through our normal domain deployment pipeline</li>
   </ol>
 
   <div class="callout success">
@@ -226,7 +226,7 @@ import '@core/v5/button.js';
 import '@core/v5/data-table.js';</code></pre>
 
       <h4>API Signature Adjustments</h4>
-      <p>If a component's public API changed (e.g., a property was renamed or a new required attribute was added), the script updates every usage in your domain's templates and code.</p>
+      <p>If a component's public API changed (e.g., a property was renamed or a new required attribute was added), the script updates every usage in each domain's templates and code.</p>
 
       <h4>Deprecation Cleanup</h4>
       <p>Components or APIs deprecated in the previous version are replaced with their documented successors. The migration manifest contains the full mapping.</p>
@@ -236,9 +236,9 @@ import '@core/v5/data-table.js';</code></pre>
   <details>
     <summary>Dry-Run Mode <span class="detail-summary">Preview before applying</span></summary>
     <div class="detail-body">
-      <p>Run <code>npx @core/change-mod --target v{N+1} --dry-run</code> to see exactly what would change without modifying any files. The output is a standard unified diff that you can review, share with your team, or pipe to a code review tool.</p>
+      <p>Run <code>npx @core/change-mod --target v{N+1} --dry-run</code> to see exactly what would change without modifying any files. The output is a standard unified diff that we can review, share with our team, or pipe to a code review tool.</p>
       <ul>
-        <li>Zero side effects — reads your source, computes the diff, writes nothing</li>
+        <li>Zero side effects — reads our source, computes the diff, writes nothing</li>
         <li>Includes line-by-line explanations for each change</li>
         <li>Generates a compatibility report: which tests might be affected</li>
         <li>Can be integrated into CI as a "readiness check" before the actual migration</li>

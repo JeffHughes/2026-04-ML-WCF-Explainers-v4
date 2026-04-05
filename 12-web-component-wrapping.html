@@ -310,12 +310,12 @@ customElements.define('ml-catalog-plp', MLCatalogPLP);</code></pre>
   <!-- ════════════════════════════════════════════ -->
   <section>
     <h2>Handling Styles Inside Shadow DOM</h2>
-    <p>One question that comes up immediately: &ldquo;How do I get my React app&rsquo;s CSS into the Shadow DOM?&rdquo; There are three approaches, and the right one depends on how your React app currently manages styles:</p>
+    <p>One question that comes up immediately: &ldquo;How do I get my React app&rsquo;s CSS into the Shadow DOM?&rdquo; There are three approaches, and the right one depends on how our React app currently manages styles:</p>
 
     <details>
       <summary>Approach 1: Inject CSS into Shadow DOM <span class="detail-summary">Best for apps with external CSS files</span></summary>
       <div class="detail-body">
-        <p>If your React app uses external CSS files (imported via bundler), inject them as <code>&lt;style&gt;</code> or <code>&lt;link&gt;</code> elements into the Shadow DOM root:</p>
+        <p>If our React app uses external CSS files (imported via bundler), inject them as <code>&lt;style&gt;</code> or <code>&lt;link&gt;</code> elements into the Shadow DOM root:</p>
         <pre><code>connectedCallback() {
   // Inject styles into Shadow DOM
   const style = document.createElement('link');
@@ -343,7 +343,7 @@ this.shadowRoot.adoptedStyleSheets = [sheet];</code></pre>
     <details>
       <summary>Approach 3: CSS-in-JS (Emotion, Styled Components) <span class="detail-summary">Works automatically with Shadow DOM target</span></summary>
       <div class="detail-body">
-        <p>If your React app uses CSS-in-JS (Emotion, styled-components), configure the style injection target to point at the Shadow DOM root instead of <code>&lt;head&gt;</code>:</p>
+        <p>If our React app uses CSS-in-JS (Emotion, styled-components), configure the style injection target to point at the Shadow DOM root instead of <code>&lt;head&gt;</code>:</p>
         <pre><code>// Emotion: specify container
 import { CacheProvider } from '@emotion/react';
 import createCache from '@emotion/cache';
@@ -397,7 +397,7 @@ const cache = createCache({
 
     <div class="callout">
       <strong>&#128161; No Big Bang Rewrite</strong>
-      Teams migrate their internals when it makes sense for them: during a feature rewrite, when fixing a major bug, or when upgrading a dependency. The wrapper buys you time &mdash; potentially years. You never have to rewrite everything. You just have to wrap everything once (in ~50 lines), and then the internal migration happens organically.
+      Teams migrate their internals when it makes sense for them: during a feature rewrite, when fixing a major bug, or when upgrading a dependency. The wrapper buys us time &mdash; potentially years. We never have to rewrite everything. We just have to wrap everything once (in ~50 lines), and then the internal migration happens organically.
     </div>
   </section>
 
@@ -419,7 +419,7 @@ const cache = createCache({
         <pre><code>// In the import map
 "react": "https://cdn.medline.com/shared/react@17.0.2/index.js",
 "react-dom": "https://cdn.medline.com/shared/react-dom@17.0.2/index.js"</code></pre>
-        <p>Domains that want to share React reference it as an external. Domains that need a different version bundle their own. The import map gives you per-domain control.</p>
+        <p>Domains that want to share React reference it as an external. Domains that need a different version bundle their own. The import map gives us per-domain control.</p>
       </div>
     </details>
 

@@ -26,7 +26,7 @@
 <div class="hero">
   <div class="page-num">Training &mdash; Page 2 of 7</div>
   <h1>Track: Domain Developer</h1>
-  <p class="subtitle">Six modules that take you from &ldquo;what is a domain?&rdquo; to confidently deploying production changes. The most common training path&mdash;this is where most developers start.</p>
+  <p class="subtitle">Six modules that take we from &ldquo;what is a domain?&rdquo; to confidently deploying production changes. The most common training path&mdash;this is where most developers start.</p>
 </div>
 
 <main>
@@ -34,7 +34,7 @@
 <!-- Track Overview -->
 <section>
   <h2>Track Overview</h2>
-  <p>Domain Developers are the most common role in the platform. You work within a single domain&mdash;Catalog, Cart, Account, Checkout, Search, Content, or Admin. You build features using existing ML- components, connect to your domain's BFF, and deploy independently.</p>
+  <p>Domain Developers are the most common role in the platform. We work within a single domain&mdash;Catalog, Cart, Account, Checkout, Search, Content, or Admin. We build features using existing ML- components, connect to our domain's BFF, and deploy independently.</p>
   <p>This track has <strong>6 modules</strong>, each building on the last. Expected completion: <strong>~3 weeks</strong> at normal pace.</p>
 
   <div class="stat-grid">
@@ -56,7 +56,7 @@
 <!-- Domain Developer Workflow Diagram -->
 <section>
   <h2>The Domain Developer Workflow</h2>
-  <p>This is the daily workflow you'll master by the end of this track. Every module teaches one piece of it.</p>
+  <p>This is the daily workflow we'll master by the end of this track. Every module teaches one piece of it.</p>
 
   <div class="mermaid-wrap" id="dt02-1">
     <div class="mw-toolbar">
@@ -66,18 +66,7 @@
       <button onclick="mfull(this)">&#9974;</button>
     </div>
     <div class="mw-view">
-      <div class="mermaid-inner" data-src="graph LR
-  A[Write Code\nIn Your Domain] -->|Use ML- components| B[Local Dev\nMock BFF + Hot Reload]
-  B -->|Run tests| C[Test\nUnit + Integration]
-  C -->|Push| D[Pipeline\n7 Automated Gates]
-  D -->|Pass| E[Staging\nBlue/Green Deploy]
-  E -->|Verify| F[Production\nImport Map Update]
-  style A fill:#58a6ff,stroke:#58a6ff,color:#fff
-  style B fill:#d2a8ff,stroke:#d2a8ff,color:#000
-  style C fill:#f0883e,stroke:#f0883e,color:#fff
-  style D fill:#f0883e,stroke:#f0883e,color:#fff
-  style E fill:#3fb950,stroke:#3fb950,color:#fff
-  style F fill:#3fb950,stroke:#3fb950,color:#fff"></div>
+      <div class="mermaid-inner" __PROTECTED_0__></div>
     </div>
     <div class="mw-caption">Domain developer daily workflow: code &rarr; test locally &rarr; push &rarr; pipeline gates &rarr; staging &rarr; production</div>
   </div>
@@ -86,7 +75,7 @@
 <!-- Module 1 -->
 <section>
   <h2>Module 1: Domain Anatomy</h2>
-  <p><strong>What you'll learn:</strong> The file structure of a domain, how routing works, where components are placed, and how your domain fits into the larger platform.</p>
+  <p><strong>What we'll learn:</strong> The file structure of a domain, how routing works, where components are placed, and how our domain fits into the larger platform.</p>
 
   <details>
     <summary>Module content <span class="detail-summary">File structure, routing, component slots</span></summary>
@@ -94,13 +83,13 @@
       <h4>Key Concepts</h4>
       <ul>
         <li><strong>Domain repository structure</strong> &mdash; every domain follows the same layout: <code>/src</code>, <code>/components</code>, <code>/routes</code>, <code>/services</code>, <code>/tests</code></li>
-        <li><strong>Route registration</strong> &mdash; how your domain declares its routes so the shell can load them</li>
-        <li><strong>Component slots</strong> &mdash; where ML- components plug into your domain's pages</li>
-        <li><strong>Domain boundaries</strong> &mdash; what belongs in your domain vs. what belongs in shared components or other domains</li>
-        <li><strong>Configuration files</strong> &mdash; <code>domain.config.json</code> declares your domain's routes, dependencies, and BFF endpoint</li>
+        <li><strong>Route registration</strong> &mdash; how our domain declares its routes so the shell can load them</li>
+        <li><strong>Component slots</strong> &mdash; where ML- components plug into our domain's pages</li>
+        <li><strong>Domain boundaries</strong> &mdash; what belongs in our domain vs. what belongs in shared components or other domains</li>
+        <li><strong>Configuration files</strong> &mdash; <code>domain.config.json</code> declares our domain's routes, dependencies, and BFF endpoint</li>
       </ul>
       <h4>Hands-on Exercise</h4>
-      <p>Clone the sandbox domain repository. Identify the route configuration, the component slots on the main page, and the BFF endpoint. Add a new route that renders an existing ML- component. Push your changes.</p>
+      <p>Clone the sandbox domain repository. Identify the route configuration, the component slots on the main page, and the BFF endpoint. Add a new route that renders an existing ML- component. Push our changes.</p>
       <h4>Sign-off Criteria</h4>
       <ul>
         <li>New route is registered correctly in <code>domain.config.json</code></li>
@@ -115,7 +104,7 @@
 <!-- Module 2 -->
 <section>
   <h2>Module 2: The ML- Component Contract</h2>
-  <p><strong>What you'll learn:</strong> How to use ML- components correctly. Attributes in, events out, Shadow DOM boundaries. The contract you follow as a consumer.</p>
+  <p><strong>What we'll learn:</strong> How to use ML- components correctly. Attributes in, events out, Shadow DOM boundaries. The contract we follow as a consumer.</p>
 
   <details>
     <summary>Module content <span class="detail-summary">Attributes, events, Shadow DOM</span></summary>
@@ -124,7 +113,7 @@
       <ul>
         <li><strong>Attributes in</strong> &mdash; pass data to components via HTML attributes and properties</li>
         <li><strong>Events out</strong> &mdash; components communicate back via Custom Events</li>
-        <li><strong>Shadow DOM</strong> &mdash; components encapsulate their styles and DOM. You cannot reach inside. You don't need to.</li>
+        <li><strong>Shadow DOM</strong> &mdash; components encapsulate their styles and DOM. We cannot reach inside. We don't need to.</li>
         <li><strong>Slots</strong> &mdash; components expose named slots for projected content</li>
         <li><strong>CSS custom properties</strong> &mdash; the only way to style a component from outside is through documented CSS custom properties</li>
       </ul>
@@ -149,18 +138,18 @@
 <!-- Module 3 -->
 <section>
   <h2>Module 3: BFF Integration</h2>
-  <p><strong>What you'll learn:</strong> How your domain communicates with its backend through the Backend-for-Frontend (BFF) pattern. One domain, one BFF, one API contract.</p>
+  <p><strong>What we'll learn:</strong> How our domain communicates with its backend through the Backend-for-Frontend (BFF) pattern. One domain, one BFF, one API contract.</p>
 
   <details>
     <summary>Module content <span class="detail-summary">BFF pattern, API contracts, service layer</span></summary>
     <div class="detail-body">
       <h4>Key Concepts</h4>
       <ul>
-        <li><strong>BFF per domain</strong> &mdash; your domain has a dedicated backend service that provides exactly the data your UI needs</li>
+        <li><strong>BFF per domain</strong> &mdash; our domain has a dedicated backend service that provides exactly the data our UI needs</li>
         <li><strong>Service layer</strong> &mdash; all API calls go through a typed service layer in <code>/services</code></li>
-        <li><strong>API contract</strong> &mdash; your BFF publishes a typed contract (OpenAPI). The App Catalog tracks it.</li>
+        <li><strong>API contract</strong> &mdash; our BFF publishes a typed contract (OpenAPI). The App Catalog tracks it.</li>
         <li><strong>Error handling</strong> &mdash; standard error patterns: loading states, error boundaries, retry logic</li>
-        <li><strong>Mocking for local dev</strong> &mdash; a mock BFF server ships with your domain for offline development</li>
+        <li><strong>Mocking for local dev</strong> &mdash; a mock BFF server ships with our domain for offline development</li>
       </ul>
       <h4>Hands-on Exercise</h4>
       <p>Add a new API endpoint to the sandbox domain's BFF mock. Create a service function that calls it. Wire it to a page that displays the data using ML- components. Handle loading and error states.</p>
@@ -178,21 +167,21 @@
 <!-- Module 4 -->
 <section>
   <h2>Module 4: Local Development</h2>
-  <p><strong>What you'll learn:</strong> How to start your domain locally, mock the BFF, test in isolation, and iterate fast with hot reloading.</p>
+  <p><strong>What we'll learn:</strong> How to start our domain locally, mock the BFF, test in isolation, and iterate fast with hot reloading.</p>
 
   <details>
     <summary>Module content <span class="detail-summary">Local setup, mock BFF, hot reload</span></summary>
     <div class="detail-body">
       <h4>Key Concepts</h4>
       <ul>
-        <li><strong>One-command setup</strong> &mdash; <code>npm run dev</code> starts your domain with mock BFF, component catalog, and hot reloading</li>
-        <li><strong>Domain isolation</strong> &mdash; you develop in your domain only, without running the entire platform</li>
+        <li><strong>One-command setup</strong> &mdash; <code>npm run dev</code> starts our domain with mock BFF, component catalog, and hot reloading</li>
+        <li><strong>Domain isolation</strong> &mdash; we develop in our domain only, without running the entire platform</li>
         <li><strong>Component catalog access</strong> &mdash; browse available ML- components in the local dev server</li>
         <li><strong>Mock BFF</strong> &mdash; the mock server provides realistic test data without needing the real backend</li>
         <li><strong>DevTools integration</strong> &mdash; custom DevTools panel shows domain state, component tree, and event log</li>
       </ul>
       <h4>Hands-on Exercise</h4>
-      <p>Start the sandbox domain in local dev mode. Make a visible change to a page. Verify hot reload works. Open the component catalog and find an ML- component you haven't used before. Add it to your page.</p>
+      <p>Start the sandbox domain in local dev mode. Make a visible change to a page. Verify hot reload works. Open the component catalog and find an ML- component we haven't used before. Add it to our page.</p>
       <h4>Sign-off Criteria</h4>
       <ul>
         <li>Domain starts successfully with one command</li>
@@ -207,21 +196,21 @@
 <!-- Module 5 -->
 <section>
   <h2>Module 5: Deployment</h2>
-  <p><strong>What you'll learn:</strong> How to push your domain to the CDN, update the import map, and deploy via blue/green rollouts.</p>
+  <p><strong>What we'll learn:</strong> How to push our domain to the CDN, update the import map, and deploy via blue/green rollouts.</p>
 
   <details>
     <summary>Module content <span class="detail-summary">CDN push, import map, blue/green</span></summary>
     <div class="detail-body">
       <h4>Key Concepts</h4>
       <ul>
-        <li><strong>Push to CDN</strong> &mdash; your domain's built assets are published to the CDN with a unique version hash</li>
+        <li><strong>Push to CDN</strong> &mdash; our domain's built assets are published to the CDN with a unique version hash</li>
         <li><strong>Import map update</strong> &mdash; the shell's import map is updated to point at the new version</li>
         <li><strong>Blue/green deployment</strong> &mdash; traffic shifts gradually from old version to new version</li>
         <li><strong>Instant rollback</strong> &mdash; revert the import map pointer to the previous version. Rollback takes seconds, not minutes.</li>
         <li><strong>Version pinning</strong> &mdash; each domain can pin its dependencies to specific component versions</li>
       </ul>
       <h4>Hands-on Exercise</h4>
-      <p>Push your sandbox domain changes through the deployment pipeline. Watch the blue/green rollout in the staging environment. Verify your changes are live. Perform a rollback. Verify the rollback reverted your changes.</p>
+      <p>Push our sandbox domain changes through the deployment pipeline. Watch the blue/green rollout in the staging environment. Verify our changes are live. Perform a rollback. Verify the rollback reverted our changes.</p>
       <h4>Sign-off Criteria</h4>
       <ul>
         <li>Domain deploys successfully to staging</li>
@@ -241,7 +230,7 @@
 <!-- Module 6 -->
 <section>
   <h2>Module 6: Debugging</h2>
-  <p><strong>What you'll learn:</strong> How to debug across Shadow DOM boundaries, trace events between components, and use DevTools effectively in the new architecture.</p>
+  <p><strong>What we'll learn:</strong> How to debug across Shadow DOM boundaries, trace events between components, and use DevTools effectively in the new architecture.</p>
 
   <details>
     <summary>Module content <span class="detail-summary">Shadow DOM debugging, DevTools, event tracing</span></summary>
@@ -271,7 +260,7 @@
 <!-- Module Progression Diagram -->
 <section>
   <h2>Module Progression</h2>
-  <p>Each module builds on the previous one. By the end, you've exercised the complete domain developer workflow.</p>
+  <p>Each module builds on the previous one. By the end, we've exercised the complete domain developer workflow.</p>
 
   <div class="mermaid-wrap" id="dt02-2">
     <div class="mw-toolbar">
@@ -281,26 +270,7 @@
       <button onclick="mfull(this)">&#9974;</button>
     </div>
     <div class="mw-view">
-      <div class="mermaid-inner" data-src="graph TD
-  M1[Module 1\nDomain Anatomy] -->|Understand structure| M2[Module 2\nML- Component Contract]
-  M2 -->|Use components| M3[Module 3\nBFF Integration]
-  M3 -->|Connect data| M4[Module 4\nLocal Development]
-  M4 -->|Dev workflow| M5[Module 5\nDeployment]
-  M5 -->|Ship code| M6[Module 6\nDebugging]
-  M6 -->|Complete| CERT[Certification\nDomain Developer Badge]
-  M1 -.->|Checkpoint| C1((✓))
-  M2 -.->|Checkpoint| C2((✓))
-  M3 -.->|Checkpoint| C3((✓))
-  M4 -.->|Checkpoint| C4((✓))
-  M5 -.->|Checkpoint| C5((✓))
-  M6 -.->|Checkpoint| C6((✓))
-  style M1 fill:#58a6ff,stroke:#58a6ff,color:#fff
-  style M2 fill:#58a6ff,stroke:#58a6ff,color:#fff
-  style M3 fill:#58a6ff,stroke:#58a6ff,color:#fff
-  style M4 fill:#d2a8ff,stroke:#d2a8ff,color:#000
-  style M5 fill:#d2a8ff,stroke:#d2a8ff,color:#000
-  style M6 fill:#d2a8ff,stroke:#d2a8ff,color:#000
-  style CERT fill:#3fb950,stroke:#3fb950,color:#fff"></div>
+      <div class="mermaid-inner" __PROTECTED_1__></div>
     </div>
     <div class="mw-caption">Domain Developer track: six modules with checkpoints leading to certification</div>
   </div>

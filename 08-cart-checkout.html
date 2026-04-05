@@ -217,7 +217,7 @@
 
     <div class="callout">
       <strong>&#128161; No Shared State Store</strong>
-      Events replace shared Redux/state stores. Each domain manages its own internal state. The event bus is the only coupling. This means you can swap out the Cart domain&rsquo;s internal state management without affecting Mini-Cart or Checkout at all.
+      Events replace shared Redux/state stores. Each domain manages its own internal state. The event bus is the only coupling. This means we can swap out the Cart domain&rsquo;s internal state management without affecting Mini-Cart or Checkout at all.
     </div>
   </section>
 
@@ -476,7 +476,7 @@
 
     <div class="industry-std">
       <strong>Industry Standard: Strangler Fig Pattern</strong>
-      Extracting domains incrementally while the monolith continues serving traffic is the Strangler Fig pattern described by Martin Fowler. You grow the new architecture around the old one, gradually routing traffic until the monolith has nothing left to serve. Every major enterprise migration at scale uses this approach.
+      Extracting domains incrementally while the monolith continues serving traffic is the Strangler Fig pattern described by Martin Fowler. We grow the new architecture around the old one, gradually routing traffic until the monolith has nothing left to serve. Every major enterprise migration at scale uses this approach.
     </div>
   </section>
 

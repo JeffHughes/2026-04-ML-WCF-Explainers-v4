@@ -54,7 +54,7 @@
   <p>This is not a bug. This is the design. Independent deployment <em>requires</em> independent versioning. The alternative &mdash; forcing every domain to upgrade every shared component in lockstep &mdash; is what creates the coordination bottlenecks that slow enterprises down. The goal: no more dependency inconsistencies that silently break other teams' builds.</p>
 
   <div class="callout danger">
-    <strong>&ldquo;Forced lockstep upgrades across 84 micro frontends is what got you into this situation.&rdquo;</strong>
+    <strong>&ldquo;Forced lockstep upgrades across 84 micro frontends is what got us into this situation.&rdquo;</strong>
     The monolith&rsquo;s single version for everything means one team&rsquo;s upgrade blocks 83 other teams. The solution is not to replicate that problem at the component level. The solution is to manage version divergence with automation.
   </div>
 
@@ -222,7 +222,7 @@
       <tr>
         <td><strong>New optional attribute</strong></td>
         <td>Update import map; optionally add the new attribute to usage sites</td>
-        <td class="good">Review if you want the new feature</td>
+        <td class="good">Review if we want the new feature</td>
       </tr>
       <tr>
         <td><strong>Renamed attribute</strong></td>
@@ -262,7 +262,7 @@
   </details>
 
   <details>
-    <summary>Independent Deployment <span class="detail-summary">Your upgrade, your timeline, your risk</span></summary>
+    <summary>Independent Deployment <span class="detail-summary">Each team's upgrade, timeline, risk</span></summary>
     <div class="detail-body">
       <p>Each domain&rsquo;s upgrade is an independent deployment. The Cart team upgrading <code>ml-header</code> does not affect the Catalog team, the Account team, or any other domain. If the Cart team&rsquo;s upgrade goes wrong, they roll back. Nobody else notices.</p>
       <ul>

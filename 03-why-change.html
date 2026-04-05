@@ -51,8 +51,8 @@
 
 <!-- What You've Built -->
 <section>
-  <h2>What You've Built &mdash; and Why It Was Right</h2>
-  <p>Let's be clear about something: <strong>the current platform was the right call.</strong> Next.js, React, micro frontends on Kubernetes&mdash;this was the canonical enterprise frontend architecture. Your teams executed it well. The platform works. Orders flow. Teams ship.</p>
+  <h2>What We've Built &mdash; and Why It Was Right</h2>
+  <p>Let's be clear about something: <strong>the current platform was the right call.</strong> Next.js, React, micro frontends on Kubernetes&mdash;this was the canonical enterprise frontend architecture. Our teams executed it well. The platform works. Orders flow. Teams ship.</p>
   <p>The architecture delivered exactly what it was designed to deliver:</p>
   <ul>
     <li><strong>Component reuse</strong> across 84 micro frontends</li>
@@ -64,14 +64,14 @@
 
   <div class="callout success">
     <strong>No Change in Communication to Leadership</strong>
-    This is not a "we need to start over" conversation. This is the same team, the same product, the same platform&mdash;taking the next step. The same way you moved from a monolithic backend to microservices, this is the frontend catching up to the same pattern. Just the next iteration, with additional details on how we get more releases per year.
+    This is not a "we need to start over" conversation. This is the same team, the same product, the same platform&mdash;taking the next step. The same way we moved from a monolithic backend to microservices, this is the frontend catching up to the same pattern. Just the next iteration, with additional details on how we get more releases per year.
   </div>
 </section>
 
 <!-- The Ceiling -->
 <section>
   <h2>The Ceiling We've Hit</h2>
-  <p>The canonical React/Next.js micro frontend architecture has a ceiling, and your platform has reached it. This isn't a failure&mdash;every architecture pattern has limits. The signs are well-documented across the industry:</p>
+  <p>The canonical React/Next.js micro frontend architecture has a ceiling, and our platform has reached it. This isn't a failure&mdash;every architecture pattern has limits. The signs are well-documented across the industry:</p>
 
   <div class="themes-grid">
     <div class="theme-card">
@@ -87,7 +87,7 @@
     <div class="theme-card">
       <div class="theme-icon">&#9646;</div>
       <h4>Testing Takes Longer Than Building</h4>
-      <p>Full regression runs because nobody can confidently say "this change only affects Catalog." The monolith couples everything, so you have to test everything.</p>
+      <p>Full regression runs because nobody can confidently say "this change only affects Catalog." The monolith couples everything, so we have to test everything.</p>
     </div>
     <div class="theme-card">
       <div class="theme-icon">&#9647;</div>
@@ -96,7 +96,7 @@
     </div>
   </div>
 
-  <p>Add to that the day-to-day friction: dependency inconsistencies across 84 MFEs (one team's upgrade breaks another team's build), and weird UI flicker issues from competing hydration and style conflicts in the shared SSR runtime. These aren't bugs in your implementation. They're inherent limits of the pattern. Every organization that's scaled this architecture to 50+ micro frontends hits the same ceiling. The industry's answer is consistent: <strong>decompose into independent domains with a standards-based composition layer.</strong></p>
+  <p>Add to that the day-to-day friction: dependency inconsistencies across 84 MFEs (one team's upgrade breaks another team's build), and weird UI flicker issues from competing hydration and style conflicts in the shared SSR runtime. These aren't bugs in our implementation. They're inherent limits of the pattern. Every organization that's scaled this architecture to 50+ micro frontends hits the same ceiling. The industry's answer is consistent: <strong>decompose into independent domains with a standards-based composition layer.</strong></p>
 </section>
 
 <!-- We've Done Everything We Can -->
@@ -124,7 +124,7 @@
 <!-- The Upgrade Treadmill -->
 <section>
   <h2>The Framework Treadmill</h2>
-  <p>There's a second pressure beyond the coupling ceiling: the React/Next.js ecosystem moves on a cycle your platform can't keep pace with.</p>
+  <p>There's a second pressure beyond the coupling ceiling: the React/Next.js ecosystem moves on a cycle our platform can't keep pace with.</p>
 
   <div class="mermaid-wrap" id="d03-1">
     <div class="mw-toolbar">
@@ -181,7 +181,7 @@
       </tr>
       <tr>
         <td>Full regression required for every change</td>
-        <td class="good">Domain-scoped testing &mdash; only test what your change touches</td>
+        <td class="good">Domain-scoped testing &mdash; only test what each change touches</td>
         <td class="good">Test times drop from 45+ min to 5 min per domain</td>
       </tr>
       <tr>
@@ -214,7 +214,7 @@
     <li>The existing components stay. React components get wrapped in Web Component shells&mdash;the internals don't change.</li>
     <li>The existing teams stay. Same people, same pods, clearer ownership boundaries.</li>
   </ul>
-  <p>What changes is the <strong>architecture boundary</strong>. Instead of 84 micro frontends sharing one monolithic shell, you get 8&ndash;12 domain apps that each pod owns completely. Each app contains its own Web Components, its own pipeline, its own deploy schedule.</p>
+  <p>What changes is the <strong>architecture boundary</strong>. Instead of 84 micro frontends sharing one monolithic shell, we get 8&ndash;12 domain apps that each pod owns completely. Each app contains its own Web Components, its own pipeline, its own deploy schedule.</p>
 
   <div class="callout">
     <strong>Same Story, Next Chapter</strong>
@@ -267,14 +267,14 @@
     </thead>
     <tbody>
       <tr><td><strong>Year 1</strong></td><td>Next.js 12 loses community support. Security patches slow. New hires expect modern tooling. Release velocity stays flat despite team investment.</td></tr>
-      <tr><td><strong>Year 2</strong></td><td>React 17 ecosystem shrinks. Third-party libraries drop support. Teams spend more time on workarounds than features. The gap between your stack and the industry widens.</td></tr>
+      <tr><td><strong>Year 2</strong></td><td>React 17 ecosystem shrinks. Third-party libraries drop support. Teams spend more time on workarounds than features. The gap between our stack and the industry widens.</td></tr>
       <tr><td><strong>Year 3</strong></td><td>A forced upgrade becomes unavoidable&mdash;but now it's bigger, because the monolith has accumulated 3 more years of coupling. The jump from React 17 to whatever's current in 2029 is much larger than evolving now.</td></tr>
     </tbody>
   </table>
 
   <div class="callout warn">
     <strong>The Best Time to Evolve Is When Things Work</strong>
-    The worst time to make an architectural change is when the platform is in crisis. Right now the platform works. Teams are capable. The business is stable. That's exactly when you make a deliberate, measured, low-risk evolution&mdash;not when you're forced to.
+    The worst time to make an architectural change is when the platform is in crisis. Right now the platform works. Teams are capable. The business is stable. That's exactly when we make a deliberate, measured, low-risk evolution&mdash;not when forced to.
   </div>
 </section>
 
@@ -289,7 +289,7 @@
     <li><strong>Evolve components</strong> incrementally to WCFramework at each pod's pace</li>
     <li><strong>Adopt a 1-year core cadence</strong> with automated scripts that handle the upgrade</li>
   </ol>
-  <p>Each step is safe. Each step is reversible. Each step delivers value independently. And critically&mdash;each step builds on everything you've already built. Nothing gets thrown away.</p>
+  <p>Each step is safe. Each step is reversible. Each step delivers value independently. And critically&mdash;each step builds on everything we've already built. Nothing gets thrown away.</p>
   <p>The next page details exactly how this works&mdash;the strategy, the phases, and the safety guarantees.</p>
 </section>
 

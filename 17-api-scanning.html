@@ -50,12 +50,12 @@
 <!-- ────────────────────────────────────────── -->
 <section>
   <h2>The Contract Problem</h2>
-  <p>In a monolith, the frontend and backend live in the same codebase. When an API changes, the frontend change is in the same commit. You can&rsquo;t deploy one without the other. Coupling is the safety net.</p>
+  <p>In a monolith, the frontend and backend live in the same codebase. When an API changes, the frontend change is in the same commit. We can&rsquo;t deploy one without the other. Coupling is the safety net.</p>
   <p>In a micro frontend architecture with independent backends, that safety net is gone. The Catalog frontend deploys on Tuesday. The Product API deploys on Thursday. If Thursday&rsquo;s deploy changes a response field that Tuesday&rsquo;s frontend depends on &mdash; <strong>things break silently</strong>.</p>
   <p>Automated API contract scanning eliminates this entire class of failures.</p>
 
   <div class="callout danger">
-    <strong>&ldquo;If your API changes and your frontend breaks, that&rsquo;s not a frontend bug &mdash; that&rsquo;s a contract violation.&rdquo;</strong>
+    <strong>&ldquo;If our API changes and our frontend breaks, that&rsquo;s not a frontend bug &mdash; that&rsquo;s a contract violation.&rdquo;</strong>
     The scanner turns implicit contracts into explicit, versioned, machine-readable agreements. Violations are detected before deployment, not after incident reports.
   </div>
 

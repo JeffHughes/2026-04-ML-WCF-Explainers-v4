@@ -44,7 +44,7 @@
 <div class="hero">
   <div class="page-num">Migration Mechanics</div>
   <h1>The Migration Strategy</h1>
-  <p class="subtitle">Strangler fig pattern, four phases, zero downtime. Each phase delivers value independently&mdash;you can stop at any point and still be better off.</p>
+  <p class="subtitle">Strangler fig pattern, four phases, zero downtime. Each phase delivers value independently&mdash;we can stop at any point and still be better off.</p>
 </div>
 
 <main>
@@ -116,7 +116,7 @@
 <!-- The Four Phases -->
 <section>
   <h2>The Four Phases</h2>
-  <p>Our migration is organized into four distinct phases. Each phase has a clear entry criteria, exit criteria, and value delivery. Critically, <strong>each phase is independently valuable</strong>. If you stop after Phase 1, you've gained independent deployment. If you stop after Phase 2, you've also gained a standards-based shell. There is no phase that requires all subsequent phases to be valuable.</p>
+  <p>Our migration is organized into four distinct phases. Each phase has a clear entry criteria, exit criteria, and value delivery. Critically, <strong>each phase is independently valuable</strong>. If we stop after Phase 1, we've gained independent deployment. If we stop after Phase 2, we've also gained a standards-based shell. There is no phase that requires all subsequent phases to be valuable.</p>
 
   <div class="mermaid-wrap" id="d04-2">
     <div class="mw-toolbar">
@@ -168,18 +168,18 @@
       <h4>Why It's Safe</h4>
       <p>The extracted domain runs the <em>exact same code</em> as the monolith. It was tested in the monolith. It works in the monolith. It will work as a standalone service because it is literally the same binary with fewer routes.</p>
 
-      <h4>What You Get</h4>
+      <h4>What We Get</h4>
       <ul>
         <li>Independent Git repository per domain</li>
         <li>Independent build pipeline (5-minute builds instead of 25-minute builds)</li>
         <li>Independent test suite (domain tests only, 3-5 minutes instead of 45+)</li>
-        <li>Independent deployment (deploy when <em>your</em> tests pass)</li>
+        <li>Independent deployment (deploy when the domain's tests pass)</li>
         <li>Smaller blast radius (a bug in Catalog doesn't affect Cart)</li>
       </ul>
 
       <div class="callout success">
         <strong>Phase 1 Value Proposition</strong>
-        Even if you stop after Phase 1 and never do anything else, you've transformed a monolithic deployment pipeline into independent domain pipelines. Teams ship faster, test faster, and fail smaller.
+        Even if we stop after Phase 1 and never do anything else, we've transformed a monolithic deployment pipeline into independent domain pipelines. Teams ship faster, test faster, and fail smaller.
       </div>
     </div>
   </details>
@@ -209,7 +209,7 @@
         <li><strong>Isolation:</strong> Shadow DOM provides style and DOM isolation between domains. One domain's CSS can't leak into another.</li>
       </ul>
 
-      <h4>What You Get</h4>
+      <h4>What We Get</h4>
       <ul>
         <li>No more SSR runtime (CSR from CDN + BFF backends)</li>
         <li>No framework lock-in for the orchestration layer</li>
@@ -235,7 +235,7 @@
         <li><strong>Set policies:</strong> Define rules for version freshness, security compliance, accessibility standards, and performance budgets. The catalog enforces them automatically.</li>
       </ol>
 
-      <h4>What You Get</h4>
+      <h4>What We Get</h4>
       <ul>
         <li>Single pane of glass showing every deployed micro frontend and its status</li>
         <li>Automated detection of outdated dependencies, security vulnerabilities, and breaking API changes</li>
@@ -308,29 +308,29 @@
 <!-- Stop At Any Phase -->
 <section>
   <h2>Stop at Any Phase</h2>
-  <p>One of the most powerful aspects of this strategy is that <strong>each phase delivers value independently</strong>. You don't need to commit to all four phases upfront. You can evaluate results at each phase boundary and decide whether to continue.</p>
+  <p>One of the most powerful aspects of this strategy is that <strong>each phase delivers value independently</strong>. There's no need to commit to all four phases upfront. We can evaluate results at each phase boundary and decide whether to continue.</p>
 
   <details>
     <summary>What if we stop after Phase 1? <span class="detail-summary">Domain extraction only</span></summary>
     <div class="detail-body">
-      <p>You have independent domain repositories, independent build pipelines, and independent deployment. Teams deploy on their own schedule. Build times drop from 25 minutes to 5. Test times drop from 45 minutes to 5. The blast radius for any failure shrinks from "entire platform" to "one domain."</p>
-      <p><strong>What you don't get:</strong> SSR is still in play. The shell is still Next.js. Components are still React. You're on the upgrade treadmill for the framework, but at least each domain can upgrade independently.</p>
+      <p>We have independent domain repositories, independent build pipelines, and independent deployment. Teams deploy on their own schedule. Build times drop from 25 minutes to 5. Test times drop from 45 minutes to 5. The blast radius for any failure shrinks from "entire platform" to "one domain."</p>
+      <p><strong>What we don't get:</strong> SSR is still in play. The shell is still Next.js. Components are still React. We're on the upgrade treadmill for the framework, but at least each domain can upgrade independently.</p>
     </div>
   </details>
 
   <details>
     <summary>What if we stop after Phase 2? <span class="detail-summary">Domain extraction + shell swap</span></summary>
     <div class="detail-body">
-      <p>Everything from Phase 1, plus: SSR is eliminated. The shell is standards-based Web Components. Infrastructure is simpler (CDN + BFF). You have no framework lock-in at the shell level.</p>
-      <p><strong>What you don't get:</strong> No automated governance. No component catalog. Components are still React (wrapped in Web Components). The 1-year cadence hasn't started yet.</p>
+      <p>Everything from Phase 1, plus: SSR is eliminated. The shell is standards-based Web Components. Infrastructure is simpler (CDN + BFF). There's no framework lock-in at the shell level.</p>
+      <p><strong>What we don't get:</strong> No automated governance. No component catalog. Components are still React (wrapped in Web Components). The 1-year cadence hasn't started yet.</p>
     </div>
   </details>
 
   <details>
     <summary>What if we stop after Phase 3? <span class="detail-summary">Full visibility but React components</span></summary>
     <div class="detail-body">
-      <p>Everything from Phases 1-2, plus: full visibility into what's deployed everywhere. Automated scanning catches problems. Governance policies are automated. You know exactly what components exist, who owns them, and what version they're on.</p>
-      <p><strong>What you don't get:</strong> Components are still React. The 1-year core cadence hasn't started. You're still on the React upgrade treadmill for individual components (though each domain manages this independently now).</p>
+      <p>Everything from Phases 1-2, plus: full visibility into what's deployed everywhere. Automated scanning catches problems. Governance policies are automated. We know exactly what components exist, who owns them, and what version they're on.</p>
+      <p><strong>What we don't get:</strong> Components are still React. The 1-year core cadence hasn't started. We're still on the React upgrade treadmill for individual components (though each domain manages this independently now).</p>
     </div>
   </details>
 
@@ -338,7 +338,7 @@
     <summary>What if we complete all four phases? <span class="detail-summary">Full evolution</span></summary>
     <div class="detail-body">
       <p>Independent domains. Standards-based shell. Full governance and visibility. Standards-based components on a predictable 1-year update cadence. Automated migration scripts. No framework lock-in at any level. The platform is built on browser standards and can evolve for the next decade without another major migration.</p>
-      <p>This is the target state. Every architectural choice compounds in your favor over time instead of against you.</p>
+      <p>This is the target state. Every architectural choice compounds in our favor over time instead of against us.</p>
     </div>
   </details>
 </section>
@@ -346,7 +346,7 @@
 <!-- Next Steps -->
 <section>
   <h2>Next: The Mechanics</h2>
-  <p>Now that you understand the strategy, the next two pages dive into the mechanics:</p>
+  <p>Now that we understand the strategy, the next two pages dive into the mechanics:</p>
   <ul>
     <li><strong><a href="05-copy-split-strip.html">Page 5: Copy, Split, Strip</a></strong> &mdash; The detailed step-by-step process for extracting a domain from the monolith</li>
     <li><strong><a href="06-domain-map.html">Page 6: The Domain Map</a></strong> &mdash; All the domains defined, with their boundaries and API surfaces</li>

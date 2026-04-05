@@ -26,7 +26,7 @@
 <div class="hero">
   <div class="page-num">Training &mdash; Page 1 of 7</div>
   <h1>Training at a Glance</h1>
-  <p class="subtitle">The 30-second version. Three tracks, hands-on modules, automated sign-off. Everything you need to know about how developers get trained and certified for the new platform.</p>
+  <p class="subtitle">The 30-second version. Three tracks, hands-on modules, automated sign-off. Everything the team needs to know about how developers get trained and certified for the new platform.</p>
 </div>
 
 <main>
@@ -34,12 +34,12 @@
 <!-- The System in One Paragraph -->
 <section>
   <h2>The Entire System in 30 Seconds</h2>
-  <p>Every developer picks one of <strong>three training tracks</strong> based on their role: Domain Developer, Component Author, or Platform Engineer. Each track has a series of <strong>hands-on modules</strong>&mdash;not slide decks, not lectures, real exercises. Each module ends with an <strong>automated exercise</strong> that the pipeline validates. Complete all modules in your track, and you earn a <strong>certification badge</strong> that grants <strong>production deploy access</strong>.</p>
+  <p>Every developer picks one of <strong>three training tracks</strong> based on their role: Domain Developer, Component Author, or Platform Engineer. Each track has a series of <strong>hands-on modules</strong>&mdash;not slide decks, not lectures, real exercises. Each module ends with an <strong>automated exercise</strong> that the pipeline validates. Complete all modules in our track, and we earn a <strong>certification badge</strong> that grants <strong>production deploy access</strong>.</p>
   <p>No meetings required for sign-off. No manager approval needed. <strong>The pipeline IS the sign-off.</strong></p>
 
   <div class="callout success">
     <strong>The One-Line Summary</strong>
-    Complete your track &rarr; pass the automated exercises &rarr; earn your badge &rarr; deploy to production. That's it.
+    Complete our track &rarr; pass the automated exercises &rarr; earn our badge &rarr; deploy to production. That's it.
   </div>
 </section>
 
@@ -74,21 +74,7 @@
       <button onclick="mfull(this)">&#9974;</button>
     </div>
     <div class="mw-view">
-      <div class="mermaid-inner" data-src="graph TD
-  START[New Developer] --> PICK{Pick Your Track}
-  PICK -->|Most devs| DD[Domain Developer\n6 Modules]
-  PICK -->|Shared components| CA[Component Author\n7 Modules]
-  PICK -->|Infrastructure| PE[Platform Engineer\n6 Modules]
-  DD --> CERT[Automated Certification\nPipeline Validates Exercises]
-  CA --> CERT
-  PE --> CERT
-  CERT --> BADGE[Badge Earned\nProduction Access Granted]
-  style START fill:#58a6ff,stroke:#58a6ff,color:#fff
-  style DD fill:#d2a8ff,stroke:#d2a8ff,color:#000
-  style CA fill:#d2a8ff,stroke:#d2a8ff,color:#000
-  style PE fill:#d2a8ff,stroke:#d2a8ff,color:#000
-  style CERT fill:#f0883e,stroke:#f0883e,color:#fff
-  style BADGE fill:#3fb950,stroke:#3fb950,color:#fff"></div>
+      <div class="mermaid-inner" __PROTECTED_0__></div>
     </div>
     <div class="mw-caption">Three tracks, one destination: every path leads to certified production access</div>
   </div>
@@ -118,21 +104,21 @@
     <div class="theme-card">
       <div class="theme-icon">✅</div>
       <h4>3. Validate</h4>
-      <p>Push your exercise to the pipeline. Automated gates check your work. Pass = module complete. Fail = clear feedback on what to fix.</p>
+      <p>Push our exercise to the pipeline. Automated gates check our work. Pass = module complete. Fail = clear feedback on what to fix.</p>
     </div>
   </div>
 
   <details>
-    <summary>What does &ldquo;automated validation&rdquo; actually mean? <span class="detail-summary">How the pipeline checks your work</span></summary>
+    <summary>What does &ldquo;automated validation&rdquo; actually mean? <span class="detail-summary">How the pipeline checks our work</span></summary>
     <div class="detail-body">
-      <p>When you push your exercise code, the CI/CD pipeline runs a specific set of checks for that module:</p>
+      <p>When we push our exercise code, the CI/CD pipeline runs a specific set of checks for that module:</p>
       <ul>
-        <li><strong>Code structure</strong> &mdash; does your code follow the expected file layout and naming conventions?</li>
-        <li><strong>Test coverage</strong> &mdash; do your tests pass, and do they cover the required scenarios?</li>
-        <li><strong>Component contract</strong> &mdash; if you built a component, are all attributes documented and events typed?</li>
-        <li><strong>Integration</strong> &mdash; does your code work with the rest of the domain/system?</li>
+        <li><strong>Code structure</strong> &mdash; does our code follow the expected file layout and naming conventions?</li>
+        <li><strong>Test coverage</strong> &mdash; do our tests pass, and do they cover the required scenarios?</li>
+        <li><strong>Component contract</strong> &mdash; if we built a component, are all attributes documented and events typed?</li>
+        <li><strong>Integration</strong> &mdash; does our code work with the rest of the domain/system?</li>
       </ul>
-      <p>Each check produces a pass/fail result with a descriptive message. If you fail, you fix and re-push. There is no limit on attempts.</p>
+      <p>Each check produces a pass/fail result with a descriptive message. If we fail, we fix and re-push. There is no limit on attempts.</p>
     </div>
   </details>
 </section>
@@ -151,21 +137,7 @@
       <button onclick="mfull(this)">&#9974;</button>
     </div>
     <div class="mw-view">
-      <div class="mermaid-inner" data-src="graph LR
-  A[Complete Module\nHands-on Exercise] -->|Push code| B[Pipeline Runs\nAutomated Gates]
-  B -->|All pass| C[Module Signed Off\nAutomatic]
-  B -->|Any fail| D[Clear Feedback\nFix and Retry]
-  D -->|Re-push| B
-  C --> E{All Modules\nComplete?}
-  E -->|Yes| F[Badge Earned\nProduction Access]
-  E -->|No| G[Next Module]
-  G --> A
-  style A fill:#58a6ff,stroke:#58a6ff,color:#fff
-  style B fill:#f0883e,stroke:#f0883e,color:#fff
-  style C fill:#3fb950,stroke:#3fb950,color:#fff
-  style D fill:#f85149,stroke:#f85149,color:#fff
-  style F fill:#3fb950,stroke:#3fb950,color:#fff
-  style G fill:#d2a8ff,stroke:#d2a8ff,color:#000"></div>
+      <div class="mermaid-inner" __PROTECTED_1__></div>
     </div>
     <div class="mw-caption">Automated sign-off loop: exercise &rarr; pipeline &rarr; pass/fail &rarr; repeat until certified</div>
   </div>
@@ -176,13 +148,13 @@
   </div>
 </section>
 
-<!-- What This Means for You -->
+<!-- What This Means for the Team -->
 <section>
-  <h2>What This Means for You</h2>
+  <h2>What This Means for the Team</h2>
   <details>
     <summary>For Directors <span class="detail-summary">Strategic benefits</span></summary>
     <div class="detail-body">
-      <p><strong>Predictable onboarding.</strong> Every new developer follows the same documented path. You can forecast ramp-up time accurately. A domain developer is productive in 3 weeks. A component author in 4 weeks.</p>
+      <p><strong>Predictable onboarding.</strong> Every new developer follows the same documented path. We can forecast ramp-up time accurately. A domain developer is productive in 3 weeks. A component author in 4 weeks.</p>
       <p><strong>No bottlenecks.</strong> Sign-off doesn't depend on any individual manager's availability. The pipeline validates competency 24/7, across every timezone.</p>
       <p><strong>Measurable quality.</strong> Certification is objective. Either the developer's code passes the automated gates, or it doesn't. No ambiguity.</p>
     </div>
@@ -190,17 +162,17 @@
   <details>
     <summary>For Team Leads <span class="detail-summary">Operational benefits</span></summary>
     <div class="detail-body">
-      <p><strong>Clear expectations.</strong> Each module has documented sign-off criteria. Your developers know exactly what &ldquo;done&rdquo; looks like before they start.</p>
-      <p><strong>Track progress.</strong> The App Catalog shows each developer's certification status. You see at a glance who's certified for what and who's still in training.</p>
-      <p><strong>No training meetings.</strong> You don't need to schedule review sessions. The pipeline handles validation. Your time is freed for actual leadership work.</p>
+      <p><strong>Clear expectations.</strong> Each module has documented sign-off criteria. Our developers know exactly what &ldquo;done&rdquo; looks like before they start.</p>
+      <p><strong>Track progress.</strong> The App Catalog shows each developer's certification status. We see at a glance who's certified for what and who's still in training.</p>
+      <p><strong>No training meetings.</strong> We don't need to schedule review sessions. The pipeline handles validation. Our time is freed for actual leadership work.</p>
     </div>
   </details>
   <details>
     <summary>For Developers <span class="detail-summary">Day-to-day benefits</span></summary>
     <div class="detail-body">
-      <p><strong>Self-paced.</strong> Work through modules at your own speed. No waiting for cohorts or scheduled sessions. No timezone dependencies.</p>
-      <p><strong>Hands-on.</strong> You learn by building, not by watching. Every module produces something real that you can reference later.</p>
-      <p><strong>Clear feedback.</strong> When an exercise fails validation, you get specific, actionable feedback. Not &ldquo;try harder&rdquo;&mdash;exactly what check failed and why.</p>
+      <p><strong>Self-paced.</strong> Work through modules at our own speed. No waiting for cohorts or scheduled sessions. No timezone dependencies.</p>
+      <p><strong>Hands-on.</strong> We learn by building, not by watching. Every module produces something real that we can reference later.</p>
+      <p><strong>Clear feedback.</strong> When an exercise fails validation, we get specific, actionable feedback. Not &ldquo;try harder&rdquo;&mdash;exactly what check failed and why.</p>
     </div>
   </details>
 </section>

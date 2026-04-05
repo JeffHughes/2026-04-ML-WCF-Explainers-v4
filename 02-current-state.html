@@ -44,7 +44,7 @@
 <div class="hero">
   <div class="page-num">The Big Picture</div>
   <h1>Where We Are Today</h1>
-  <p class="subtitle">A detailed breakdown of the current monolithic architecture, its coupling patterns, and the operational friction your teams face every day.</p>
+  <p class="subtitle">A detailed breakdown of the current monolithic architecture, its coupling patterns, and the operational friction our teams face every day.</p>
 </div>
 
 <main>
@@ -52,7 +52,7 @@
 <!-- The Platform at a Glance -->
 <section>
   <h2>The Platform at a Glance</h2>
-  <p>Your current e-commerce platform is a Next.js 12.3 monolithic shell that hosts 84+ micro frontends. On paper, it's a micro frontend architecture. In practice, every MFE shares the same SSR runtime, the same build pipeline, the same <code>node_modules</code>, and the same failure domain.</p>
+  <p>Our current e-commerce platform is a Next.js 12.3 monolithic shell that hosts 84+ micro frontends. On paper, it's a micro frontend architecture. In practice, every MFE shares the same SSR runtime, the same build pipeline, the same <code>node_modules</code>, and the same failure domain.</p>
   <p>This means that in day-to-day operations, the "micro" in micro frontend is aspirational rather than actual. Teams experience the coordination overhead of a monolith while carrying the conceptual complexity of a distributed system&mdash;big-bang releases, dependency inconsistencies across shared <code>node_modules</code>, and weird UI flicker issues from competing SSR hydration and style conflicts.</p>
 
   <div class="stat-grid">
@@ -233,7 +233,7 @@
         <li><strong>Shared runtime process:</strong> All MFEs render in the same Node.js process. One slow component blocks the entire render pipeline.</li>
         <li><strong>Memory pressure:</strong> SSR requires maintaining component state on the server for every concurrent request. At scale, this means significant memory allocation per request.</li>
         <li><strong>Hydration cost:</strong> After SSR sends HTML to the browser, React must "hydrate" the page&mdash;re-attaching event handlers and reconstructing the virtual DOM. For complex pages, hydration can take 2-5 seconds.</li>
-        <li><strong>Deployment coupling:</strong> Because all MFEs share the SSR runtime, you can't deploy one MFE's server-side code without deploying all of them.</li>
+        <li><strong>Deployment coupling:</strong> Because all MFEs share the SSR runtime, we can't deploy one MFE's server-side code without deploying all of them.</li>
       </ul>
 
       <div class="callout warn">
@@ -303,7 +303,7 @@
   <h2>Summary: The Current State</h2>
   <div class="callout">
     <strong>The Bottom Line</strong>
-    You have a "micro frontend" architecture that delivers monolithic coupling. Teams can't deploy independently, can't test independently, and can't fail independently. The SSR runtime is a single point of failure. The build pipeline is a bottleneck. The component landscape is ungoverned.
+    We have a "micro frontend" architecture that delivers monolithic coupling. Teams can't deploy independently, can't test independently, and can't fail independently. The SSR runtime is a single point of failure. The build pipeline is a bottleneck. The component landscape is ungoverned.
   </div>
   <p>None of this means the platform is failing. It processes orders, it serves customers, it generates revenue. But the architecture has reached the point where <strong>the cost of change is growing faster than the value of change</strong>. Every new feature takes longer. Every upgrade is riskier. Every team is slower than they should be.</p>
   <p>The next page explores <em>why</em> this pattern doesn't scale&mdash;and why the industry has converged on a different approach.</p>

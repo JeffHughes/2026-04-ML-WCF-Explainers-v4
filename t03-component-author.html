@@ -26,7 +26,7 @@
 <div class="hero">
   <div class="page-num">Training &mdash; Page 3 of 7</div>
   <h1>Track: Component Author</h1>
-  <p class="subtitle">Seven modules that take you from understanding Web Components to publishing production-ready ML- components used across every domain. You build the building blocks.</p>
+  <p class="subtitle">Seven modules that take we from understanding Web Components to publishing production-ready ML- components used across every domain. We build the building blocks.</p>
 </div>
 
 <main>
@@ -34,7 +34,7 @@
 <!-- Track Overview -->
 <section>
   <h2>Track Overview</h2>
-  <p>Component Authors build the shared ML- components that every domain team consumes. You own the component contract: attributes, events, slots, and CSS custom properties. Your components run inside Shadow DOM, encapsulated and isolated. When you publish, every domain that uses your component gets the update via the CDN.</p>
+  <p>Component Authors build the shared ML- components that every domain team consumes. We own the component contract: attributes, events, slots, and CSS custom properties. Our components run inside Shadow DOM, encapsulated and isolated. When we publish, every domain that uses our component gets the update via the CDN.</p>
   <p>This track has <strong>7 modules</strong>. Expected completion: <strong>~4 weeks</strong>.</p>
 
   <div class="stat-grid">
@@ -66,17 +66,7 @@
       <button onclick="mfull(this)">&#9974;</button>
     </div>
     <div class="mw-view">
-      <div class="mermaid-inner" data-src="graph LR
-  A[Author\nBuild ML- Component] -->|Test locally| B[Validate\nPipeline Gates]
-  B -->|Pass| C[Publish\nCDN + Version Tag]
-  C -->|Register| D[App Catalog\nDocumented API]
-  D -->|Discover| E[Domain Teams\nConsume via Import Map]
-  E -->|Feedback| A
-  style A fill:#58a6ff,stroke:#58a6ff,color:#fff
-  style B fill:#f0883e,stroke:#f0883e,color:#fff
-  style C fill:#d2a8ff,stroke:#d2a8ff,color:#000
-  style D fill:#3fb950,stroke:#3fb950,color:#fff
-  style E fill:#3fb950,stroke:#3fb950,color:#fff"></div>
+      <div class="mermaid-inner" __PROTECTED_0__></div>
     </div>
     <div class="mw-caption">Component lifecycle: author &rarr; validate &rarr; publish &rarr; catalog &rarr; consume</div>
   </div>
@@ -85,7 +75,7 @@
 <!-- Module 1 -->
 <section>
   <h2>Module 1: Component Anatomy</h2>
-  <p><strong>What you'll learn:</strong> The structure of a Custom Element&mdash;Shadow DOM, attributes, events, slots, and lifecycle callbacks.</p>
+  <p><strong>What we'll learn:</strong> The structure of a Custom Element&mdash;Shadow DOM, attributes, events, slots, and lifecycle callbacks.</p>
 
   <details>
     <summary>Module content <span class="detail-summary">Custom Elements, Shadow DOM, lifecycle</span></summary>
@@ -115,7 +105,7 @@
 <!-- Module 2 -->
 <section>
   <h2>Module 2: Styling</h2>
-  <p><strong>What you'll learn:</strong> CSS custom properties, Shadow DOM style encapsulation, and how to ensure zero global CSS leakage.</p>
+  <p><strong>What we'll learn:</strong> CSS custom properties, Shadow DOM style encapsulation, and how to ensure zero global CSS leakage.</p>
 
   <details>
     <summary>Module content <span class="detail-summary">CSS custom properties, encapsulation, theming</span></summary>
@@ -130,7 +120,7 @@
         <li><strong>No global styles</strong> &mdash; components must never import global stylesheets or modify document-level CSS</li>
       </ul>
       <h4>Hands-on Exercise</h4>
-      <p>Extend your <code>ml-info-card</code> with full styling: define 5+ CSS custom properties for consumer theming, support light/dark mode via platform CSS variables, and verify zero style leakage using the style isolation test suite.</p>
+      <p>Extend our <code>ml-info-card</code> with full styling: define 5+ CSS custom properties for consumer theming, support light/dark mode via platform CSS variables, and verify zero style leakage using the style isolation test suite.</p>
       <h4>Sign-off Criteria</h4>
       <ul>
         <li>All styling uses CSS custom properties (no hardcoded colors)</li>
@@ -150,7 +140,7 @@
 <!-- Module 3 -->
 <section>
   <h2>Module 3: The Component Contract</h2>
-  <p><strong>What you'll learn:</strong> How to define and document the complete API surface of an ML- component: attributes, events, slots, and CSS custom properties.</p>
+  <p><strong>What we'll learn:</strong> How to define and document the complete API surface of an ML- component: attributes, events, slots, and CSS custom properties.</p>
 
   <details>
     <summary>Module content <span class="detail-summary">API surface, documentation, contract enforcement</span></summary>
@@ -164,7 +154,7 @@
         <li><strong>Contract file</strong> &mdash; <code>component.contract.json</code> declares the full API surface; the pipeline validates it</li>
       </ul>
       <h4>Hands-on Exercise</h4>
-      <p>Write the <code>component.contract.json</code> for your <code>ml-info-card</code>. Ensure every attribute, event, slot, and CSS custom property is documented. Run the contract validation tool to verify completeness.</p>
+      <p>Write the <code>component.contract.json</code> for our <code>ml-info-card</code>. Ensure every attribute, event, slot, and CSS custom property is documented. Run the contract validation tool to verify completeness.</p>
       <h4>Sign-off Criteria</h4>
       <ul>
         <li>Contract file is complete (all attributes, events, slots, CSS properties)</li>
@@ -187,22 +177,7 @@
       <button onclick="mfull(this)">&#9974;</button>
     </div>
     <div class="mw-view">
-      <div class="mermaid-inner" data-src="graph TD
-  COMP[ML- Component]
-  COMP -->|Inputs| ATTR[Attributes\nHTML attributes &amp; properties]
-  COMP -->|Outputs| EVT[Events\nCustom Events with typed detail]
-  COMP -->|Content| SLOT[Slots\nNamed projection points]
-  COMP -->|Theming| CSS[CSS Custom Properties\nStyling hooks for consumers]
-  ATTR -.->|Documented in| CONTRACT[component.contract.json]
-  EVT -.->|Documented in| CONTRACT
-  SLOT -.->|Documented in| CONTRACT
-  CSS -.->|Documented in| CONTRACT
-  style COMP fill:#58a6ff,stroke:#58a6ff,color:#fff
-  style ATTR fill:#d2a8ff,stroke:#d2a8ff,color:#000
-  style EVT fill:#f0883e,stroke:#f0883e,color:#fff
-  style SLOT fill:#3fb950,stroke:#3fb950,color:#fff
-  style CSS fill:#3fb950,stroke:#3fb950,color:#fff
-  style CONTRACT fill:#f85149,stroke:#f85149,color:#fff"></div>
+      <div class="mermaid-inner" __PROTECTED_1__></div>
     </div>
     <div class="mw-caption">The four surfaces of an ML- component: attributes, events, slots, and CSS custom properties&mdash;all documented in the contract file</div>
   </div>
@@ -211,7 +186,7 @@
 <!-- Module 4 -->
 <section>
   <h2>Module 4: Publishing</h2>
-  <p><strong>What you'll learn:</strong> How to build, version, publish to CDN, and register your component in the App Catalog.</p>
+  <p><strong>What we'll learn:</strong> How to build, version, publish to CDN, and register our component in the App Catalog.</p>
 
   <details>
     <summary>Module content <span class="detail-summary">Build, CDN, catalog registration, versioning</span></summary>
@@ -222,10 +197,10 @@
         <li><strong>CDN publish</strong> &mdash; built artifact is pushed to CDN with a semver-tagged URL</li>
         <li><strong>Catalog registration</strong> &mdash; the App Catalog records the new version, its contract, and its dependencies</li>
         <li><strong>Semver</strong> &mdash; breaking changes = major, new features = minor, fixes = patch</li>
-        <li><strong>Consumer notification</strong> &mdash; domains using your component are automatically notified of new versions</li>
+        <li><strong>Consumer notification</strong> &mdash; domains using our component are automatically notified of new versions</li>
       </ul>
       <h4>Hands-on Exercise</h4>
-      <p>Build your <code>ml-info-card</code>, publish it to the sandbox CDN, register it in the App Catalog, and verify it appears in the component browser with full documentation.</p>
+      <p>Build our <code>ml-info-card</code>, publish it to the sandbox CDN, register it in the App Catalog, and verify it appears in the component browser with full documentation.</p>
       <h4>Sign-off Criteria</h4>
       <ul>
         <li>Component builds to a single ES module file</li>
@@ -240,7 +215,7 @@
 <!-- Module 5 -->
 <section>
   <h2>Module 5: WCFramework Internals</h2>
-  <p><strong>What you'll learn:</strong> The HTML-first MV* pattern that powers ML- components. Data binding, change detection, template rendering.</p>
+  <p><strong>What we'll learn:</strong> The HTML-first MV* pattern that powers ML- components. Data binding, change detection, template rendering.</p>
 
   <details>
     <summary>Module content <span class="detail-summary">HTML-first pattern, data binding, change detection</span></summary>
@@ -274,21 +249,21 @@
 <!-- Module 6 -->
 <section>
   <h2>Module 6: React Compatibility Wrapper</h2>
-  <p><strong>What you'll learn:</strong> How to publish a React-compatible version of your ML- component so existing React domains can consume it natively.</p>
+  <p><strong>What we'll learn:</strong> How to publish a React-compatible version of our ML- component so existing React domains can consume it natively.</p>
 
   <details>
     <summary>Module content <span class="detail-summary">React wrapper, prop mapping, event bridging</span></summary>
     <div class="detail-body">
       <h4>Key Concepts</h4>
       <ul>
-        <li><strong>React wrapper generator</strong> &mdash; an automated tool that creates a React wrapper from your component contract</li>
+        <li><strong>React wrapper generator</strong> &mdash; an automated tool that creates a React wrapper from our component contract</li>
         <li><strong>Prop mapping</strong> &mdash; HTML attributes map to React props automatically</li>
         <li><strong>Event bridging</strong> &mdash; Custom Events map to React <code>on*</code> callback props</li>
         <li><strong>Ref forwarding</strong> &mdash; React refs forward to the underlying Custom Element</li>
         <li><strong>TypeScript types</strong> &mdash; the wrapper exports full TypeScript definitions generated from the contract</li>
       </ul>
       <h4>Hands-on Exercise</h4>
-      <p>Generate a React wrapper for your <code>ml-info-card</code>. Use it in a sandbox React application. Verify props, events, and refs all work correctly. Publish the wrapper alongside the Web Component.</p>
+      <p>Generate a React wrapper for our <code>ml-info-card</code>. Use it in a sandbox React application. Verify props, events, and refs all work correctly. Publish the wrapper alongside the Web Component.</p>
       <h4>Sign-off Criteria</h4>
       <ul>
         <li>React wrapper generated from component contract</li>
@@ -304,14 +279,14 @@
 <!-- Module 7 -->
 <section>
   <h2>Module 7: Documentation</h2>
-  <p><strong>What you'll learn:</strong> How to create a component playground, write usage examples, and publish API documentation to the catalog.</p>
+  <p><strong>What we'll learn:</strong> How to create a component playground, write usage examples, and publish API documentation to the catalog.</p>
 
   <details>
     <summary>Module content <span class="detail-summary">Playground, examples, API docs</span></summary>
     <div class="detail-body">
       <h4>Key Concepts</h4>
       <ul>
-        <li><strong>Component playground</strong> &mdash; interactive demo page where consumers can try your component with different attributes and slot content</li>
+        <li><strong>Component playground</strong> &mdash; interactive demo page where consumers can try our component with different attributes and slot content</li>
         <li><strong>Usage examples</strong> &mdash; copy-paste code snippets for common use cases (basic, themed, with slots, event handling)</li>
         <li><strong>API documentation</strong> &mdash; auto-generated from <code>component.contract.json</code> plus hand-written descriptions</li>
         <li><strong>Changelog</strong> &mdash; version history showing what changed, what broke, and what was added</li>

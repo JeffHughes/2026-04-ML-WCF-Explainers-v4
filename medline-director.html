@@ -378,7 +378,7 @@
       </div>
       <div class="stat-card">
         <div class="stat-value">1-Year Core Cadence</div>
-        <div class="stat-label">Automated change-mod scripts. No surprise breaks. Upgrade when you are ready.</div>
+        <div class="stat-label">Automated change-mod scripts. No surprise breaks. Upgrade when we are ready.</div>
       </div>
       <div class="stat-card">
         <div class="stat-value">SSR Monolith &rarr; CSR + BFF</div>
@@ -399,7 +399,7 @@
         <span class="summary-text">Monolithic Next.js 12.3 shell with 84+ coupled micro frontends</span>
       </summary>
       <div class="section-body">
-        <p>Your current architecture is a monolithic Next.js 12.3 shell serving 84+ micro frontends through a tightly coupled SSR rendering pipeline. This is the architecture pattern that made sense when the platform was smaller&mdash;but at enterprise scale, it has become the primary constraint on delivery speed, team autonomy, and platform reliability.</p>
+        <p>Our current architecture is a monolithic Next.js 12.3 shell serving 84+ micro frontends through a tightly coupled SSR rendering pipeline. This is the architecture pattern that made sense when the platform was smaller&mdash;but at enterprise scale, it has become the primary constraint on delivery speed, team autonomy, and platform reliability.</p>
 
         <h3>Current Pain Points</h3>
         <ul>
@@ -422,38 +422,7 @@
             <button onclick="mreset(this)">Reset</button>
             <button onclick="mfull(this)">&#x26F6;</button>
           </div>
-          <div class="mw-view"><div class="mermaid-inner" data-src="graph TB
-    subgraph MONOLITH[&quot;Next.js 12.3 Monolithic Shell&quot;]
-      SSR[SSR Rendering Engine]
-      RT[Shared Runtime]
-      subgraph MFEs[&quot;84+ Micro Frontends - All Coupled&quot;]
-        MF1[Catalog MFE]
-        MF2[Cart MFE]
-        MF3[Checkout MFE]
-        MF4[Account MFE]
-        MF5[Search MFE]
-        MF6[PDP MFE]
-        MF7[PLP MFE]
-        MF8[... 77 more]
-      end
-    end
-    SSR --> RT
-    RT --> MF1
-    RT --> MF2
-    RT --> MF3
-    RT --> MF4
-    RT --> MF5
-    RT --> MF6
-    RT --> MF7
-    RT --> MF8
-    MONOLITH --> K8S[Single K8s Deployment]
-    K8S --> QA[Full Regression Required]
-    style MONOLITH fill:#3d1f00,stroke:#f0883e,color:#f0883e
-    style SSR fill:#6e1616,stroke:#f85149,color:#f85149
-    style RT fill:#6e1616,stroke:#f85149,color:#f85149
-    style MFEs fill:#1c2333,stroke:#30363d,color:#8b949e
-    style K8S fill:#1c2333,stroke:#30363d,color:#8b949e
-    style QA fill:#6e1616,stroke:#f85149,color:#f85149"></div></div>
+          <div class="mw-view"><div class="mermaid-inner" __PROTECTED_0__></div></div>
           <div class="mw-caption">Current Architecture &mdash; Monolithic Next.js shell with all 84+ MFEs sharing a single SSR runtime</div>
         </div>
 
@@ -478,7 +447,7 @@
 
         <h3>How It Works</h3>
         <ol>
-          <li><strong>Copy</strong> &mdash; Take the entire monolith codebase and duplicate it. This is your new domain candidate. It runs. It's the same code. Zero risk.</li>
+          <li><strong>Copy</strong> &mdash; Take the entire monolith codebase and duplicate it. This is our new domain candidate. It runs. It's the same code. Zero risk.</li>
           <li><strong>Split</strong> &mdash; Rename the copy to its domain identity (e.g., "Catalog"). Configure it as its own deployable unit in K8s.</li>
           <li><strong>Strip</strong> &mdash; Progressively remove everything the domain doesn't need. Cart code comes out of Catalog. Checkout code comes out of Catalog. What remains is a focused, domain-specific application.</li>
         </ol>
@@ -488,7 +457,7 @@
           <li>The original monolith continues running, unchanged, serving all traffic</li>
           <li>The copied domain runs alongside it&mdash;same code, same behavior</li>
           <li>Traffic shifts gradually via routing rules (canary, blue/green)</li>
-          <li>At any point, you can route 100% back to the original monolith</li>
+          <li>At any point, we can route 100% back to the original monolith</li>
           <li>This is the classic <strong>strangler fig pattern</strong>&mdash;the industry-standard approach for monolith decomposition</li>
         </ul>
 
@@ -514,30 +483,13 @@
             <button onclick="mreset(this)">Reset</button>
             <button onclick="mfull(this)">&#x26F6;</button>
           </div>
-          <div class="mw-view"><div class="mermaid-inner" data-src="graph LR
-    subgraph STEP1[&quot;Step 1: Copy&quot;]
-      M1[Monolith\n84+ MFEs] -->|clone| C1[Full Copy\n84+ MFEs]
-    end
-    subgraph STEP2[&quot;Step 2: Split&quot;]
-      C1 -->|rename| CAT[Catalog Service\n84+ MFEs still present]
-      CAT -->|deploy| K8S[Own K8s Pod]
-    end
-    subgraph STEP3[&quot;Step 3: Strip&quot;]
-      CAT -->|remove non-catalog| CLEAN[Catalog Service\nCatalog MFEs Only]
-    end
-    M1 -.->|still running| TRAFFIC[All Traffic]
-    CLEAN -.->|canary route| TRAFFIC
-    style STEP1 fill:#1c2333,stroke:#58a6ff,color:#58a6ff
-    style STEP2 fill:#1c2333,stroke:#d2a8ff,color:#d2a8ff
-    style STEP3 fill:#1c2333,stroke:#3fb950,color:#3fb950
-    style M1 fill:#3d1f00,stroke:#f0883e,color:#f0883e
-    style CLEAN fill:#0d2818,stroke:#3fb950,color:#3fb950"></div></div>
+          <div class="mw-view"><div class="mermaid-inner" __PROTECTED_1__></div></div>
           <div class="mw-caption">Copy-Split-Strip Flow &mdash; The monolith is cloned per domain, then trimmed down to only what that domain needs</div>
         </div>
 
         <div class="callout">
           <strong>Key Insight</strong>
-          You never stop running the original monolith until you choose to. There is no flag day. There is no cutover weekend. Domains peel off one at a time, at whatever pace makes sense for your teams.
+          We never stop running the original monolith until we choose to. There is no flag day. There is no cutover weekend. Domains peel off one at a time, at whatever pace makes sense for our teams.
         </div>
       </div>
     </details>
@@ -589,29 +541,7 @@
             <button onclick="mreset(this)">Reset</button>
             <button onclick="mfull(this)">&#x26F6;</button>
           </div>
-          <div class="mw-view"><div class="mermaid-inner" data-src="graph TB
-    SHELL[CSR Shell\nComposition Layer]
-    SHELL --> CAT[Catalog / PLP\nOwn Deploy]
-    SHELL --> PDP[PDP\nOwn Deploy]
-    SHELL --> SRCH[Search\nOwn Deploy]
-    SHELL --> CART[Cart / Mini-Cart\nOwn Deploy]
-    SHELL --> CHK[Checkout\nOwn Deploy]
-    SHELL --> ACCT[Account\nOwn Deploy]
-    SHELL --> CMS[Content / CMS\nOwn Deploy]
-    SHELL --> NAV[Navigation\nOwn Deploy]
-    CAT -.->|contract| CART
-    PDP -.->|contract| CART
-    SRCH -.->|contract| CAT
-    CHK -.->|contract| CART
-    style SHELL fill:#1c2333,stroke:#58a6ff,color:#58a6ff
-    style CAT fill:#0d2818,stroke:#3fb950,color:#3fb950
-    style PDP fill:#0d2818,stroke:#3fb950,color:#3fb950
-    style SRCH fill:#0d2818,stroke:#3fb950,color:#3fb950
-    style CART fill:#0d2818,stroke:#3fb950,color:#3fb950
-    style CHK fill:#0d2818,stroke:#3fb950,color:#3fb950
-    style ACCT fill:#0d2818,stroke:#3fb950,color:#3fb950
-    style CMS fill:#0d2818,stroke:#3fb950,color:#3fb950
-    style NAV fill:#0d2818,stroke:#3fb950,color:#3fb950"></div></div>
+          <div class="mw-view"><div class="mermaid-inner" __PROTECTED_2__></div></div>
           <div class="mw-caption">Domain Map &mdash; Each e-commerce domain as an independent deployable unit with explicit contracts</div>
         </div>
 
@@ -668,28 +598,7 @@
             <button onclick="mreset(this)">Reset</button>
             <button onclick="mfull(this)">&#x26F6;</button>
           </div>
-          <div class="mw-view"><div class="mermaid-inner" data-src="graph TB
-    subgraph BEFORE[&quot;Before: SSR Monolith&quot;]
-      NJS[Next.js 12.3 Server] -->|SSR render| HTML1[Full HTML]
-      NJS --> API1[Direct Backend Calls]
-      NJS --> MFE1[84+ MFEs Sharing Runtime]
-    end
-    subgraph AFTER[&quot;After: CSR Shell + BFF&quot;]
-      CDN[CDN\nStatic Shell] -->|load| SHELL2[WCFramework CSR Shell]
-      SHELL2 -->|import map| WC1[Catalog WC]
-      SHELL2 -->|import map| WC2[Cart WC]
-      SHELL2 -->|import map| WC3[Checkout WC]
-      SHELL2 -->|import map| WC4[Account WC]
-      WC1 --> BFF1[Catalog BFF]
-      WC2 --> BFF2[Cart BFF]
-      WC3 --> BFF3[Checkout BFF]
-      WC4 --> BFF4[Account BFF]
-    end
-    style BEFORE fill:#3d1f00,stroke:#f0883e,color:#f0883e
-    style AFTER fill:#0d2818,stroke:#3fb950,color:#3fb950
-    style NJS fill:#6e1616,stroke:#f85149,color:#f85149
-    style CDN fill:#1a3a5c,stroke:#58a6ff,color:#58a6ff
-    style SHELL2 fill:#1a3a5c,stroke:#58a6ff,color:#58a6ff"></div></div>
+          <div class="mw-view"><div class="mermaid-inner" __PROTECTED_3__></div></div>
           <div class="mw-caption">Before &amp; After &mdash; SSR monolith replaced by CDN-served CSR shell with domain-specific BFFs</div>
         </div>
       </div>
@@ -705,7 +614,7 @@
         <span class="summary-text">Gradual migration from React to standards-based components</span>
       </summary>
       <div class="section-body">
-        <p>You don't rewrite 84+ micro frontends on day one. The component transition is progressive, running at each team's pace. Existing React components stay, wrapped as Web Components. New components use the WCFramework HTML-first pattern.</p>
+        <p>We don't rewrite 84+ micro frontends on day one. The component transition is progressive, running at each team's pace. Existing React components stay, wrapped as Web Components. New components use the WCFramework HTML-first pattern.</p>
 
         <h3>The Three-Stage Component Lifecycle</h3>
         <ol>
@@ -735,23 +644,7 @@
             <button onclick="mreset(this)">Reset</button>
             <button onclick="mfull(this)">&#x26F6;</button>
           </div>
-          <div class="mw-view"><div class="mermaid-inner" data-src="graph LR
-    subgraph STAGE1[&quot;Stage 1: React As-Is&quot;]
-      R1[React 17 Component] -->|thin wrapper| WC1[Web Component Shell]
-    end
-    subgraph STAGE2[&quot;Stage 2: React Wrapped&quot;]
-      R2[React Component] -->|Shadow DOM adapter| WC2[Registered WC\nIn Catalog]
-    end
-    subgraph STAGE3[&quot;Stage 3: WCFramework Native&quot;]
-      HTML[HTML Template] --> MV[MV* Pattern]
-      MV --> WC3[ml-component\nPure Standards]
-    end
-    STAGE1 -->|team decides when| STAGE2
-    STAGE2 -->|next major rewrite| STAGE3
-    style STAGE1 fill:#3d1f00,stroke:#f0883e,color:#f0883e
-    style STAGE2 fill:#2a1a40,stroke:#d2a8ff,color:#d2a8ff
-    style STAGE3 fill:#0d2818,stroke:#3fb950,color:#3fb950
-    style WC3 fill:#0d2818,stroke:#3fb950,color:#3fb950"></div></div>
+          <div class="mw-view"><div class="mermaid-inner" __PROTECTED_4__></div></div>
           <div class="mw-caption">Component Lifecycle &mdash; Progressive transition from React 17 to standards-based WCFramework components</div>
         </div>
 
@@ -768,11 +661,11 @@
     <details id="s06">
       <summary>
         <span class="section-num">6</span>
-        The App Catalog: Your Single Source of Truth
+        The App Catalog: Our Single Source of Truth
         <span class="summary-text">Every component, version, and dependency tracked and discoverable</span>
       </summary>
       <div class="section-body">
-        <p>With 84+ micro frontends splitting into independent domains, you need a single place that knows everything: what components exist, what version each is running, what data contracts each consumes, and what depends on what. That's the App Catalog.</p>
+        <p>With 84+ micro frontends splitting into independent domains, we need a single place that knows everything: what components exist, what version each is running, what data contracts each consumes, and what depends on what. That's the App Catalog.</p>
 
         <h3>What the App Catalog Tracks</h3>
         <ul>
@@ -799,25 +692,7 @@
             <button onclick="mreset(this)">Reset</button>
             <button onclick="mfull(this)">&#x26F6;</button>
           </div>
-          <div class="mw-view"><div class="mermaid-inner" data-src="graph TB
-    subgraph CATALOG[&quot;App Catalog — Single Source of Truth&quot;]
-      REG[Component Registry\nml-product-card@2.3.1\nml-cart-summary@1.8.0\n...]
-      DEP[Dependency Graph\nWho uses what]
-      CON[Data Contracts\nAPI shapes per domain]
-      ENV[Environment Status\nDev / QA / UAT / Prod]
-      BRK[Breaking Change\nDetection]
-    end
-    SCAN[API Scanner\nAutomatic Discovery] --> CON
-    PUB[CDN Publish\nNew Versions] --> REG
-    REG --> DEP
-    DEP --> BRK
-    CON --> BRK
-    BRK -->|alert| TEAMS[Domain Teams]
-    ENV --> DASH[Operations Dashboard]
-    style CATALOG fill:#1a3a5c,stroke:#58a6ff,color:#58a6ff
-    style BRK fill:#3d1f00,stroke:#f0883e,color:#f0883e
-    style SCAN fill:#0d2818,stroke:#3fb950,color:#3fb950
-    style PUB fill:#0d2818,stroke:#3fb950,color:#3fb950"></div></div>
+          <div class="mw-view"><div class="mermaid-inner" __PROTECTED_5__></div></div>
           <div class="mw-caption">App Catalog &mdash; Component registry with version tracking, dependency graphs, and automated contract scanning</div>
         </div>
 
@@ -876,31 +751,12 @@
             <button onclick="mreset(this)">Reset</button>
             <button onclick="mfull(this)">&#x26F6;</button>
           </div>
-          <div class="mw-view"><div class="mermaid-inner" data-src="gantt
-    title Component Version Adoption Timeline
-    dateFormat YYYY-MM
-    axisFormat %b %Y
-    section Core Release
-    Core v3.0 Published           :milestone, m1, 2026-01, 0d
-    Core v4.0 Published           :milestone, m2, 2027-01, 0d
-    section Catalog Domain
-    v3.0 Adoption                 :active, cat3, 2026-02, 2026-04
-    v4.0 Adoption                 :cat4, 2027-02, 2027-04
-    section Cart Domain
-    v3.0 Adoption                 :cart3, 2026-04, 2026-06
-    v4.0 Adoption                 :cart4, 2027-03, 2027-06
-    section Checkout Domain
-    v3.0 Adoption                 :chk3, 2026-05, 2026-08
-    v4.0 Adoption                 :chk4, 2027-04, 2027-08
-    section Account Domain
-    v3.0 Adoption                 :acct3, 2026-06, 2026-10
-    v4.0 Adoption                 :acct4, 2027-06, 2027-10</div></div>
-          <div class="mw-caption">Version Timeline &mdash; 1-year core cadence with domains adopting at their own pace</div>
+          <div class="mw-view"><div class="mermaid-inner" __PROTECTED_6__mw-caption">Version Timeline &mdash; 1-year core cadence with domains adopting at their own pace</div>
         </div>
 
         <div class="callout">
           <strong>Automation Over Coordination</strong>
-          The change-mod scripts do the mechanical work. The App Catalog tracks the progress. Leadership sees a dashboard, not a spreadsheet maintained by a program manager. Drift is a solved problem when you have the right tooling.
+          The change-mod scripts do the mechanical work. The App Catalog tracks the progress. Leadership sees a dashboard, not a spreadsheet maintained by a program manager. Drift is a solved problem when we have the right tooling.
         </div>
       </div>
     </details>
@@ -954,44 +810,7 @@
             <button onclick="mreset(this)">Reset</button>
             <button onclick="mfull(this)">&#x26F6;</button>
           </div>
-          <div class="mw-view"><div class="mermaid-inner" data-src="graph TB
-    subgraph FRONTEND[&quot;Frontend — CSR Shell&quot;]
-      ML1[ml-product-card]
-      ML2[ml-cart-summary]
-      ML3[ml-checkout-flow]
-      ML4[ml-account-profile]
-    end
-    subgraph BFF_LAYER[&quot;BFF Layer — Domain Isolation&quot;]
-      BFF1[Catalog BFF]
-      BFF2[Cart BFF]
-      BFF3[Checkout BFF]
-      BFF4[Account BFF]
-    end
-    subgraph BACKEND[&quot;Backend Services&quot;]
-      PROD[Product Service]
-      INV[Inventory Service]
-      PRICE[Pricing Service]
-      ORDER[Order Service]
-      PAY[Payment Service]
-      USER[User Service]
-    end
-    ML1 --> BFF1
-    ML2 --> BFF2
-    ML3 --> BFF3
-    ML4 --> BFF4
-    BFF1 --> PROD
-    BFF1 --> INV
-    BFF1 --> PRICE
-    BFF2 --> PROD
-    BFF2 --> PRICE
-    BFF3 --> ORDER
-    BFF3 --> PAY
-    BFF3 --> INV
-    BFF4 --> USER
-    BFF4 --> ORDER
-    style FRONTEND fill:#1a3a5c,stroke:#58a6ff,color:#58a6ff
-    style BFF_LAYER fill:#2a1a40,stroke:#d2a8ff,color:#d2a8ff
-    style BACKEND fill:#1c2333,stroke:#30363d,color:#8b949e"></div></div>
+          <div class="mw-view"><div class="mermaid-inner" __PROTECTED_7__></div></div>
           <div class="mw-caption">BFF Architecture &mdash; Each domain's frontend communicates exclusively with its own BFF, which orchestrates backend calls</div>
         </div>
 
@@ -1046,24 +865,7 @@
             <button onclick="mreset(this)">Reset</button>
             <button onclick="mfull(this)">&#x26F6;</button>
           </div>
-          <div class="mw-view"><div class="mermaid-inner" data-src="graph LR
-    subgraph DEPLOY[&quot;Domain Deployment Flow&quot;]
-      BUILD[Build + Test] -->|pass| CDN_PUB[Publish to CDN\nImmutable Artifact]
-      CDN_PUB --> GREEN[Green Slot\nNew Version]
-      GREEN --> VALIDATE[Validation\nContract Tests\nVisual Regression]
-      VALIDATE -->|pass| SWITCH[Traffic Switch\nUpdate Import Map]
-      VALIDATE -->|fail| ROLLBACK[Keep Blue\nNo Impact]
-      SWITCH --> BLUE_OLD[Blue = Previous\nStill Available]
-    end
-    subgraph INSTANT[&quot;Instant Rollback&quot;]
-      ISSUE[Issue Detected] --> REVERT[Revert Import Map\n1 Line Change]
-      REVERT --> RESTORED[Previous Version\nInstant Recovery]
-    end
-    style GREEN fill:#0d2818,stroke:#3fb950,color:#3fb950
-    style ROLLBACK fill:#6e1616,stroke:#f85149,color:#f85149
-    style SWITCH fill:#1a3a5c,stroke:#58a6ff,color:#58a6ff
-    style REVERT fill:#3d1f00,stroke:#f0883e,color:#f0883e
-    style RESTORED fill:#0d2818,stroke:#3fb950,color:#3fb950"></div></div>
+          <div class="mw-view"><div class="mermaid-inner" __PROTECTED_8__></div></div>
           <div class="mw-caption">Blue/Green Deployment &mdash; Per-domain deployment with instant import map rollback</div>
         </div>
 
@@ -1090,7 +892,7 @@
         <ul>
           <li><strong>Frameworks with 18-month major version cycles create perpetual migration tax.</strong> Every major version means rewriting, retesting, and redeploying. With 84+ micro frontends, that migration tax is enormous.</li>
           <li><strong>Library-specific hiring pools are narrow and expensive.</strong> Developers who know "React 18 with Server Components and the App Router" are a subset of developers who know React, who are a subset of developers who know JavaScript.</li>
-          <li><strong>Framework lock-in is invisible until it isn't.</strong> When the framework community moves on (jQuery, Backbone, Ember), you're left maintaining a legacy ecosystem with a shrinking talent pool.</li>
+          <li><strong>Framework lock-in is invisible until it isn't.</strong> When the framework community moves on (jQuery, Backbone, Ember), we're left maintaining a legacy ecosystem with a shrinking talent pool.</li>
         </ul>
 
         <h3>The Standards Advantage</h3>
@@ -1113,33 +915,13 @@
             <button onclick="mreset(this)">Reset</button>
             <button onclick="mfull(this)">&#x26F6;</button>
           </div>
-          <div class="mw-view"><div class="mermaid-inner" data-src="graph TB
-    subgraph FRAMEWORK_PATH[&quot;Framework-Centric Path&quot;]
-      FW1[Framework v16\n2022] -->|18 months| FW2[Framework v17\n2023]
-      FW2 -->|18 months| FW3[Framework v18\n2025]
-      FW3 -->|18 months| FW4[Framework v19\n2026]
-      FW4 -->|18 months| FW5[Framework v20\n2028]
-      FW1 -.->|migration tax| MIG1[Rewrite 84 MFEs]
-      FW2 -.->|migration tax| MIG2[Rewrite 84 MFEs]
-      FW3 -.->|migration tax| MIG3[Rewrite 84 MFEs]
-    end
-    subgraph STANDARDS_PATH[&quot;Standards-Based Path&quot;]
-      WC1[Web Components\n2022] --> WC2[Same Components\n2025]
-      WC2 --> WC3[Same Components\n2028]
-      WC3 --> WC4[Same Components\n2032]
-      WC4 --> WC5[Same Components\n2037]
-    end
-    style FRAMEWORK_PATH fill:#3d1f00,stroke:#f0883e,color:#f0883e
-    style STANDARDS_PATH fill:#0d2818,stroke:#3fb950,color:#3fb950
-    style MIG1 fill:#6e1616,stroke:#f85149,color:#f85149
-    style MIG2 fill:#6e1616,stroke:#f85149,color:#f85149
-    style MIG3 fill:#6e1616,stroke:#f85149,color:#f85149"></div></div>
+          <div class="mw-view"><div class="mermaid-inner" __PROTECTED_9__></div></div>
           <div class="mw-caption">Framework Churn vs. Standards Longevity &mdash; 18-month migration cycles vs. 10-15 year component lifespans</div>
         </div>
 
         <div class="callout">
           <strong>The Simple Test</strong>
-          Will the components you build today still work in a browser 10 years from now? With Web Components, the answer is yes&mdash;because the browser vendors guarantee backward compatibility. With framework-specific components, the answer depends on whether the framework community still exists in 10 years.
+          Will the components we build today still work in a browser 10 years from now? With Web Components, the answer is yes&mdash;because the browser vendors guarantee backward compatibility. With framework-specific components, the answer depends on whether the framework community still exists in 10 years.
         </div>
       </div>
     </details>
@@ -1154,7 +936,7 @@
         <span class="summary-text">Four phases, each delivering value independently</span>
       </summary>
       <div class="section-body">
-        <p>The migration is structured as four overlapping phases. Each phase delivers value independently&mdash;you don't need to complete all four to see benefits. Phase 1 alone gives teams domain ownership and independent deployment.</p>
+        <p>The migration is structured as four overlapping phases. Each phase delivers value independently&mdash;we don't need to complete all four to see benefits. Phase 1 alone gives teams domain ownership and independent deployment.</p>
 
         <h3>Phase 1: Domain Extraction (Copy-Split-Strip)</h3>
         <ul>
@@ -1198,28 +980,7 @@
             <button onclick="mreset(this)">Reset</button>
             <button onclick="mfull(this)">&#x26F6;</button>
           </div>
-          <div class="mw-view"><div class="mermaid-inner" data-src="gantt
-    title Migration Timeline — Four Overlapping Phases
-    dateFormat YYYY-Q
-    axisFormat %Y Q%q
-    section Phase 1 — Domain Extraction
-    Copy-Split-Strip Catalog       :active, p1a, 2026-Q2, 2026-Q3
-    Copy-Split-Strip Cart          :p1b, 2026-Q2, 2026-Q3
-    Copy-Split-Strip Checkout      :p1c, 2026-Q3, 2026-Q4
-    Copy-Split-Strip Remaining     :p1d, 2026-Q3, 2027-Q1
-    section Phase 2 — Shell Swap
-    CSR Shell Development          :p2a, 2026-Q3, 2026-Q4
-    React WC Wrappers              :p2b, 2026-Q3, 2027-Q1
-    Traffic Migration to CSR       :p2c, 2026-Q4, 2027-Q2
-    section Phase 3 — Catalog + BFF
-    App Catalog Setup              :p3a, 2026-Q4, 2027-Q1
-    BFF Services Per Domain        :p3b, 2027-Q1, 2027-Q3
-    API Contract Scanning          :p3c, 2027-Q1, 2027-Q2
-    section Phase 4 — Component Evolution
-    ml- Component Library          :p4a, 2027-Q1, 2027-Q4
-    Progressive React Replacement  :p4b, 2027-Q2, 2028-Q2
-    Full Standards-Based Stack     :milestone, p4m, 2028-Q2, 0d</div></div>
-          <div class="mw-caption">Migration Timeline &mdash; Four overlapping phases, each delivering value independently</div>
+          <div class="mw-view"><div class="mermaid-inner" __PROTECTED_10__mw-caption">Migration Timeline &mdash; Four overlapping phases, each delivering value independently</div>
         </div>
 
         <div class="industry-std">
@@ -1240,7 +1001,7 @@
     <details id="s12">
       <summary>
         <span class="section-num">12</span>
-        What Changes for Your Teams
+        What Changes for Our Teams
         <span class="summary-text">Domain ownership, faster onboarding, and no more waiting</span>
       </summary>
       <div class="section-body">
@@ -1284,24 +1045,7 @@
             <button onclick="mreset(this)">Reset</button>
             <button onclick="mfull(this)">&#x26F6;</button>
           </div>
-          <div class="mw-view"><div class="mermaid-inner" data-src="graph LR
-    subgraph BEFORE[&quot;Before: Monolith Release Train&quot;]
-      T1[Team A\nReady] --> TRAIN[Release Train\nWait for all 84]
-      T2[Team B\nReady] --> TRAIN
-      T3[Team C\nBlocked] --> TRAIN
-      TRAIN --> DEPLOY1[Deploy Everything\nFull Regression]
-    end
-    subgraph AFTER[&quot;After: Domain Independence&quot;]
-      TA[Catalog Team] -->|own pipeline| DA[Deploy Catalog\n3x/day]
-      TB[Cart Team] -->|own pipeline| DB[Deploy Cart\nWeekly]
-      TC[Checkout Team] -->|own pipeline| DC[Deploy Checkout\nBi-weekly]
-    end
-    style BEFORE fill:#3d1f00,stroke:#f0883e,color:#f0883e
-    style AFTER fill:#0d2818,stroke:#3fb950,color:#3fb950
-    style TRAIN fill:#6e1616,stroke:#f85149,color:#f85149
-    style DA fill:#0d2818,stroke:#3fb950,color:#3fb950
-    style DB fill:#0d2818,stroke:#3fb950,color:#3fb950
-    style DC fill:#0d2818,stroke:#3fb950,color:#3fb950"></div></div>
+          <div class="mw-view"><div class="mermaid-inner" __PROTECTED_11__></div></div>
           <div class="mw-caption">Team Impact &mdash; From shared release train to independent domain deployment</div>
         </div>
 
@@ -1323,12 +1067,12 @@
         <div class="principle-card">
           <div class="p-icon">&#128737;</div>
           <h4>Zero-Risk Migration</h4>
-          <p>Copy, don't rewrite. The original monolith stays running until you choose to decommission it. Every step is reversible. The strangler fig pattern is the safest migration strategy in enterprise software.</p>
+          <p>Copy, don't rewrite. The original monolith stays running until we choose to decommission it. Every step is reversible. The strangler fig pattern is the safest migration strategy in enterprise software.</p>
         </div>
         <div class="principle-card">
           <div class="p-icon">&#127919;</div>
           <h4>Domain Independence</h4>
-          <p>Ship on your own schedule. Each domain owns its code, its deployment pipeline, its release cadence, and its BFF. No more waiting for the monolith release train. No more "one team's change breaks everyone."</p>
+          <p>Ship on our own schedule. Each domain owns its code, its deployment pipeline, its release cadence, and its BFF. No more waiting for the monolith release train. No more "one team's change breaks everyone."</p>
         </div>
         <div class="principle-card">
           <div class="p-icon">&#127760;</div>

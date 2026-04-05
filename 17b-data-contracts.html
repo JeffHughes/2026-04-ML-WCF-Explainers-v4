@@ -120,7 +120,7 @@
 
   <div class="callout success">
     <strong>Contracts Replace Coordination</strong>
-    Instead of meetings about what changed, the system tells you. Instead of Slack threads asking &ldquo;did you update the response?&rdquo; the contract diff shows you exactly what moved. Contracts turn human coordination into machine enforcement.
+    Instead of meetings about what changed, the system tells us. Instead of Slack threads asking &ldquo;did anyone update the response?&rdquo; the contract diff shows us exactly what moved. Contracts turn human coordination into machine enforcement.
   </div>
 
   <p>At the scale of this platform &mdash; dozens of BFF endpoints, hundreds of events, thousands of component instances &mdash; human coordination simply does not scale. Contracts do.</p>
@@ -410,11 +410,11 @@
 <!-- ────────────────────────────────────────── -->
 <section>
   <h2>&#9632; Automated Enforcement</h2>
-  <p>The contract system enforces compliance automatically &mdash; no meetings, no review boards, no &ldquo;did you check with the other team?&rdquo; conversations. The system does the checking.</p>
+  <p>The contract system enforces compliance automatically &mdash; no meetings, no review boards, no &ldquo;did we check with the other team?&rdquo; conversations. The system does the checking.</p>
 
   <h3>Enforcement Layers</h3>
   <ul>
-    <li><strong>CI Pipeline Gate</strong> &mdash; Every pull request runs contract validation. If your change breaks a consumer, the PR is blocked with a clear message showing which consumers are affected and what broke.</li>
+    <li><strong>CI Pipeline Gate</strong> &mdash; Every pull request runs contract validation. If our change breaks a consumer, the PR is blocked with a clear message showing which consumers are affected and what broke.</li>
     <li><strong>Deployment Gate</strong> &mdash; The App Catalog checks all contracts before allowing a deployment to production. Even if a PR slips through, the deployment pipeline catches it.</li>
     <li><strong>Consumer Notification</strong> &mdash; When a contract changes (even non-breaking), affected domains receive automated notifications via their configured channels (pipeline alerts, team dashboards).</li>
     <li><strong>Migration Window</strong> &mdash; Breaking changes get a configurable migration window (default: 2 sprints). During this window, both the old and new contract versions are active. After the window closes, the old version is retired.</li>

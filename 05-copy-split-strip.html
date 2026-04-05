@@ -44,7 +44,7 @@
 <div class="hero">
   <div class="page-num">Migration Mechanics</div>
   <h1>Copy, Split, Strip: The Safest Migration in the World</h1>
-  <p class="subtitle">Copy the monolith, delete what you don't need, deploy the same code with less of it. Zero risk because it's the same code your teams already trust.</p>
+  <p class="subtitle">Copy the monolith, delete what isn't needed, deploy the same code with less of it. Zero risk because it's the same code our teams already trust.</p>
 </div>
 
 <main>
@@ -53,11 +53,11 @@
 <section>
   <h2>Why Copy-Split-Strip Is the Safest Approach</h2>
   <p>Most migration strategies involve <em>rewriting</em> code. Rewriting is dangerous because new code has new bugs. It hasn't been battle-tested by real traffic. It hasn't survived edge cases that took years to discover.</p>
-  <p>Copy-split-strip is different. You're not writing new code. You're taking code that <strong>already works in production</strong> and removing the parts that don't belong to your domain. The code that runs after the extraction is a <em>subset</em> of the code that was running before. Same logic. Same tests. Same infrastructure. Just less of it.</p>
+  <p>Copy-split-strip is different. We're not writing new code. We're taking code that <strong>already works in production</strong> and removing the parts that don't belong to the target domain. The code that runs after the extraction is a <em>subset</em> of the code that was running before. Same logic. Same tests. Same infrastructure. Just less of it.</p>
 
   <div class="callout success">
     <strong>The Safety Guarantee</strong>
-    If the monolith works today, the extracted domain works today. You're running the same code with fewer routes, fewer components, and fewer dependencies. The only change is subtraction.
+    If the monolith works today, the extracted domain works today. We're running the same code with fewer routes, fewer components, and fewer dependencies. The only change is subtraction.
   </div>
 
   <div class="industry-std">
@@ -100,7 +100,7 @@
 
   <h3>Step 1: Copy the Entire Repository</h3>
   <p>Create a complete clone of the monolith repository. This is a <code>git clone</code> followed by removing the <code>.git</code> directory and initializing a new repository. The new repo contains everything the monolith contains&mdash;all MFEs, all routes, all components, all tests.</p>
-  <p>Why copy everything? Because it's simpler and safer than trying to extract only what you need. When you start with everything, you can verify at any point that the full system still works. Then you subtract.</p>
+  <p>Why copy everything? Because it's simpler and safer than trying to extract only what's needed. When starting with everything, we can verify at any point that the full system still works. Then subtract.</p>
 
   <h3>Step 2: Rename to the Domain</h3>
   <p>Rename the repository to reflect its domain identity: <code>mfe-catalog</code>, <code>mfe-cart</code>, <code>mfe-checkout</code>, etc. Update the <code>package.json</code> name, the K8s service name, and the CI/CD pipeline name. The code inside is still identical to the monolith.</p>
@@ -220,7 +220,7 @@ curl -s https://staging.catalog.internal/api/health</code></pre>
       </table>
 
       <h4>The Rule of Thumb</h4>
-      <p>When in doubt, <strong>keep it</strong>. It's safer to have extra code that's unused than to accidentally delete something the domain needs. Tree-shaking and dead-code elimination will handle unused imports in the build. You can always delete more later.</p>
+      <p>When in doubt, <strong>keep it</strong>. It's safer to have extra code that's unused than to accidentally delete something the domain needs. Tree-shaking and dead-code elimination will handle unused imports in the build. Teams can always delete more later.</p>
     </div>
   </details>
 
@@ -249,17 +249,17 @@ curl -s https://staging.catalog.internal/api/health</code></pre>
       <p><strong>Mitigation:</strong> The build will fail. If it builds but tests fail, the tests catch it. If tests pass but runtime fails, the staging environment catches it. At every stage, the monolith is still running and serving traffic. Restore the file from the monolith commit hash and re-strip.</p>
 
       <h4>Risk: The domain has a hidden dependency on another domain's code</h4>
-      <p><strong>Mitigation:</strong> This is actually the most valuable discovery in the process. It reveals coupling that wasn't documented. When found, you have two choices: (a) keep the dependency temporarily and plan to decouple it, or (b) extract the shared code into a shared package that both domains can consume.</p>
+      <p><strong>Mitigation:</strong> This is actually the most valuable discovery in the process. It reveals coupling that wasn't documented. When found, there are two choices: (a) keep the dependency temporarily and plan to decouple it, or (b) extract the shared code into a shared package that both domains can consume.</p>
 
       <h4>Risk: Performance is different as a standalone service</h4>
       <p><strong>Mitigation:</strong> The standalone service is doing <em>less work</em> than the monolith (fewer routes, fewer components). Performance should be the same or better. If it's worse, it reveals a resource contention issue in the monolith that was masking individual domain performance.</p>
 
       <h4>Risk: The team doesn't know which files belong to their domain</h4>
-      <p><strong>Mitigation:</strong> Start with an overly generous definition of the domain (keep more than you need). The domain team knows their routes and their pages. Delete other domains' routes and pages first. Everything else can be cleaned up iteratively. See <a href="06-domain-map.html">Page 6: Domain Map</a> for detailed domain definitions.</p>
+      <p><strong>Mitigation:</strong> Start with an overly generous definition of the domain (keep more than needed). The domain team knows their routes and their pages. Delete other domains' routes and pages first. Everything else can be cleaned up iteratively. See <a href="06-domain-map.html">Page 6: Domain Map</a> for detailed domain definitions.</p>
 
       <div class="callout">
         <strong>The Fallback Is Always There</strong>
-        At every step of the copy-split-strip process, the original monolith is still running and serving traffic. If the extracted domain has any issues, traffic routes back to the monolith. There is no point of no return until you explicitly decommission the monolith routes&mdash;and that only happens after weeks of validated production traffic on the domain service.
+        At every step of the copy-split-strip process, the original monolith is still running and serving traffic. If the extracted domain has any issues, traffic routes back to the monolith. There is no point of no return until we explicitly decommission the monolith routes&mdash;and that only happens after weeks of validated production traffic on the domain service.
       </div>
     </div>
   </details>

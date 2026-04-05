@@ -44,7 +44,7 @@
 <div class="hero">
   <div class="page-num">The Big Picture</div>
   <h1>The 90-Second Pitch</h1>
-  <p class="subtitle">What we're doing, why it works, and why you'll sleep better at night. The entire evolution strategy in the time it takes to get coffee.</p>
+  <p class="subtitle">What we're doing, why it works, and why the whole team sleeps better at night. The entire evolution strategy in the time it takes to get coffee.</p>
 </div>
 
 <main>
@@ -52,15 +52,14 @@
 <!-- The Core Message -->
 <section>
   <h2>The Core Message</h2>
-  <p>We are <strong>not</strong> rewriting your platform. We are not throwing away years of battle-tested business logic. We are not asking anyone to learn a new programming language or adopt an experimental framework.</p>
-  <p>We are taking the monolith you have today&mdash;the one that works, the one that processes orders, the one your teams know inside and out&mdash;and we are <strong>splitting it into independent domains</strong> that each team can own, deploy, test, and evolve on their own schedule.</p>
+  <p>This is a smooth migration to the next evolution of the platform. No new framework to learn&mdash;we are going back to first principles: <strong>real HTML, real DOM, simpler code that lasts forever.</strong> We are taking the monolith we have today&mdash;the one that works, the one that processes orders, the one our teams know inside and out&mdash;and we are <strong>splitting it into independent domains</strong> that each team can own, deploy, test, and evolve on their own schedule.</p>
 
   <div class="callout success">
     <strong>The One-Sentence Version</strong>
     Copy the monolith, trim it per domain, swap the shell to industry-standard Web Components, catalog everything, and automate core updates on a 1-year cadence.
   </div>
 
-  <p>Every step is reversible. Every phase delivers value on its own. If we stop at any point, you're still better off than where you started.</p>
+  <p>Every step is reversible. Every phase delivers value on its own. If we stop at any point, we're still better off than where we started.</p>
 </section>
 
 <!-- Five Things That Change -->
@@ -158,15 +157,15 @@
   <ul>
     <li><strong>Same code:</strong> When we copy-split-strip a domain, we're running the exact same code. It was tested in the monolith. It works in the monolith. It will work as a standalone domain because it <em>is</em> the same code.</li>
     <li><strong>Original stays running:</strong> The monolith continues to serve traffic until the domain is proven. If anything goes wrong, traffic routes back to the original.</li>
-    <li><strong>Phase independence:</strong> Each phase delivers value on its own. You don't need to complete all four phases to benefit. Even stopping after Phase 1 (domain extraction) gives you independent deployment.</li>
+    <li><strong>Phase independence:</strong> Each phase delivers value on its own. There's no need to complete all four phases to benefit. Even stopping after Phase 1 (domain extraction) gives us independent deployment.</li>
     <li><strong>Reversibility:</strong> Every step can be rolled back. The copy-split-strip domains can be merged back. The shell swap can be reversed. The component transition is incremental.</li>
   </ul>
 
   <details>
-    <summary>Deep Dive: The Four Phases of Safety <span class="detail-summary">How each phase protects you</span></summary>
+    <summary>Deep Dive: The Four Phases of Safety <span class="detail-summary">How each phase provides protection</span></summary>
     <div class="detail-body">
       <h4>Phase 1: Domain Extraction (Copy-Split-Strip)</h4>
-      <p>Risk: Near zero. You're literally copying code that already works and removing the parts that don't apply to this domain. The deployment infrastructure is identical&mdash;same K8s pods, same CI/CD pipeline, same monitoring.</p>
+      <p>Risk: Near zero. We're literally copying code that already works and removing the parts that don't apply to this domain. The deployment infrastructure is identical&mdash;same K8s pods, same CI/CD pipeline, same monitoring.</p>
       <p>Rollback: Route traffic back to the monolith. The domain copy can be deleted without any impact.</p>
 
       <h4>Phase 2: Shell Swap</h4>
@@ -213,9 +212,9 @@
     <summary>Technical Directors <span class="detail-summary">Strategic benefits</span></summary>
     <div class="detail-body">
       <ul>
-        <li><strong>Predictable core updates:</strong> The 1-year cadence means you know exactly when updates happen and can plan resources accordingly.</li>
+        <li><strong>Predictable core updates:</strong> The 1-year cadence means we know exactly when updates happen and can plan resources accordingly.</li>
         <li><strong>Reduced coordination overhead:</strong> Domain independence means fewer cross-team meetings, fewer merge conflicts, fewer "who broke the build" investigations.</li>
-        <li><strong>Industry-standard stack:</strong> W3C Web Components and standards-based patterns mean your platform is built on technology that won't be abandoned by a single vendor.</li>
+        <li><strong>Industry-standard stack:</strong> W3C Web Components and standards-based patterns mean the platform is built on technology that won't be abandoned by a single vendor.</li>
         <li><strong>Incremental risk:</strong> No more big-bang releases. No flag day. Every step is proven before the next step begins. We shift left on quality&mdash;catching issues early in the pipeline instead of in production.</li>
       </ul>
     </div>
@@ -225,10 +224,10 @@
     <summary>Development Teams <span class="detail-summary">Day-to-day improvements</span></summary>
     <div class="detail-body">
       <ul>
-        <li><strong>Ship when you're ready:</strong> Your domain deploys when your tests pass. No waiting for 83 other teams.</li>
-        <li><strong>Own your dependencies:</strong> Your node_modules, your build pipeline, your test suite. When something breaks, it's something you control.</li>
+        <li><strong>Ship when ready:</strong> Each domain deploys when its tests pass. No waiting for 83 other teams.</li>
+        <li><strong>Own the dependencies:</strong> Each team's node_modules, build pipeline, test suite. When something breaks, it's something the team controls.</li>
         <li><strong>Smaller blast radius:</strong> A bug in Catalog doesn't take down Checkout. A regression in Account doesn't block Cart.</li>
-        <li><strong>Clearer ownership:</strong> You know exactly what your team owns, what APIs you consume, and what contracts you expose.</li>
+        <li><strong>Clearer ownership:</strong> Each team knows exactly what it owns, what APIs it consumes, and what contracts it exposes.</li>
       </ul>
     </div>
   </details>
@@ -239,7 +238,7 @@
       <ul>
         <li><strong>Independent scaling:</strong> Scale the Catalog domain during a flash sale without scaling Account.</li>
         <li><strong>Targeted rollbacks:</strong> Roll back a single domain without touching others.</li>
-        <li><strong>Better observability:</strong> The App Catalog gives you a single pane of glass showing what's deployed, what version, and whether it's healthy.</li>
+        <li><strong>Better observability:</strong> The App Catalog gives us a single pane of glass showing what's deployed, what version, and whether it's healthy.</li>
         <li><strong>Simplified SSR elimination:</strong> Moving to CSR+BFF means simpler infrastructure&mdash;static files served from a CDN plus lightweight BFF services.</li>
       </ul>
     </div>
@@ -249,7 +248,7 @@
 <!-- The Path Forward -->
 <section>
   <h2>The Path Forward</h2>
-  <p>The rest of this document series breaks down every detail. Here's your reading map:</p>
+  <p>The rest of this document series breaks down every detail. Here's the reading map:</p>
   <ul>
     <li><strong>Pages 02&ndash;03:</strong> Understand where we are today and why change is necessary</li>
     <li><strong>Pages 04&ndash;09:</strong> The migration mechanics&mdash;how we extract domains and what the domain map looks like</li>
@@ -261,7 +260,7 @@
 
   <div class="callout">
     <strong>Start Here, Go Anywhere</strong>
-    Each page in this series is designed to stand on its own. You can read them in order for the full narrative, or jump to the topics most relevant to your role. Cross-references and navigation make it easy to explore.
+    Each page in this series is designed to stand on its own. Read them in order for the full narrative, or jump to the topics most relevant to any given role. Cross-references and navigation make it easy to explore.
   </div>
 </section>
 

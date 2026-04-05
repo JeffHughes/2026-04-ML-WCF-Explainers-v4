@@ -54,29 +54,29 @@
 <!-- ====================================================================== -->
 <section>
   <h2>&#9633; The Web IDE: Zero Setup, Instant Start</h2>
-  <p>The first thing that changes in the evolved platform is <strong>where you code</strong>. There is no local setup. No &ldquo;clone the repo, install dependencies, configure environment variables, pray the build works.&rdquo; Instead, you open a URL.</p>
+  <p>The first thing that changes in the evolved platform is <strong>where we code</strong>. There is no local setup. No &ldquo;clone the repo, install dependencies, configure environment variables, pray the build works.&rdquo; Instead, we open a URL.</p>
   <p>The platform provides a browser-based VS Code environment &mdash; identical to <a href="https://vscode.dev" target="_blank">vscode.dev</a> / GitHub Codespaces &mdash; hosted at <code>ide.medline.com</code>. Every developer gets a cloud workspace pre-configured with:</p>
 
   <div class="themes-grid">
     <div class="theme-card">
       <div class="theme-icon">&#9635;</div>
       <h4>Pre-Cloned Repositories</h4>
-      <p>Your domain repo is already cloned. Your branch from yesterday is still there. No <code>git clone</code>, no waiting for a 2 GB monolith to download.</p>
+      <p>Our domain repo is already cloned. Our branch from yesterday is still there. No <code>git clone</code>, no waiting for a 2 GB monolith to download.</p>
     </div>
     <div class="theme-card">
       <div class="theme-icon">&#9634;</div>
       <h4>Dependencies Installed</h4>
-      <p>Node modules, build tools, type definitions &mdash; all pre-installed in the cloud workspace image. <code>npm install</code> happens once when the image is built, not every time you start.</p>
+      <p>Node modules, build tools, type definitions &mdash; all pre-installed in the cloud workspace image. <code>npm install</code> happens once when the image is built, not every time we start.</p>
     </div>
     <div class="theme-card">
       <div class="theme-icon">&#9641;</div>
       <h4>Platform Plugin Pre-Loaded</h4>
-      <p>The Medline Platform Plugin is pre-installed and configured. Every shift-left check &mdash; lint, format, scan, test, validate &mdash; is active from the moment you open the editor.</p>
+      <p>The Medline Platform Plugin is pre-installed and configured. Every shift-left check &mdash; lint, format, scan, test, validate &mdash; is active from the moment we open the editor.</p>
     </div>
     <div class="theme-card">
       <div class="theme-icon">&#9671;</div>
       <h4>Live Preview Available</h4>
-      <p>A built-in browser preview renders your components in isolation. Change code, save, see the result instantly. No manual server start, no port configuration.</p>
+      <p>A built-in browser preview renders our components in isolation. Change code, save, see the result instantly. No manual server start, no port configuration.</p>
     </div>
   </div>
 
@@ -135,7 +135,7 @@
     <div class="theme-card">
       <div class="theme-icon">&#9645;</div>
       <h4>Bundle Size Guard</h4>
-      <p>The plugin calculates the component&rsquo;s bundle size impact. If the component exceeds its budget (e.g., 15 KB for a product card), a warning appears immediately. No waiting for CI to tell you.</p>
+      <p>The plugin calculates the component&rsquo;s bundle size impact. If the component exceeds its budget (e.g., 15 KB for a product card), a warning appears immediately. No waiting for CI to tell us.</p>
     </div>
     <div class="theme-card">
       <div class="theme-icon">&#9633;</div>
@@ -152,30 +152,7 @@
       <button onclick="mfull(this)">&#9974;</button>
     </div>
     <div class="mw-view">
-      <div class="mermaid-inner" data-src="graph LR
-  SAVE[&quot;Developer Saves File&quot;] --> LINT[&quot;ESLint<br/>Domain Rules&quot;]
-  SAVE --> FMT[&quot;Prettier<br/>Auto-Format&quot;]
-  SAVE --> SEC[&quot;SAST Scan<br/>Dep Audit&quot;]
-  SAVE --> A11Y[&quot;axe-core<br/>A11y Check&quot;]
-  SAVE --> TEST[&quot;Unit Tests<br/>Affected Only&quot;]
-  SAVE --> CONT[&quot;Contract<br/>Validation&quot;]
-  SAVE --> SIZE[&quot;Bundle Size<br/>Guard&quot;]
-  LINT --> RES[&quot;Inline Results<br/>&lt; 2 seconds&quot;]
-  FMT --> RES
-  SEC --> RES
-  A11Y --> RES
-  TEST --> RES
-  CONT --> RES
-  SIZE --> RES
-  style SAVE fill:#58a6ff,stroke:#58a6ff,color:#fff
-  style LINT fill:#d2a8ff,stroke:#d2a8ff,color:#fff
-  style FMT fill:#d2a8ff,stroke:#d2a8ff,color:#fff
-  style SEC fill:#f85149,stroke:#f85149,color:#fff
-  style A11Y fill:#3fb950,stroke:#3fb950,color:#fff
-  style TEST fill:#3fb950,stroke:#3fb950,color:#fff
-  style CONT fill:#f0883e,stroke:#f0883e,color:#fff
-  style SIZE fill:#f0883e,stroke:#f0883e,color:#fff
-  style RES fill:#58a6ff,stroke:#58a6ff,color:#fff"></div>
+      <div class="mermaid-inner" __PROTECTED_0__></div>
     </div>
     <div class="mw-caption">Figure DEV-1: Shift-left plugin pipeline &mdash; seven parallel checks execute on every save, all completing in under 2 seconds with inline results</div>
   </div>
@@ -196,7 +173,7 @@
 <!-- ====================================================================== -->
 <section>
   <h2>&#9634; Git Routing: Smart Commits, Automatic Flow</h2>
-  <p>In the evolved platform, the plugin knows which domain repository you&rsquo;re in. When you commit, it handles everything &mdash; commit format validation, repository routing, branch management, and PR creation.</p>
+  <p>In the evolved platform, the plugin knows which domain repository we&rsquo;re in. When we commit, it handles everything &mdash; commit format validation, repository routing, branch management, and PR creation.</p>
 
   <h3>Conventional Commits &mdash; Enforced, Not Requested</h3>
   <p>Every commit message must follow the <a href="https://www.conventionalcommits.org/" target="_blank">Conventional Commits</a> specification. The plugin enforces this at commit time &mdash; not with a CI check 20 minutes later, but immediately in the editor:</p>
@@ -207,7 +184,7 @@ BREAKING CHANGE: remove legacy cart endpoint   &larr; major version bump</code><
   <p>If the commit message doesn&rsquo;t match the pattern, the commit is blocked with a helpful error explaining the required format. No ambiguity. No &ldquo;please remember to use conventional commits.&rdquo; The system enforces it.</p>
 
   <h3>Automatic Repository Routing</h3>
-  <p>The plugin knows which domain you&rsquo;re working in based on the workspace configuration. On commit:</p>
+  <p>The plugin knows which domain we&rsquo;re working in based on the workspace configuration. On commit:</p>
   <ul>
     <li><strong>Changes are routed to the correct domain repository</strong> automatically. No manual <code>git remote add</code>, no remembering which repo owns which code.</li>
     <li><strong>Trunk-based development</strong> with short-lived feature branches. No long-lived branches, no complex branching strategies, no merge conflicts that span weeks.</li>
@@ -222,23 +199,7 @@ BREAKING CHANGE: remove legacy cart endpoint   &larr; major version bump</code><
       <button onclick="mfull(this)">&#9974;</button>
     </div>
     <div class="mw-view">
-      <div class="mermaid-inner" data-src="sequenceDiagram
-  participant Dev as Developer
-  participant Plugin as Platform Plugin
-  participant Git as Git Client
-  participant Repo as Domain Repository
-  participant CI as CI Pipeline
-  participant PR as Pull Request
-  Dev->>Plugin: git commit -m &quot;feat: add hover preview&quot;
-  Plugin->>Plugin: Validate conventional commit format
-  Plugin->>Plugin: Detect domain: catalog
-  Plugin->>Git: Commit to catalog-domain repo
-  Git->>Repo: Push to feature/add-hover-preview
-  Repo->>CI: Trigger CI (domain tests only)
-  CI->>CI: Run affected tests (~90 seconds)
-  CI-->>PR: Auto-create PR
-  PR->>PR: Fill template: contract diff, coverage, bundle size
-  PR-->>Dev: PR ready for review"></div>
+      <div class="mermaid-inner" __PROTECTED_1__></div>
     </div>
     <div class="mw-caption">Figure DEV-2: Git routing and commit flow &mdash; from developer commit to auto-created PR with contract diff, coverage delta, and bundle size delta</div>
   </div>
@@ -288,27 +249,7 @@ BREAKING CHANGE: remove legacy cart endpoint   &larr; major version bump</code><
       <button onclick="mfull(this)">&#9974;</button>
     </div>
     <div class="mw-view">
-      <div class="mermaid-inner" data-src="graph TD
-  MERGE[&quot;PR Merged to Main&quot;] --> ANALYZE[&quot;Analyze Commit Messages&quot;]
-  ANALYZE --> CHECK{&quot;Highest Impact?&quot;}
-  CHECK -->|&quot;BREAKING CHANGE&quot;| MAJOR[&quot;Major Bump<br/>1.2.4 &rarr; 2.0.0&quot;]
-  CHECK -->|&quot;feat:&quot;| MINOR[&quot;Minor Bump<br/>1.2.4 &rarr; 1.3.0&quot;]
-  CHECK -->|&quot;fix:&quot;| PATCH[&quot;Patch Bump<br/>1.2.4 &rarr; 1.2.5&quot;]
-  CHECK -->|&quot;chore: / docs:&quot;| NONE[&quot;No Version Bump&quot;]
-  MAJOR --> TAG[&quot;Git Tag Created&quot;]
-  MINOR --> TAG
-  PATCH --> TAG
-  TAG --> LOG[&quot;CHANGELOG Generated&quot;]
-  LOG --> REG[&quot;App Catalog Updated&quot;]
-  REG --> IMAP[&quot;Import Maps Updated&quot;]
-  IMAP --> DONE[&quot;Version Live&quot;]
-  style MERGE fill:#58a6ff,stroke:#58a6ff,color:#fff
-  style CHECK fill:#f0883e,stroke:#f0883e,color:#fff
-  style MAJOR fill:#f85149,stroke:#f85149,color:#fff
-  style MINOR fill:#d2a8ff,stroke:#d2a8ff,color:#fff
-  style PATCH fill:#3fb950,stroke:#3fb950,color:#fff
-  style REG fill:#58a6ff,stroke:#58a6ff,color:#fff
-  style DONE fill:#3fb950,stroke:#3fb950,color:#fff"></div>
+      <div class="mermaid-inner" __PROTECTED_2__></div>
     </div>
     <div class="mw-caption">Figure DEV-3: Semantic versioning decision tree &mdash; commit type determines version bump, everything from tagging to catalog registration is automated</div>
   </div>
@@ -355,29 +296,7 @@ BREAKING CHANGE: remove legacy cart endpoint   &larr; major version bump</code><
       <button onclick="mfull(this)">&#9974;</button>
     </div>
     <div class="mw-view">
-      <div class="mermaid-inner" data-src="graph LR
-  CODE[&quot;Write Code&quot;] --> SAVE[&quot;Save&quot;]
-  SAVE --> LINT[&quot;Lint &amp; Format&quot;]
-  LINT --> SCAN[&quot;Security Scan&quot;]
-  SCAN --> PREVIEW[&quot;Live Preview&quot;]
-  PREVIEW --> TEST[&quot;Run Affected Tests&quot;]
-  TEST --> VALID[&quot;Contract Validation&quot;]
-  VALID --> COMMIT[&quot;Commit&quot;]
-  COMMIT --> PUSH[&quot;Push&quot;]
-  PUSH --> CI[&quot;CI Validates<br/>~90 seconds&quot;]
-  CI --> PR[&quot;PR Created&quot;]
-  PR -.->|&quot;iterate&quot;| CODE
-  style CODE fill:#58a6ff,stroke:#58a6ff,color:#fff
-  style SAVE fill:#58a6ff,stroke:#58a6ff,color:#fff
-  style LINT fill:#d2a8ff,stroke:#d2a8ff,color:#fff
-  style SCAN fill:#f85149,stroke:#f85149,color:#fff
-  style PREVIEW fill:#3fb950,stroke:#3fb950,color:#fff
-  style TEST fill:#3fb950,stroke:#3fb950,color:#fff
-  style VALID fill:#f0883e,stroke:#f0883e,color:#fff
-  style COMMIT fill:#d2a8ff,stroke:#d2a8ff,color:#fff
-  style PUSH fill:#d2a8ff,stroke:#d2a8ff,color:#fff
-  style CI fill:#f0883e,stroke:#f0883e,color:#fff
-  style PR fill:#58a6ff,stroke:#58a6ff,color:#fff"></div>
+      <div class="mermaid-inner" __PROTECTED_3__></div>
     </div>
     <div class="mw-caption">Figure DEV-4: The developer inner loop &mdash; from writing code to PR creation, with instant feedback at every step</div>
   </div>
@@ -401,7 +320,7 @@ BREAKING CHANGE: remove legacy cart endpoint   &larr; major version bump</code><
     </tbody>
   </table>
 
-  <p><strong>Total inner loop time: under 2 minutes from save to PR.</strong> In the old world, this same loop took 20&ndash;40 minutes &mdash; most of it waiting for a full monolith CI build to tell you about a lint error you could have fixed in 2 seconds.</p>
+  <p><strong>Total inner loop time: under 2 minutes from save to PR.</strong> In the old world, this same loop took 20&ndash;40 minutes &mdash; most of it waiting for a full monolith CI build to tell us about a lint error we could have fixed in 2 seconds.</p>
 
   <div class="callout success">
     <strong>Why Speed Matters</strong>
@@ -424,28 +343,7 @@ BREAKING CHANGE: remove legacy cart endpoint   &larr; major version bump</code><
       <button onclick="mfull(this)">&#9974;</button>
     </div>
     <div class="mw-view">
-      <div class="mermaid-inner" data-src="graph LR
-  APPROVE[&quot;PR Approved&quot;] --> MERGE[&quot;Merge to Main&quot;]
-  MERGE --> VER[&quot;Auto-Version<br/>Semantic Release&quot;]
-  VER --> LOG[&quot;Auto-CHANGELOG&quot;]
-  LOG --> BUILD[&quot;Production Build&quot;]
-  BUILD --> CANARY[&quot;Canary Deploy<br/>5% Traffic&quot;]
-  CANARY --> SMOKE[&quot;Smoke Tests&quot;]
-  SMOKE --> CHECK{&quot;Pass?&quot;}
-  CHECK -->|&quot;Yes&quot;| PROD[&quot;Full Production<br/>Deploy&quot;]
-  CHECK -->|&quot;No&quot;| ROLL[&quot;Auto-Rollback&quot;]
-  PROD --> CAT[&quot;App Catalog<br/>Updated&quot;]
-  CAT --> DONE[&quot;Live &#10004;&quot;]
-  ROLL --> ALERT[&quot;Team Alerted&quot;]
-  style APPROVE fill:#3fb950,stroke:#3fb950,color:#fff
-  style MERGE fill:#58a6ff,stroke:#58a6ff,color:#fff
-  style VER fill:#d2a8ff,stroke:#d2a8ff,color:#fff
-  style CANARY fill:#f0883e,stroke:#f0883e,color:#fff
-  style CHECK fill:#f0883e,stroke:#f0883e,color:#fff
-  style PROD fill:#3fb950,stroke:#3fb950,color:#fff
-  style ROLL fill:#f85149,stroke:#f85149,color:#fff
-  style CAT fill:#58a6ff,stroke:#58a6ff,color:#fff
-  style DONE fill:#3fb950,stroke:#3fb950,color:#fff"></div>
+      <div class="mermaid-inner" __PROTECTED_4__></div>
     </div>
     <div class="mw-caption">Figure DEV-5: The outer loop &mdash; from PR approval to production deployment with canary testing and automatic rollback</div>
   </div>
@@ -530,25 +428,7 @@ BREAKING CHANGE: remove legacy cart endpoint   &larr; major version bump</code><
       <button onclick="mfull(this)">&#9974;</button>
     </div>
     <div class="mw-view">
-      <div class="mermaid-inner" data-src="gantt
-  title A Morning: Feature to Production
-  dateFormat HH:mm
-  axisFormat %H:%M
-  section Developer
-    Open IDE, load workspace           :done, t1, 09:00, 2m
-    Code hover preview feature         :done, t2, 09:02, 13m
-    Commit and push                    :done, t3, 09:15, 1m
-  section CI Pipeline
-    Domain tests (catalog only)        :done, t4, 09:16, 4m
-    PR auto-created                    :done, t5, 09:20, 0m
-  section Review
-    Teammate reviews PR                :done, t6, 09:20, 10m
-    PR approved and merged             :done, t7, 09:30, 0m
-  section Deploy
-    Auto-version 1.3.0                 :done, t8, 09:30, 1m
-    Canary deploy + smoke tests        :done, t9, 09:31, 3m
-    Full production deploy             :done, t10, 09:34, 1m
-    App Catalog updated                :done, t11, 09:35, 0m"></div>
+      <div class="mermaid-inner" __PROTECTED_5__></div>
     </div>
     <div class="mw-caption">Figure DEV-6: Morning walkthrough timeline &mdash; from opening the IDE at 9:00 AM to production deployment at 9:35 AM</div>
   </div>
@@ -593,8 +473,8 @@ BREAKING CHANGE: remove legacy cart endpoint   &larr; major version bump</code><
       </tr>
       <tr>
         <td><strong>Release Coordination</strong></td>
-        <td>Coordinate with 6+ teams for a release. Release trains. Merge freezes. &ldquo;Is your PR in?&rdquo; Slack threads. Release managers herding cats.</td>
-        <td>Pod deploys independently. No release trains. No merge freezes. No coordination with other teams. Your domain, your schedule.</td>
+        <td>Coordinate with 6+ teams for a release. Release trains. Merge freezes. &ldquo;Is our PR in?&rdquo; Slack threads. Release managers herding cats.</td>
+        <td>Pod deploys independently. No release trains. No merge freezes. No coordination with other teams. Our domain, our schedule.</td>
       </tr>
       <tr>
         <td><strong>Commit Standards</strong></td>
@@ -635,45 +515,7 @@ BREAKING CHANGE: remove legacy cart endpoint   &larr; major version bump</code><
       <button onclick="mfull(this)">&#9974;</button>
     </div>
     <div class="mw-view">
-      <div class="mermaid-inner" data-src="graph LR
-  subgraph Inner[&quot;Inner Loop (Developer)&quot;]
-    direction LR
-    A[Write Code] --> B[Save]
-    B --> C[Plugin Checks<br/>Lint, Format, Scan<br/>Test, Contract, Size]
-    C --> D[Preview]
-    D --> E[Commit]
-    E --> F[Push]
-  end
-  subgraph CI[&quot;CI Pipeline&quot;]
-    direction LR
-    G[Domain Tests] --> H[Contract Scan]
-    H --> I[Auto-Create PR]
-  end
-  subgraph Review[&quot;Code Review&quot;]
-    direction LR
-    J[Teammate Reviews<br/>Contract Diff<br/>Coverage Delta<br/>Bundle Size] --> K[Approve]
-  end
-  subgraph Outer[&quot;Outer Loop (Automated)&quot;]
-    direction LR
-    L[Merge] --> M[Auto-Version]
-    M --> N[Auto-CHANGELOG]
-    N --> O[Build]
-    O --> P[Canary Deploy]
-    P --> Q[Smoke Tests]
-    Q --> R[Production]
-    R --> S[App Catalog<br/>Updated]
-  end
-  F --> G
-  I --> J
-  K --> L
-  style A fill:#58a6ff,stroke:#58a6ff,color:#fff
-  style C fill:#d2a8ff,stroke:#d2a8ff,color:#fff
-  style G fill:#f0883e,stroke:#f0883e,color:#fff
-  style J fill:#58a6ff,stroke:#58a6ff,color:#fff
-  style M fill:#d2a8ff,stroke:#d2a8ff,color:#fff
-  style P fill:#f0883e,stroke:#f0883e,color:#fff
-  style R fill:#3fb950,stroke:#3fb950,color:#fff
-  style S fill:#3fb950,stroke:#3fb950,color:#fff"></div>
+      <div class="mermaid-inner" __PROTECTED_6__></div>
     </div>
     <div class="mw-caption">Figure DEV-7: The complete CI/CD pipeline &mdash; inner loop (developer), CI pipeline, code review, and outer loop (automated merge to production)</div>
   </div>
@@ -713,10 +555,10 @@ BREAKING CHANGE: remove legacy cart endpoint   &larr; major version bump</code><
   <h3>What Developers Gain</h3>
   <ul>
     <li><strong>No environment setup:</strong> New developers are productive on day one, not day three.</li>
-    <li><strong>Instant feedback:</strong> Know immediately if your code is correct, secure, accessible, and within budget.</li>
+    <li><strong>Instant feedback:</strong> Know immediately if our code is correct, secure, accessible, and within budget.</li>
     <li><strong>No version management:</strong> Commit types drive versioning. Changelogs write themselves. Catalog updates happen automatically.</li>
-    <li><strong>No deployment coordination:</strong> Your pod owns your domain. Deploy when you&rsquo;re ready. No waiting for other teams.</li>
-    <li><strong>Confidence:</strong> Every save validates your code against lint rules, security policies, accessibility standards, and contract specifications. By the time you push, you <em>know</em> it&rsquo;s right.</li>
+    <li><strong>No deployment coordination:</strong> Our pod owns our domain. Deploy when we&rsquo;re ready. No waiting for other teams.</li>
+    <li><strong>Confidence:</strong> Every save validates our code against lint rules, security policies, accessibility standards, and contract specifications. By the time we push, we <em>know</em> it&rsquo;s right.</li>
     <li><strong>Speed:</strong> 35 minutes from feature start to production. Multiple deployments per day. Iteration velocity that compounds over weeks and months.</li>
   </ul>
 

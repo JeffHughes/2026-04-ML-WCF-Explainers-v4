@@ -55,7 +55,7 @@
 <!-- ====================================================================== -->
 <section>
   <h2>&#9633; The Communication Model at a Glance</h2>
-  <p>When you split a monolith into independent domains, the first question every architect asks is: <strong>&ldquo;How do the pieces talk to each other?&rdquo;</strong> The answer is four layers, each with clear rules and zero hidden coupling.</p>
+  <p>When we split a monolith into independent domains, the first question every architect asks is: <strong>&ldquo;How do the pieces talk to each other?&rdquo;</strong> The answer is four layers, each with clear rules and zero hidden coupling.</p>
 
   <div class="themes-grid">
     <div class="theme-card">
@@ -171,7 +171,7 @@
     &lt;ml-save-for-later-btn sku="ABC123"&gt;&lt;/ml-save-for-later-btn&gt;
   &lt;/div&gt;
 &lt;/ml-product-card&gt;</code></pre>
-  <p>This is how you compose components without tight coupling. The product card doesn&rsquo;t need to know about the add-to-cart button&rsquo;s implementation. It just provides a slot for actions. Any component can be projected into that slot.</p>
+  <p>This is how we compose components without tight coupling. The product card doesn&rsquo;t need to know about the add-to-cart button&rsquo;s implementation. It just provides a slot for actions. Any component can be projected into that slot.</p>
 
   <div class="mermaid-wrap" id="d05b-2">
     <div class="mw-toolbar">
@@ -322,7 +322,7 @@ class CartStore {
       <p>Global state management (a single store for the entire application) is the pattern most teams reach for by default. It works well in small applications. It becomes a nightmare at scale:</p>
       <ul>
         <li><strong>Invisible dependencies:</strong> Any component can read any state. A component in the Cart domain might accidentally depend on state from the Account domain. When Account refactors, Cart breaks&mdash;and nobody understands why.</li>
-        <li><strong>Testing complexity:</strong> To test a single component, you need to set up the entire global state tree. Mocking becomes a full-time job.</li>
+        <li><strong>Testing complexity:</strong> To test a single component, developers need to set up the entire global state tree. Mocking becomes a full-time job.</li>
         <li><strong>Deployment coupling:</strong> If two domains share a global store, they must deploy together to keep the store schema in sync.</li>
         <li><strong>Performance:</strong> Global stores with 84 MFEs subscribing to the same state tree mean unnecessary re-renders across the entire application on every state change.</li>
       </ul>
@@ -645,14 +645,14 @@ interface ProductDetailResponse {
   <details>
     <summary>Deep Dive: Migration Path from Global to Domain State <span class="detail-summary">How to get there incrementally</span></summary>
     <div class="detail-body">
-      <p>You don&rsquo;t need to rip out global state on day one. The migration is incremental:</p>
+      <p>There&rsquo;s no need to rip out global state on day one. The migration is incremental:</p>
       <ol>
         <li><strong>Identify domain boundaries:</strong> Map which state slices belong to which domain. The domain map (next page) defines these boundaries.</li>
         <li><strong>Extract domain stores:</strong> For each domain, create a scoped store that owns its state slices. The global store becomes a thin proxy that delegates to domain stores.</li>
         <li><strong>Replace direct reads with events:</strong> Where domains currently read each other&rsquo;s state directly, introduce message bus events. The consuming domain subscribes to the event and maintains its own local copy of the data it needs.</li>
         <li><strong>Remove the global store:</strong> Once all state is owned by domain stores and all cross-domain communication uses the bus, the global store can be deleted. Each domain is fully independent.</li>
       </ol>
-      <p>Each step is independently valuable. Even step 1 alone gives you a clear picture of state ownership that you don&rsquo;t have today.</p>
+      <p>Each step is independently valuable. Even step 1 alone gives us a clear picture of state ownership that we don&rsquo;t have today.</p>
     </div>
   </details>
 </section>
