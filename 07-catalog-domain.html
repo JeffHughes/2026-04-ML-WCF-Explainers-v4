@@ -221,7 +221,7 @@ this.dispatchEvent(new CustomEvent('ml:add-to-cart', {
       <li><strong>Contract stability</strong> &mdash; Backend services can change their internal APIs without breaking the frontend. The BFF absorbs the translation.</li>
       <li><strong>Aggregation</strong> &mdash; A single PDP page might need data from Product Service, Pricing Service, Inventory Service, and Media Service. The BFF combines them into one response.</li>
       <li><strong>Performance</strong> &mdash; The BFF runs server-side, close to the backends. Multiple backend calls collapse into a single HTTP response to the browser.</li>
-      <li><strong>Security</strong> &mdash; Internal service credentials never reach the browser. The BFF authenticates the user and passes sanitized, authorized data.</li>
+      <li><strong>Security</strong> &mdash; Security stays as-is. The existing auth and credential model doesn&rsquo;t change during extraction. We&rsquo;ll evolve this in a later phase when we address RBAC per role/environment.</li>
     </ul>
 
     <div class="mermaid-wrap" id="d07-2">
