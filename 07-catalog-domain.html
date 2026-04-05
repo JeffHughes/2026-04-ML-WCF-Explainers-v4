@@ -49,15 +49,15 @@
 
   <!-- ════════════════════════════════════════════ -->
   <section>
-    <h2>Why Catalog Goes First</h2>
-    <p>Catalog is the ideal pilot domain because it has the highest traffic, the clearest ownership boundaries, and the fewest cross-domain mutations. Product listing pages (PLP) and product detail pages (PDP) are overwhelmingly <strong>read-only</strong> &mdash; they display data fetched from the product API. They don&rsquo;t write to carts, they don&rsquo;t process payments, they don&rsquo;t manage user sessions. This makes Catalog the safest place to prove the Copy-Split-Strip pattern works before applying it elsewhere.</p>
+    <h2>Why Catalog as the Example</h2>
+    <p>Catalog is the most obvious example domain&mdash;it has clear ownership boundaries and was the domain Vincent picked for the initial proof of concept. Product listing pages (PLP) and product detail pages (PDP) are overwhelmingly <strong>read-only</strong> &mdash; they display data fetched from the product API. They don&rsquo;t write to carts, they don&rsquo;t process payments, they don&rsquo;t manage user sessions. That makes it a clean, easy-to-follow illustration of how Copy-Split-Strip works.</p>
 
-    <div class="callout success">
-      <strong>&#9989; Low-Risk, High-Visibility Proof Point</strong>
-      Catalog pages account for the majority of all page views. Extracting Catalog first means your highest-traffic experience gets independent deployment first &mdash; and every stakeholder can see the improvement immediately.
+    <div class="callout">
+      <strong>Example, Not Mandate</strong>
+      We use Catalog throughout these documents because it&rsquo;s the most straightforward example. The actual extraction order will be simplest first, hardest last&mdash;determined by the domain committee when the time comes.
     </div>
 
-    <p>Once Catalog is running independently, the pattern is proven. Every subsequent domain extraction follows the same playbook, with decreasing risk each time.</p>
+    <p>Once any domain is running independently, the pattern is proven. Every subsequent domain extraction follows the same playbook, with decreasing risk each time.</p>
   </section>
 
   <!-- ════════════════════════════════════════════ -->
