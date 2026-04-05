@@ -60,11 +60,27 @@
   </div>
 
   <p>Every step is reversible. Every phase delivers value on its own. If we stop at any point, we're still better off than where we started.</p>
+
+  <h3>Key Terms at a Glance</h3>
+  <table class="compare-table">
+    <tbody>
+      <tr><td><strong>Domain</strong></td><td>A self-contained business vertical (e.g., Catalog, Cart, Checkout) with its own code, data, and deployment pipeline. From Domain-Driven Design&rsquo;s &ldquo;bounded context.&rdquo;</td></tr>
+      <tr><td><strong>Copy-Split-Strip</strong></td><td>The migration technique: copy the entire monolith for each domain, delete what doesn&rsquo;t belong, deploy the same proven code with less of it. Zero rewrite.</td></tr>
+      <tr><td><strong>Shell</strong></td><td>The thin orchestration layer that loads domain apps. Today it&rsquo;s a Next.js SSR monolith; it evolves into a lightweight CSR shell built on Web Components.</td></tr>
+      <tr><td><strong>Web Components</strong></td><td>W3C browser-native standard (Custom Elements + Shadow DOM). HTML elements that work everywhere, with every framework or no framework. The browser <em>is</em> the runtime.</td></tr>
+      <tr><td><strong>CSR</strong></td><td>Client-Side Rendering&mdash;the browser renders the page instead of a server. SEO-friendly, runs from a CDN, eliminates server infrastructure.</td></tr>
+      <tr><td><strong>BFF</strong></td><td>Backend-for-Frontend&mdash;a lightweight API layer per domain that aggregates backend services into exactly the data the frontend needs. One BFF per domain.</td></tr>
+      <tr><td><strong>Import Map</strong></td><td>A browser-native JSON manifest that maps module names to CDN URLs. Deploy a domain by changing one URL&mdash;no rebuild, instant rollback.</td></tr>
+      <tr><td><strong>App Catalog</strong></td><td>The central registry that tracks every component: version, dependencies, health, contracts. The single source of truth for what&rsquo;s deployed where.</td></tr>
+      <tr><td><strong>WCFramework</strong></td><td>An HTML-first component framework built on Web Components. Provides templating and data binding while compiling to native Custom Elements. Optional&mdash;teams can also use React or plain JS.</td></tr>
+      <tr><td><strong>Strangler Fig</strong></td><td>Industry-standard migration pattern: grow the new system around the old one, gradually routing traffic until the monolith has nothing left to serve. Named by Martin Fowler.</td></tr>
+    </tbody>
+  </table>
 </section>
 
 <!-- Five Things That Change -->
 <section>
-  <h2>Five Things That Change</h2>
+  <h2>Six Things That Change</h2>
   <div class="themes-grid">
     <div class="theme-card">
       <div class="theme-icon">📋</div>
