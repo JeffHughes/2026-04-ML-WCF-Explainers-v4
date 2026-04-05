@@ -200,44 +200,14 @@ this.dispatchEvent(new CustomEvent('ml:add-to-cart', {
 
   <!-- ════════════════════════════════════════════ -->
   <section>
-    <h2>What Stays (Temporarily)</h2>
-    <p>Some shared code stays in the Catalog copy during Phase 1. These are <strong>temporary dependencies</strong> that get replaced as the platform matures:</p>
+    <h2>What Stays As-Is in Phase 1</h2>
+    <p>In Phase 1 we just copy the shell&mdash;the code stays exactly as it is. The header, footer, flyouts, mini-cart, all of it comes along in the copy. <strong>Nothing gets rewritten yet.</strong> The goal is a working independent deployment, not a refactor.</p>
 
-    <table class="compare-table">
-      <thead>
-        <tr>
-          <th>Shared Component</th>
-          <th>Why It Stays</th>
-          <th>When It Goes</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Header / Footer</td>
-          <td>Users expect consistent navigation across all pages</td>
-          <td>Replaced by shell-provided Web Components when CSR shell launches</td>
-        </tr>
-        <tr>
-          <td>Authentication Module</td>
-          <td>Every page needs auth context (logged in, session token, permissions)</td>
-          <td>Moves to shared auth library loaded via import map</td>
-        </tr>
-        <tr>
-          <td>Analytics Hooks</td>
-          <td>Page views, click tracking, and performance metrics must continue uninterrupted</td>
-          <td>Replaced by shared analytics Web Component (<code>&lt;ml-analytics&gt;</code>)</td>
-        </tr>
-        <tr>
-          <td>HTTP API Client</td>
-          <td>Shared Axios/fetch wrapper with auth token injection and retry logic</td>
-          <td>Each domain internalizes its own API client or uses the shared SDK</td>
-        </tr>
-      </tbody>
-    </table>
+    <p>Later&mdash;when the new WCF shell is ready&mdash;we turn the header, footer, and flyouts into Web Components and let the shell hydrate them. That&rsquo;s when the shared UI becomes truly shared (loaded once, used everywhere) instead of copied into each domain.</p>
 
     <div class="callout">
-      <strong>&#128161; Key Insight</strong>
-      The &ldquo;stays temporarily&rdquo; list gets shorter with every phase. By the time the CSR shell is live, the Catalog domain is fully self-contained and loads only its own code plus browser-standard shared modules from the import map.
+      <strong>Phase 1 = Copy &amp; Ship. Refactor Later.</strong>
+      <p>Don&rsquo;t overthink what stays and what goes during extraction. Copy it all, delete what obviously belongs to other domains, ship it. The Web Component conversion of shared chrome (header, footer, flyouts) happens in the shell swap phase, not during extraction.</p>
     </div>
   </section>
 
