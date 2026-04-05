@@ -20,15 +20,9 @@
     var logoLink = nav.querySelector('.logo');
     var section = logoLink ? logoLink.textContent : '';
 
-    var cur = document.createElement('span');
-    cur.className = 'nav-current';
-    if (activeTxt) {
-      cur.innerHTML = '<span class="nc-sep">/</span><span class="nc-page">' + activeTxt + '</span>';
-    }
-
     var menuBtn = document.createElement('button');
     menuBtn.className = 'nav-menu-btn';
-    menuBtn.innerHTML = 'Pages <span class="nm-arrow">&#9662;</span>';
+    menuBtn.innerHTML = (activeTxt || 'Pages') + ' <span class="nm-arrow">&#9662;</span>';
     menuBtn.addEventListener('click', function(e) {
       e.stopPropagation();
       navLinks.classList.toggle('open');
@@ -45,9 +39,13 @@
       menuBtn.classList.remove('open');
     });
 
-    var themeBtn = nav.querySelector('.theme-toggle');
-    nav.insertBefore(cur, themeBtn);
-    nav.insertBefore(menuBtn, themeBtn);
+    var logoEl = nav.querySelector('.logo');
+    if (logoEl && logoEl.nextSibling) {
+      nav.insertBefore(menuBtn, logoEl.nextSibling);
+    } else {
+      var themeBtn = nav.querySelector('.theme-toggle');
+      nav.insertBefore(menuBtn, themeBtn);
+    }
 
     // Search
     var searchWrap = document.createElement('div');

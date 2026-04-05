@@ -47,17 +47,12 @@ nav {
   padding: 0 2rem; display: flex; align-items: center; height: 56px; gap: 1rem;
 }
 nav .logo { font-weight: 700; font-size: 1.05rem; color: var(--accent); white-space: nowrap; text-decoration: none; }
-.nav-current {
-  font-size: 0.82rem; color: var(--text-dim); white-space: nowrap; overflow: hidden;
-  text-overflow: ellipsis; flex: 1; min-width: 0;
-}
-.nav-current .nc-sep { color: var(--border); margin: 0 0.4rem; }
-.nav-current .nc-page { color: var(--text); font-weight: 600; }
 .nav-menu-btn {
-  background: none; border: 1px solid var(--border); color: var(--text-dim);
+  background: none; border: 1px solid var(--border); color: var(--text);
   cursor: pointer; border-radius: 8px; padding: 0.3rem 0.75rem;
-  font-size: 0.82rem; font-weight: 600; transition: all 0.2s;
+  font-size: 0.85rem; font-weight: 600; transition: all 0.2s;
   display: flex; align-items: center; gap: 0.4rem; flex-shrink: 0;
+  margin-right: auto;
 }
 .nav-menu-btn:hover, .nav-menu-btn.open { border-color: var(--accent); color: var(--text); }
 .nav-menu-btn .nm-arrow { font-size: 0.6rem; transition: transform 0.2s; }
